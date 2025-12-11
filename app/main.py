@@ -1,5 +1,6 @@
 """FastAPI 앱 진입점"""
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from app.models import ChartRequest, ChartResponse
 from app.services.chart import calculate_chart
 from app.utils.geocoding import geocode
@@ -10,6 +11,14 @@ app = FastAPI(
     title="Natal Chart API",
     description="고전점성술 기반 네이탈차트 계산 API",
     version="1.0.0"
+)
+
+# CORS 설정 (프론트엔드에서 호출 허용)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
