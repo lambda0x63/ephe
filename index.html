@@ -5,18 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>東方天宮圖 : Oriental Astrolab</title>
-    <!-- 폰트 및 스타일은 기존과 동일 -->
+
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;700&family=Noto+Sans+KR:wght@300;400;500&family=Jost:wght@300;400;500;700&display=swap"
         rel="stylesheet">
+
     <style>
-        /* ... 이전 스타일 그대로 유지 ... */
         :root {
-            --bg-app: #e0e0e0;
+            --bg-app: #f0f0f0;
+            --chart-bg: #f7f7f5;
             --sidebar-width: 280px;
-            --border-color: #1a1a1a;
-            --terminal-bg: #fff;
-            --accent: #222;
+            --ink-main: #1a1a1a;
+            --elem-fire: #d32f2f;
+            --elem-earth: #388e3c;
+            --elem-air: #f57c00;
+            --elem-water: #1976d2;
         }
 
         * {
@@ -26,103 +29,107 @@
         }
 
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Jost', 'Noto Sans KR', sans-serif;
             background-color: var(--bg-app);
             height: 100vh;
             display: flex;
             overflow: hidden;
+            color: var(--ink-main);
             user-select: none;
         }
 
         aside {
             width: var(--sidebar-width);
-            background: #151515;
-            color: #ccc;
+            background: #111;
+            color: #eee;
             display: flex;
             flex-direction: column;
-            border-right: 4px solid var(--border-color);
+            border-right: 1px solid #000;
             z-index: 100;
             flex-shrink: 0;
         }
 
         .sidebar-header {
-            padding: 30px 24px;
+            padding: 32px 24px;
             border-bottom: 1px solid #333;
-            background: #111;
+            background: #0a0a0a;
         }
 
         .brand-title {
             font-family: 'Noto Serif KR', serif;
-            font-weight: 900;
-            font-size: 24px;
+            font-weight: 300;
+            font-size: 22px;
             color: #fff;
+            letter-spacing: 2px;
         }
 
         .brand-sub {
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Jost', sans-serif;
             font-size: 10px;
-            color: #666;
-            letter-spacing: 1px;
-            margin-top: 4px;
+            color: #888;
+            letter-spacing: 3px;
+            margin-top: 8px;
+            text-transform: uppercase;
         }
 
         .controls-area {
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
         }
 
         .input-label {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 11px;
-            color: #888;
+            font-family: 'Jost', sans-serif;
+            font-size: 10px;
+            color: #666;
             font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .input-field {
-            background: #222;
-            border: 1px solid #444;
+            background: #1a1a1a;
+            border: 1px solid #333;
             height: 40px;
             padding: 0 12px;
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Jost', sans-serif;
             font-size: 13px;
             color: #fff;
             outline: none;
             width: 100%;
-            border-radius: 4px;
+            border-radius: 0;
+            transition: border 0.2s;
         }
 
         .input-field:focus {
             border-color: #fff;
-            background: #333;
         }
 
         .btn-analyze {
             margin-top: 10px;
-            height: 48px;
-            background: #e0e0e0;
+            height: 46px;
+            background: #fff;
             color: #000;
             border: none;
-            font-family: 'Noto Serif KR', serif;
-            font-weight: 900;
-            font-size: 16px;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 0 #000;
-            border-radius: 4px;
+            border-radius: 0;
+            text-transform: uppercase;
         }
 
         .btn-analyze:hover {
-            background: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 #000;
+            background: #e0e0e0;
         }
 
         .main-wrapper {
@@ -135,10 +142,10 @@
 
         .chart-section {
             flex: 1;
-            background: #e5e5e5;
+            background: var(--chart-bg);
             position: relative;
             overflow: hidden;
-            cursor: grab;
+            cursor: crosshair;
         }
 
         .chart-section:active {
@@ -151,8 +158,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: linear-gradient(#ccc 1px, transparent 1px), linear-gradient(90deg, #ccc 1px, transparent 1px);
-            background-size: 40px 40px;
+            background-image: radial-gradient(#ccc 1px, transparent 1px);
+            background-size: 20px 20px;
             pointer-events: none;
         }
 
@@ -166,6 +173,7 @@
 
         svg {
             overflow: visible;
+            shape-rendering: geometricPrecision;
         }
 
         .reset-btn {
@@ -173,31 +181,33 @@
             bottom: 60px;
             right: 20px;
             background: #fff;
-            border: 2px solid #000;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 900;
-            font-family: 'Roboto Mono';
+            border: 1px solid #000;
+            padding: 10px 14px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'Jost', sans-serif;
+            letter-spacing: 1px;
             cursor: pointer;
-            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
             transition: transform 0.1s;
             z-index: 50;
+            text-transform: uppercase;
         }
 
         .reset-btn:active {
             transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
         }
 
         .data-terminal {
             height: 40px;
-            background: var(--terminal-bg);
+            background: #fff;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-top: 4px solid var(--border-color);
+            border-top: 1px solid #000;
             transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
             z-index: 60;
         }
 
@@ -211,28 +221,30 @@
             left: 0;
             width: 100%;
             height: 40px;
-            background: #f4f4f4;
-            border-bottom: 1px solid #ddd;
+            background: #fff;
+            border-bottom: 1px solid #eee;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Roboto Mono';
-            font-weight: 700;
-            font-size: 12px;
-            color: #333;
+            font-family: 'Jost', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+            color: #000;
+            letter-spacing: 2px;
             transition: background 0.2s;
+            text-transform: uppercase;
         }
 
         .panel-handle:hover {
-            background: #e0e0e0;
+            background: #fafafa;
         }
 
         .data-col {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            border-right: 1px solid #ccc;
+            border-right: 1px solid #eee;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
@@ -244,20 +256,18 @@
             pointer-events: auto;
         }
 
-        .data-col:last-child {
-            border-right: none;
-        }
-
         .terminal-header {
-            background: #111;
+            background: #000;
             color: #fff;
-            padding: 8px 20px;
-            font-size: 11px;
-            font-weight: 700;
-            font-family: 'Roboto Mono', monospace;
+            padding: 10px 20px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Jost', sans-serif;
             position: sticky;
             top: 0;
             z-index: 5;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         table {
@@ -266,29 +276,32 @@
         }
 
         th {
-            background: #f9f9f9;
-            border-bottom: 1px solid #ddd;
+            background: #fff;
+            border-bottom: 1px solid #eee;
             text-align: left;
-            padding: 10px 16px;
-            font-size: 11px;
-            color: #888;
+            padding: 12px 20px;
+            font-size: 10px;
+            color: #999;
             position: sticky;
             top: 0;
             z-index: 4;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Jost', sans-serif;
         }
 
         td {
-            border-bottom: 1px solid #eee;
-            padding: 10px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            padding: 12px 20px;
             vertical-align: middle;
         }
 
         tr:hover {
-            background: #f0f0f0;
+            background: #f9f9f9;
         }
 
         tr.active-row {
-            background: #222 !important;
+            background: #000 !important;
             color: #fff;
         }
 
@@ -298,41 +311,42 @@
         }
 
         tr.active-row .p-icon-sm {
-            background: #000;
+            background: #fff;
             border-color: #fff;
-            color: #fff;
+            color: #000;
         }
 
         .cell-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
         .t-kor-main {
             font-family: 'Noto Sans KR', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 500;
+            font-size: 13px;
             color: #222;
+            letter-spacing: -0.5px;
         }
 
         .t-mono {
-            font-family: 'Roboto Mono';
+            font-family: 'Jost', sans-serif;
             font-size: 13px;
-            color: #444;
+            color: #555;
             font-weight: 500;
         }
 
         .p-icon-sm {
-            width: 26px;
-            height: 26px;
-            border: 1px solid #ddd;
+            width: 28px;
+            height: 28px;
+            border: 1px solid #eee;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: "Segoe UI Symbol";
             font-size: 15px;
-            border-radius: 4px;
+            border-radius: 50%;
             background: #fff;
             flex-shrink: 0;
             color: #000;
@@ -342,8 +356,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 24px;
-            border-bottom: 1px solid #eee;
+            padding: 12px 24px;
+            border-bottom: 1px solid #f5f5f5;
             cursor: pointer;
         }
 
@@ -354,11 +368,12 @@
         .asp-obj {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             width: 140px;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 13px;
             color: #222;
+            font-family: 'Jost', sans-serif;
         }
 
         .asp-obj.right {
@@ -368,24 +383,40 @@
 
         .inline-symbol {
             font-family: "Segoe UI Symbol";
-            font-size: 16px;
+            font-size: 14px;
             font-weight: normal;
+            color: #666;
         }
 
         .asp-tag {
-            padding: 4px 10px;
-            background: #f4f4f4;
+            padding: 4px 8px;
+            background: #fff;
             border: 1px solid #ddd;
-            font-size: 11px;
-            font-weight: 700;
-            font-family: 'Roboto Mono';
-            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: 'Jost', sans-serif;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .asp-hard {
-            background: #222;
-            color: #fff;
-            border-color: #000;
+            border-color: #e57373;
+            color: #c62828;
+            background: #ffebee;
+        }
+
+        .asp-soft {
+            border-color: #64b5f6;
+            color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .skeleton {
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            animation: pulse 1.5s infinite ease-in-out;
         }
 
         .planet-group {
@@ -393,69 +424,60 @@
             transition: opacity 0.2s;
         }
 
-        .planet-group:hover circle {
-            fill: #eee;
-            stroke: #b71c1c;
-            stroke-width: 2px;
-        }
-
-        .planet-group.active circle {
-            fill: #222;
-            stroke: #b71c1c;
-            stroke-width: 3px;
+        .planet-group:hover text {
+            fill: #c62828;
         }
 
         .planet-group.active text {
-            fill: #fff;
+            fill: #c62828;
+            font-size: 24px;
+            transition: font-size 0.2s;
+            font-weight: 900;
         }
 
         .planet-glyph {
             font-size: 18px;
-            fill: #000;
-            font-weight: bold;
+            fill: var(--ink-main);
+            font-weight: 700;
             font-family: "Segoe UI Symbol";
             dominant-baseline: central;
             text-anchor: middle;
+            transition: all 0.2s;
         }
 
         .tooltip {
             position: absolute;
             padding: 6px 10px;
-            background: #000;
+            background: #111;
             color: #fff;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 2px;
+            font-size: 11px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.1s;
             z-index: 1000;
-            font-family: 'Noto Sans KR';
+            font-family: 'Jost', sans-serif;
+            letter-spacing: 0.5px;
         }
 
-        text {
-            font-family: 'Noto Sans KR', sans-serif;
-            pointer-events: none;
+        .elem-fire {
+            fill: var(--elem-fire) !important;
         }
 
-        .sign-glyph {
-            font-size: 24px;
-            fill: #000;
-            font-family: "Segoe UI Symbol";
+        .elem-earth {
+            fill: var(--elem-earth) !important;
         }
 
-        .planet-node-bg {
-            fill: #ffffff;
-            stroke: #000000;
-            stroke-width: 1.5px;
+        .elem-air {
+            fill: var(--elem-air) !important;
+        }
+
+        .elem-water {
+            fill: var(--elem-water) !important;
         }
 
         .data-col::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .data-col::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 3px;
+            width: 0px;
         }
     </style>
 </head>
@@ -471,26 +493,26 @@
         </div>
         <form id="input-form" class="controls-area">
             <div class="input-group">
-                <span class="input-label">DATE</span>
+                <span class="input-label">Date</span>
                 <input type="date" id="birth_date" value="1999-01-10" class="input-field">
             </div>
             <div class="input-group">
-                <span class="input-label">TIME</span>
+                <span class="input-label">Time</span>
                 <input type="time" id="birth_time" value="00:31" class="input-field">
             </div>
             <div class="input-group">
-                <span class="input-label">LOCATION</span>
+                <span class="input-label">Location</span>
                 <input type="text" id="place_name" value="Daegu" placeholder="CITY NAME" class="input-field"
                     style="text-transform:uppercase;">
             </div>
-            <button type="submit" class="btn-analyze">分析 (ANALYZE)</button>
+            <button type="submit" class="btn-analyze">Calculate Chart</button>
         </form>
     </aside>
 
     <div class="main-wrapper">
         <section class="chart-section" id="chart-section">
             <div class="chart-bg-pattern"></div>
-            <button class="reset-btn" id="reset-view">⟲ RESET VIEW</button>
+            <button class="reset-btn" id="reset-view">Fit Screen</button>
             <div class="svg-container" id="svg-container">
                 <svg id="chart-svg" width="600" height="600" viewBox="0 0 600 600"></svg>
             </div>
@@ -498,22 +520,25 @@
 
         <section class="data-terminal" id="data-panel">
             <div class="panel-handle" id="panel-toggle">
-                <span id="toggle-icon">▲ OPEN DATA PANEL</span>
+                <span id="toggle-icon">View Data Panel</span>
             </div>
             <div class="data-col">
-                <div class="terminal-header">PLANET (행성)</div>
+                <div class="terminal-header">Planetary Positions</div>
                 <table id="planet-table">
                     <tbody id="planet-tbody">
                         <tr>
-                            <td colspan="4" style="text-align:center; padding:30px; color:#999;">Waiting...</td>
+                            <td colspan="4"
+                                style="text-align:center; padding:40px; color:#aaa; font-size:11px; font-family:'Jost';">
+                                Waiting for Input...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="data-col">
-                <div class="terminal-header">ASPECTS (각도)</div>
+                <div class="terminal-header">Aspect Matrix</div>
                 <div id="aspect-list" style="padding-bottom:20px;">
-                    <div style="text-align:center; padding:30px; color:#999;">Waiting...</div>
+                    <div style="text-align:center; padding:40px; color:#aaa; font-size:11px; font-family:'Jost';">
+                        Waiting for Input...</div>
                 </div>
             </div>
         </section>
@@ -521,52 +546,148 @@
 
     <script>
         const API_URL = 'http://localhost:8000';
-        const CONFIG = { signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'], signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'], radius: { outer: 260, sign: 220, house: 180, inner: 110, planet_base: 150, planet_step: 24 } };
+        const CONFIG = {
+            signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
+            signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'],
+            elements: ['fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water'],
+            radius: { outer: 260, sign: 220, planet_base: 190, planet_step: 20, house: 150, inner: 110 }
+        };
 
         class ChartEngine {
             constructor(svgId) { this.svg = document.getElementById(svgId); this.center = { x: 300, y: 300 }; }
             clear() { this.svg.innerHTML = ''; }
             getSvgPos(radius, zodiacDegree, ascDegree) { const angleDeg = 180 - (zodiacDegree - ascDegree); const rad = angleDeg * (Math.PI / 180); return { x: this.center.x + radius * Math.cos(rad), y: this.center.y + radius * Math.sin(rad) }; }
-            createLine(x1, y1, x2, y2, color, width, dash = '') { return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="square" />`; }
+
+            createLine(x1, y1, x2, y2, color, width, dash = '') { return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="butt" />`; }
             createText(x, y, text, size, color, anchor = "middle", weight = "normal", className = "") { return `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}" dominant-baseline="central" font-weight="${weight}" class="${className}">${text}</text>`; }
             createArcPath(r1, r2, startDeg, endDeg, ascDeg) { const startAngle = (180 - (startDeg - ascDeg)) * (Math.PI / 180); const endAngle = (180 - (endDeg - ascDeg)) * (Math.PI / 180); const x1_o = this.center.x + r1 * Math.cos(startAngle); const y1_o = this.center.y + r1 * Math.sin(startAngle); const x2_o = this.center.x + r1 * Math.cos(endAngle); const y2_o = this.center.y + r1 * Math.sin(endAngle); const x1_i = this.center.x + r2 * Math.cos(startAngle); const y1_i = this.center.y + r2 * Math.sin(startAngle); const x2_i = this.center.x + r2 * Math.cos(endAngle); const y2_i = this.center.y + r2 * Math.sin(endAngle); return `M ${x1_o} ${y1_o} A ${r1} ${r1} 0 0 0 ${x2_o} ${y2_o} L ${x2_i} ${y2_i} A ${r2} ${r2} 0 0 1 ${x1_i} ${y1_i} Z`; }
+
             resolveCollisions(planets) { const sorted = [...planets].filter(p => p.name !== 'Ascendant').sort((a, b) => a.position - b.position); sorted.forEach((p, i) => { p.track = 0; if (i > 0) { const prev = sorted[i - 1]; if (Math.abs(p.position - prev.position) < 9) { if (prev.track === 0) p.track = 1; else if (prev.track === 1) p.track = 2; else p.track = 0; } } }); return sorted; }
 
             render(data) {
                 this.clear();
                 let svgContent = '';
                 const ascAbs = data.planets.find(p => p.name === 'Ascendant')?.position || (CONFIG.signs.indexOf(data.ascendant.sign) * 30 + data.ascendant.degree);
-                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="#fff" stroke="#000" stroke-width="3"/>`;
-                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#999" stroke-width="1"/>`;
+
+                // [프레임] 3중 링
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="#fff" stroke="#000" stroke-width="1.5"/>`;
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.house}" fill="none" stroke="#000" stroke-width="0.8"/>`;
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#ddd" stroke-width="0.8"/>`;
+
+                // [중심] Crosshair
+                svgContent += this.createLine(this.center.x - 8, this.center.y, this.center.x + 8, this.center.y, "#000", 0.5);
+                svgContent += this.createLine(this.center.x, this.center.y - 8, this.center.x, this.center.y + 8, "#000", 0.5);
+
                 for (let i = 0; i < 12; i++) {
-                    const startZ = i * 30; const endZ = (i + 1) * 30; svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#000" stroke-width="1" />`;
-                    const pos = this.getSvgPos((CONFIG.radius.outer + CONFIG.radius.sign) / 2, startZ + 15, ascAbs); svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 24, "#000", "middle", "normal", "sign-glyph");
-                    for (let d = 2; d < 30; d += 2) { const isTen = d % 10 === 0; const len = isTen ? 7 : 3; const t1 = this.getSvgPos(CONFIG.radius.sign, startZ + d, ascAbs); const t2 = this.getSvgPos(CONFIG.radius.sign - len, startZ + d, ascAbs); svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#000", isTen ? 1.2 : 0.5); }
+                    const startZ = i * 30; const endZ = (i + 1) * 30;
+                    svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#000" stroke-width="0.8" />`;
+                    const pSign = this.getSvgPos(CONFIG.radius.sign, startZ, ascAbs);
+                    const pHouse = this.getSvgPos(CONFIG.radius.house, startZ, ascAbs);
+                    svgContent += this.createLine(pSign.x, pSign.y, pHouse.x, pHouse.y, "#e0e0e0", 0.8);
+
+                    const elemClass = `elem-${CONFIG.elements[i]}`;
+                    const pos = this.getSvgPos((CONFIG.radius.outer + CONFIG.radius.sign) / 2, startZ + 15, ascAbs);
+                    svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 20, "", "middle", "normal", `sign-glyph ${elemClass}`);
+
+                    for (let d = 1; d < 30; d++) {
+                        let len = 3; let width = 0.5; let color = "#ccc";
+                        if (d % 10 === 0) { len = 8; width = 1.0; color = "#000"; }
+                        else if (d % 5 === 0) { len = 5; width = 0.8; color = "#666"; }
+                        const t1 = this.getSvgPos(CONFIG.radius.sign, startZ + d, ascAbs);
+                        const t2 = this.getSvgPos(CONFIG.radius.sign - len, startZ + d, ascAbs);
+                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, color, width);
+                    }
                 }
-                data.houses.forEach((h) => { const signIdx = CONFIG.signs.indexOf(h.sign); const cuspZ = signIdx * 30 + h.degree; const p1 = this.getSvgPos(CONFIG.radius.inner, cuspZ, ascAbs); const p2 = this.getSvgPos(CONFIG.radius.sign, cuspZ, ascAbs); const isAngle = [1, 4, 7, 10].includes(h.number); svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#000" : "#999", isAngle ? 2 : 1); const numPos = this.getSvgPos(CONFIG.radius.house, cuspZ + 15, ascAbs); svgContent += this.createText(numPos.x, numPos.y, h.number, 12, "#555", "middle", "bold"); });
-                data.aspects.forEach(asp => { const p1 = data.planets.find(p => p.name === asp.planet1); const p2 = data.planets.find(p => p.name === asp.planet2); if (p1 && p2 && asp.orb < 6) { const xy1 = this.getSvgPos(CONFIG.radius.inner, p1.position, ascAbs); const xy2 = this.getSvgPos(CONFIG.radius.inner, p2.position, ascAbs); let color = "#bbb"; let width = 1; if (["Square", "Opposition"].includes(asp.type)) { color = "#000"; width = 1.8; } svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width); } });
+
+                // Houses (위치 계산 수정됨)
+                data.houses.forEach((h, idx) => {
+                    const signIdx = CONFIG.signs.indexOf(h.sign);
+                    const cuspZ = signIdx * 30 + h.degree;
+
+                    const p1 = this.getSvgPos(CONFIG.radius.inner, cuspZ, ascAbs);
+                    const p2 = this.getSvgPos(CONFIG.radius.house, cuspZ, ascAbs);
+                    const isAngle = [1, 4, 7, 10].includes(h.number);
+                    svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#000" : "#ddd", isAngle ? 1.5 : 0.8);
+
+                    // [수정] 다음 하우스와의 중간 각도 계산
+                    let nextIdx = (idx + 1) % 12;
+                    let nextH = data.houses[nextIdx];
+                    let nextZ = CONFIG.signs.indexOf(nextH.sign) * 30 + nextH.degree;
+
+                    // 12번째 하우스에서 1번째 하우스로 넘어갈 때 (360도 경계 처리)
+                    if (nextZ < cuspZ) nextZ += 360;
+
+                    const midZ = (cuspZ + nextZ) / 2;
+
+                    // [수정] 반지름을 하우스 영역(110~150)의 정중앙(130)으로 설정
+                    const midRadius = (CONFIG.radius.house + CONFIG.radius.inner) / 2;
+                    const numPos = this.getSvgPos(midRadius, midZ, ascAbs);
+
+                    svgContent += this.createText(numPos.x, numPos.y, h.number, 11, "#999", "middle", "bold", "t-mono");
+                });
+
+                // Aspects
+                data.aspects.forEach(asp => {
+                    const p1 = data.planets.find(p => p.name === asp.planet1); const p2 = data.planets.find(p => p.name === asp.planet2);
+                    if (p1 && p2 && asp.orb < 8) {
+                        const xy1 = this.getSvgPos(CONFIG.radius.inner, p1.position, ascAbs); const xy2 = this.getSvgPos(CONFIG.radius.inner, p2.position, ascAbs);
+                        let color = "#ddd"; let width = 0.6;
+                        if (["Square", "Opposition"].includes(asp.type)) { color = "#d32f2f"; width = 0.8; }
+                        else if (["Trine", "Sextile"].includes(asp.type)) { color = "#1976d2"; width = 0.8; }
+                        svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width);
+                    }
+                });
+
                 this.svg.innerHTML = svgContent;
+
+                // Planets
                 const visiblePlanets = this.resolveCollisions(data.planets);
-                visiblePlanets.forEach(p => { let r = CONFIG.radius.planet_base; if (p.track === 1) r -= CONFIG.radius.planet_step; else if (p.track === 2) r += CONFIG.radius.planet_step; const xy = this.getSvgPos(r, p.position, ascAbs); const realPos = this.getSvgPos(CONFIG.radius.sign - 3, p.position, ascAbs); const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "planet-group"); g.setAttribute("data-name", p.name); g.innerHTML += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#999", 1); g.innerHTML += `<circle cx="${xy.x}" cy="${xy.y}" r="16" class="planet-node-bg" />`; g.innerHTML += this.createText(xy.x, xy.y, p.symbol, 18, "#000", "middle", "normal", "planet-glyph"); if (p.retrograde) g.innerHTML += this.createText(xy.x + 11, xy.y - 9, "R", 10, "#b71c1c", "start", "bold"); g.addEventListener('mouseenter', (e) => showTooltip(e, `${p.symbol} ${p.name_ko} (${p.sign_ko})`)); g.addEventListener('mouseleave', hideTooltip); g.addEventListener('click', () => highlightPlanet(p.name)); this.svg.appendChild(g); });
+                visiblePlanets.forEach(p => {
+                    let r = CONFIG.radius.planet_base;
+                    if (p.track === 1) r -= CONFIG.radius.planet_step; else if (p.track === 2) r += CONFIG.radius.planet_step;
+                    const xy = this.getSvgPos(r, p.position, ascAbs);
+                    const realPos = this.getSvgPos(CONFIG.radius.sign - 3, p.position, ascAbs);
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("class", "planet-group"); g.setAttribute("data-name", p.name);
+
+                    g.innerHTML += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#ccc", 0.5, "1,2");
+                    g.innerHTML += `<circle cx="${xy.x}" cy="${xy.y}" r="15" fill="transparent" stroke="none" />`;
+                    g.innerHTML += this.createText(xy.x, xy.y, p.symbol, 16, "#1a1a1a", "middle", "normal", "planet-glyph");
+
+                    if (p.retrograde) g.innerHTML += this.createText(xy.x + 10, xy.y - 8, "R", 8, "#d32f2f", "start", "bold");
+
+                    g.addEventListener('mouseenter', (e) => showTooltip(e, `${p.symbol} ${p.name_ko}`));
+                    g.addEventListener('mouseleave', hideTooltip);
+                    g.addEventListener('click', () => highlightPlanet(p.name));
+                    this.svg.appendChild(g);
+                });
             }
         }
         const engine = new ChartEngine('chart-svg');
 
-        // --- INTERACTION ---
         const chartSection = document.getElementById('chart-section');
         const svgContainer = document.getElementById('svg-container');
         let state = { scale: 1, x: 0, y: 0 };
         const ZOOM_SENSITIVITY = 0.0015;
 
+        // [수정] Fit Screen Logic (화면 꽉 채우기)
         function centerChart() {
             const rect = chartSection.getBoundingClientRect();
-            state.x = (rect.width - 600) / 2;
-            state.y = (rect.height - 600) / 2;
-            state.scale = 1;
+            // 차트 직경(520px) + 여유분 고려하여 화면의 85%까지 확대
+            const fitScale = (Math.min(rect.width, rect.height) / 600) * 0.9;
+
+            state.scale = Math.max(fitScale, 0.4); // 최소 0.4배율 보장
+            state.x = (rect.width - 600 * state.scale) / 2;
+            state.y = (rect.height - 600 * state.scale) / 2;
+
+            // translate3d는 scale 적용 전 좌표 기준이 아니라, 
+            // transform-origin: 0 0 기준이므로 위 계산식 사용
             updateTransform();
         }
         window.addEventListener('resize', centerChart);
-        centerChart(); // 초기 중앙 정렬
+
+        // 초기 로드 시 약간의 딜레이 후 센터링 (레이아웃 잡히는 시간 고려)
+        setTimeout(centerChart, 100);
 
         chartSection.addEventListener('wheel', (e) => {
             e.preventDefault();
@@ -582,8 +703,7 @@
         let isDragging = false; let startX, startY;
         chartSection.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; startY = e.clientY; chartSection.style.cursor = 'grabbing'; });
         window.addEventListener('mousemove', (e) => { if (!isDragging) return; e.preventDefault(); const dx = e.clientX - startX; const dy = e.clientY - startY; state.x += dx; state.y += dy; startX = e.clientX; startY = e.clientY; updateTransform(); });
-        window.addEventListener('mouseup', () => { isDragging = false; chartSection.style.cursor = 'grab'; });
-
+        window.addEventListener('mouseup', () => { isDragging = false; chartSection.style.cursor = 'crosshair'; });
         function updateTransform() { svgContainer.style.transform = `translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale})`; }
         document.getElementById('reset-view').addEventListener('click', centerChart);
 
@@ -591,68 +711,64 @@
         const toggleBtn = document.getElementById('panel-toggle');
         const toggleIcon = document.getElementById('toggle-icon');
         let isExpanded = false;
-        toggleBtn.addEventListener('click', () => { isExpanded = !isExpanded; if (isExpanded) { panel.classList.add('expanded'); toggleIcon.innerText = "▼ CLOSE DATA PANEL"; } else { panel.classList.remove('expanded'); toggleIcon.innerText = "▲ OPEN DATA PANEL"; } });
+        toggleBtn.addEventListener('click', () => { isExpanded = !isExpanded; if (isExpanded) { panel.classList.add('expanded'); toggleIcon.innerText = "CLOSE DATA PANEL"; } else { panel.classList.remove('expanded'); toggleIcon.innerText = "VIEW DATA PANEL"; } });
 
         const tooltip = document.getElementById('tooltip');
         function showTooltip(e, text) { tooltip.innerText = text; tooltip.style.opacity = 1; tooltip.style.left = e.clientX + 'px'; tooltip.style.top = e.clientY - 10 + 'px'; }
         function hideTooltip() { tooltip.style.opacity = 0; }
-
-        // [중요] 자동 핏 제거, 하이라이트만 유지
         function highlightPlanet(planetName) {
-            // Chart Highlight
             document.querySelectorAll('.planet-group').forEach(el => el.classList.remove('active'));
-            const group = document.querySelector(`.planet-group[data-name="${planetName}"]`);
-            if (group) group.classList.add('active');
-
-            // Table Highlight
+            const group = document.querySelector(`.planet-group[data-name="${planetName}"]`); if (group) group.classList.add('active');
             document.querySelectorAll('.active-row').forEach(el => el.classList.remove('active-row'));
             const row = document.getElementById(`row-${planetName}`);
-            if (row) {
-                row.classList.add('active-row');
-                // 패널이 열려 있을 때만 스크롤
-                if (isExpanded) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (row) { row.classList.add('active-row'); if (isExpanded) row.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
         }
+        function onListClick(planetName) { highlightPlanet(planetName); }
 
-        // 리스트 클릭 이벤트 (이제 차트 리셋을 하지 않음)
-        function onListClick(planetName) {
-            highlightPlanet(planetName);
+        function renderSkeleton() {
+            const tbody = document.getElementById('planet-tbody');
+            const aspList = document.getElementById('aspect-list');
+            let skelRows = ''; for (let i = 0; i < 5; i++) { skelRows += `<tr><td><div class="skeleton" style="width:80%;"></div></td><td><div class="skeleton" style="width:60%;"></div></td><td><div class="skeleton" style="width:90%;"></div></td><td><div class="skeleton" style="width:30%;"></div></td></tr>`; }
+            tbody.innerHTML = skelRows;
+            let skelAsps = ''; for (let i = 0; i < 4; i++) { skelAsps += `<div class="asp-item"><div class="skeleton" style="width:30%;"></div><div class="skeleton" style="width:20%;"></div><div class="skeleton" style="width:30%;"></div></div>`; }
+            aspList.innerHTML = skelAsps;
         }
 
         document.getElementById('input-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const inputPlace = document.getElementById('place_name').value || "UNKNOWN";
-            btn.textContent = "Analyzing..."; btn.disabled = true;
+            btn.textContent = "Processing..."; btn.disabled = true;
+            renderSkeleton();
+
             try {
                 const res = await fetch(`${API_URL}/api/v1/natal-chart`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ birth_date: document.getElementById('birth_date').value, birth_time: document.getElementById('birth_time').value + ":00", place_name: inputPlace }) });
                 if (!res.ok) throw new Error("Server Error");
                 const data = await res.json();
 
-                centerChart(); // 초기 로드 시에는 리셋 (당연함)
+                centerChart();
                 engine.render(data);
 
                 const getSymbol = (name) => { const p = data.planets.find(pl => pl.name === name); return p ? p.symbol : ''; };
                 const tbody = document.getElementById('planet-tbody'); tbody.innerHTML = '';
                 const ascSignIdx = CONFIG.signs.indexOf(data.ascendant.sign);
-                tbody.innerHTML += `<tr><td><div class="cell-group"><span class="t-kor-main">상승궁 (Asc)</span></div></td><td><div class="cell-group"><div class="p-icon-sm">${CONFIG.signSymbols[ascSignIdx]}</div><div class="t-kor-main">${data.ascendant.sign_ko}</div></div></td><td class="t-mono">${data.ascendant.degree_formatted}</td><td class="t-mono">1</td></tr>`;
-
+                tbody.innerHTML += `<tr><td><div class="cell-group"><span class="t-kor-main">Ascendant</span></div></td><td><div class="cell-group"><div class="p-icon-sm">${CONFIG.signSymbols[ascSignIdx]}</div><div class="t-kor-main">${data.ascendant.sign}</div></div></td><td class="t-mono">${data.ascendant.degree_formatted}</td><td class="t-mono">1</td></tr>`;
                 data.planets.forEach(p => {
                     const signIdx = CONFIG.signs.indexOf(p.sign);
-                    // onclick -> highlightPlanet만 호출
-                    tbody.innerHTML += `<tr id="row-${p.name}" onclick="onListClick('${p.name}')"><td><div class="cell-group"><div class="p-icon-sm" style="border-radius:50%;">${p.symbol}</div><div class="t-kor-main">${p.name_ko}</div></div></td><td><div class="cell-group"><div class="p-icon-sm" style="border:none;">${CONFIG.signSymbols[signIdx]}</div><div class="t-kor-main">${p.sign_ko}</div></div></td><td class="t-mono">${p.degree_formatted} ${p.retrograde ? '<span style="color:#b71c1c; font-weight:900;">R</span>' : ''}</td><td class="t-mono">${p.house}</td></tr>`;
+                    tbody.innerHTML += `<tr id="row-${p.name}" onclick="onListClick('${p.name}')"><td><div class="cell-group"><div class="p-icon-sm" style="border-radius:50%;">${p.symbol}</div><div class="t-kor-main">${p.name}</div></div></td><td><div class="cell-group"><div class="p-icon-sm" style="border:none;">${CONFIG.signSymbols[signIdx]}</div><div class="t-kor-main">${p.sign}</div></div></td><td class="t-mono">${p.degree_formatted} ${p.retrograde ? '<span style="color:#b71c1c; font-weight:900;">R</span>' : ''}</td><td class="t-mono">${p.house}</td></tr>`;
                 });
 
                 const aspectList = document.getElementById('aspect-list'); const majors = data.aspects.filter(a => a.orb < 6);
-                if (majors.length === 0) aspectList.innerHTML = "<div style='padding:30px; text-align:center; color:#999;'>No Major Aspects</div>";
+                if (majors.length === 0) aspectList.innerHTML = "<div style='padding:30px; text-align:center; color:#999; font-family:Jost; font-size:11px;'>NO MAJOR ASPECTS DETECTED</div>";
                 else {
                     aspectList.innerHTML = majors.map(a => {
-                        let tagClass = ''; if (["Square", "Opposition"].includes(a.type)) tagClass = 'asp-hard'; const s1 = getSymbol(a.planet1); const s2 = getSymbol(a.planet2);
-                        return `<div class="asp-item" onclick="onListClick('${a.planet1}')"><div class="asp-obj"><span class="inline-symbol">${s1}</span>${a.planet1_ko}</div><div class="asp-tag ${tagClass}">${a.type}</div><div class="asp-obj right"><span class="inline-symbol">${s2}</span>${a.planet2_ko}</div></div>`;
+                        let tagClass = 'asp-soft'; if (["Square", "Opposition"].includes(a.type)) tagClass = 'asp-hard';
+                        const s1 = getSymbol(a.planet1); const s2 = getSymbol(a.planet2);
+                        return `<div class="asp-item" onclick="onListClick('${a.planet1}')"><div class="asp-obj"><span class="inline-symbol">${s1}</span>${a.planet1}</div><div class="asp-tag ${tagClass}">${a.type}</div><div class="asp-obj right"><span class="inline-symbol">${s2}</span>${a.planet2}</div></div>`;
                     }).join('');
                 }
 
-            } catch (err) { alert("Error: " + err.message); } finally { btn.textContent = "分析 (ANALYZE)"; btn.disabled = false; }
+            } catch (err) { alert("Error: " + err.message); } finally { btn.textContent = "CALCULATE CHART"; btn.disabled = false; }
         });
     </script>
 </body>
