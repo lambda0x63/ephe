@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natal Chart Analytics</title>
+    <style>
+        :root {
+            --bg-body: #f5f7fa;
+            --bg-panel: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --border: #e1e4e8;
+            --accent: #34495e;
+            --highlight: #3498db;
+            --danger: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 헤더: 깔끔하고 정돈된 스타일 */
+        header {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand span {
+            font-weight: 400;
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        input {
+            padding: 6px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #495057;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--highlight);
+        }
+
+        button {
+            padding: 6px 18px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #2c3e50;
+        }
+
+        /* 메인 레이아웃 */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            /* 우측 패널 고정 */
+            overflow: hidden;
+        }
+
+        /* 좌측 차트 영역 */
+        .chart-container {
+            position: relative;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .chart-meta-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .chart-meta-box strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 750px;
+            max-height: 85vh;
+        }
+
+        /* 우측 데이터 패널 */
+        .data-panel {
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            padding: 0 0 20px 0;
+        }
+
+        .section-title {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-section:first-child .section-title {
+            border-top: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 11px;
+            color: var(--text-sub);
+            border-bottom: 1px solid var(--border);
+            background: #fff;
+        }
+
+        td {
+            padding: 8px 16px;
+            border-bottom: 1px solid #f1f3f5;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        .col-planet {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .name-en {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .name-ko {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 1px;
+        }
+
+        .symbol-icon {
+            font-family: "Segoe UI Symbol", "Apple Symbols", sans-serif;
+            font-size: 16px;
+            margin-right: 6px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .degree-text {
+            font-family: "Roboto Mono", monospace;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .retro-tag {
+            color: var(--danger);
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        /* Aspect List Style */
+        .aspect-list {
+            padding: 0;
+        }
+
+        .aspect-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 20px;
+            border-bottom: 1px solid #f1f3f5;
+            font-size: 13px;
+        }
+
+        .aspect-item:last-child {
+            border-bottom: none;
+        }
+
+        .asp-obj {
+            width: 80px;
+            font-weight: 500;
+        }
+
+        .asp-type {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            padding: 2px 0;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .type-Hard {
+            color: #c0392b;
+            background: #f9ebea;
+        }
+
+        .type-Soft {
+            color: #2980b9;
+            background: #eaf2f8;
+        }
+
+        .type-Conj {
+            color: #d35400;
+            background: #fbeee6;
+        }
+
+        .asp-orb {
+            font-family: monospace;
+            color: #999;
+            font-size: 11px;
+            width: 40px;
+            text-align: right;
+        }
+
+        /* SVG Styles */
+        text {
+            font-family: -apple-system, sans-serif;
+            pointer-events: none;
+        }
+
+        .sign-glyph {
+            font-size: 20px;
+            fill: #2c3e50;
+            font-family: "Segoe UI Symbol";
+        }
+
+        .planet-glyph {
+            font-size: 18px;
+            fill: #2c3e50;
+            font-weight: bold;
+            font-family: "Segoe UI Symbol";
+        }
+
+        .angle-text {
+            font-size: 11px;
+            font-weight: 700;
+            fill: #2c3e50;
+        }
+
+        .house-idx {
+            font-size: 10px;
+            fill: #95a5a6;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                height: auto;
+                flex-direction: column;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .controls {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .controls input {
+                flex: 1;
+            }
+
+            main {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+
+            .chart-container {
+                min-height: 400px;
+                padding: 20px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            svg {
+                max-height: 400px;
+            }
+
+            .data-panel {
+                border-left: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            Natal Analysis <span>Ver 1.0</span>
+        </div>
+        <form id="input-form" class="controls">
+            <input type="date" id="birth_date" value="1999-01-10">
+            <input type="time" id="birth_time" value="00:31">
+            <input type="text" id="place_name" value="Daegu" placeholder="City">
+            <button type="submit">차트 생성</button>
+        </form>
+    </header>
+
+    <main>
+        <!-- 차트 영역 -->
+        <section class="chart-container">
+            <div class="chart-meta-box" id="chart-meta">
+                <strong>No Data</strong>
+                <span>생년월일과 시간을 입력하여<br>분석을 시작하세요.</span>
+            </div>
+            <svg id="chart-svg" viewBox="0 0 600 600"></svg>
+        </section>
+
+        <!-- 데이터 패널 -->
+        <section class="data-panel">
+
+            <div class="panel-section">
+                <div class="section-title">Planetary Positions (행성 위치)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="35%">Planet</th>
+                            <th width="35%">Sign</th>
+                            <th width="20%">Deg</th>
+                            <th width="10%">H</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planet-table-body">
+                        <!-- JS Insert -->
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:20px; color:#ccc;">데이터 없음</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel-section">
+                <div class="section-title">Aspects (주요 각도)</div>
+                <div id="aspect-list" class="aspect-list">
+                    <div style="text-align:center; padding:20px; color:#ccc; font-size:13px;">데이터 없음</div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        const CONFIG = {
+            signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
+            signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'],
+            radius: {
+                outer: 260,  // 전체 크기 살짝 줄임 (여백 확보)
+                sign: 220,
+                house: 180,
+                inner: 110,
+                planet_base: 150,
+                planet_step: 18 // 간격 조정
+            }
+        };
+
+        class ChartEngine {
+            constructor(svgId) {
+                this.svg = document.getElementById(svgId);
+                this.center = { x: 300, y: 300 };
+            }
+
+            clear() { this.svg.innerHTML = ''; }
+
+            getSvgPos(radius, zodiacDegree, ascDegree) {
+                const angleDeg = 180 - (zodiacDegree - ascDegree);
+                const rad = angleDeg * (Math.PI / 180);
+                return {
+                    x: this.center.x + radius * Math.cos(rad),
+                    y: this.center.y + radius * Math.sin(rad)
+                };
+            }
+
+            getSvgAngle(zodiacDegree, ascDegree) {
+                return (180 - (zodiacDegree - ascDegree)) * (Math.PI / 180);
+            }
+
+            createLine(x1, y1, x2, y2, color, width, dash = '') {
+                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="round" />`;
+            }
+
+            createText(x, y, text, size, color, anchor = "middle", weight = "normal", className = "") {
+                return `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}" dominant-baseline="central" font-weight="${weight}" class="${className}">${text}</text>`;
+            }
+
+            createArcPath(r1, r2, startDeg, endDeg, ascDeg) {
+                const startAngle = this.getSvgAngle(startDeg, ascDeg);
+                const endAngle = this.getSvgAngle(endDeg, ascDeg);
+                const x1_o = this.center.x + r1 * Math.cos(startAngle);
+                const y1_o = this.center.y + r1 * Math.sin(startAngle);
+                const x2_o = this.center.x + r1 * Math.cos(endAngle);
+                const y2_o = this.center.y + r1 * Math.sin(endAngle);
+                const x1_i = this.center.x + r2 * Math.cos(startAngle);
+                const y1_i = this.center.y + r2 * Math.sin(startAngle);
+                const x2_i = this.center.x + r2 * Math.cos(endAngle);
+                const y2_i = this.center.y + r2 * Math.sin(endAngle);
+                return `M ${x1_o} ${y1_o} A ${r1} ${r1} 0 0 0 ${x2_o} ${y2_o} L ${x2_i} ${y2_i} A ${r2} ${r2} 0 0 1 ${x1_i} ${y1_i} Z`;
+            }
+
+            // 행성 겹침 해결 (Staggering)
+            resolveCollisions(planets) {
+                const sorted = [...planets].filter(p => p.name !== 'Ascendant').sort((a, b) => a.position - b.position);
+                sorted.forEach((p, i) => {
+                    p.track = 0;
+                    if (i > 0) {
+                        const prev = sorted[i - 1];
+                        const diff = Math.abs(p.position - prev.position);
+                        if (diff < 8) { // 8도 이내 겹침 시 트랙 변경
+                            if (prev.track === 0) p.track = 1;      // 안쪽
+                            else if (prev.track === 1) p.track = 2; // 바깥쪽
+                            else p.track = 0;
+                        }
+                    }
+                });
+                return sorted;
+            }
+
+            render(data) {
+                this.clear();
+                let svgContent = '';
+                const ascAbs = data.planets.find(p => p.name === 'Ascendant')?.position ||
+                    (CONFIG.signs.indexOf(data.ascendant.sign) * 30 + data.ascendant.degree);
+
+                // 1. 차트 기본 원 (부드러운 색상)
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="none" stroke="#2c3e50" stroke-width="1.5"/>`;
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#e1e4e8" stroke-width="1"/>`;
+
+                // 2. 조디악 링 (12 Sign)
+                for (let i = 0; i < 12; i++) {
+                    const startZ = i * 30;
+                    const endZ = (i + 1) * 30;
+
+                    // 구획선
+                    svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#bdc3c7" stroke-width="0.5" />`;
+
+                    // Sign Symbol
+                    const midZ = startZ + 15;
+                    const pos = this.getSvgPos((CONFIG.radius.outer + CONFIG.radius.sign) / 2, midZ, ascAbs);
+                    svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 20, "#34495e", "middle", "normal", "sign-glyph");
+
+                    // 5도 단위 틱
+                    for (let d = 5; d < 30; d += 5) {
+                        const t1 = this.getSvgPos(CONFIG.radius.sign, startZ + d, ascAbs);
+                        const t2 = this.getSvgPos(CONFIG.radius.sign - 4, startZ + d, ascAbs);
+                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#bdc3c7", 1);
+                    }
+                }
+
+                // 3. 하우스 (House Lines)
+                data.houses.forEach((h) => {
+                    const signIdx = CONFIG.signs.indexOf(h.sign);
+                    const cuspZ = signIdx * 30 + h.degree;
+
+                    const p1 = this.getSvgPos(CONFIG.radius.inner, cuspZ, ascAbs);
+                    const p2 = this.getSvgPos(CONFIG.radius.sign, cuspZ, ascAbs);
+
+                    const isAngle = [1, 4, 7, 10].includes(h.number);
+                    // 앵글 하우스는 진하게, 나머지는 연하게
+                    svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#2c3e50" : "#dce1e6", isAngle ? 1.5 : 1);
+
+                    // 하우스 번호
+                    const midZ = cuspZ + 15;
+                    const numPos = this.getSvgPos(CONFIG.radius.house, midZ, ascAbs);
+                    svgContent += this.createText(numPos.x, numPos.y, h.number, 10, "#95a5a6", "middle", "normal", "house-idx");
+                });
+
+                // 4. 애스펙트 (Aspect Lines)
+                data.aspects.forEach(asp => {
+                    const p1 = data.planets.find(p => p.name === asp.planet1);
+                    const p2 = data.planets.find(p => p.name === asp.planet2);
+                    if (p1 && p2 && asp.orb < 6) {
+                        const xy1 = this.getSvgPos(CONFIG.radius.inner, p1.position, ascAbs);
+                        const xy2 = this.getSvgPos(CONFIG.radius.inner, p2.position, ascAbs);
+
+                        let color = "#bdc3c7"; // 기본 (Soft)
+                        let width = 0.8;
+                        // Hard Aspect 강조
+                        if (["Square", "Opposition"].includes(asp.type)) {
+                            color = "rgba(192, 57, 43, 0.4)";
+                            width = 1.2;
+                        } else if (["Trine", "Sextile"].includes(asp.type)) {
+                            color = "rgba(41, 128, 185, 0.3)";
+                        }
+
+                        svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width);
+                    }
+                });
+
+                // 5. 행성 (Planets) - 충돌 방지 적용
+                const visiblePlanets = this.resolveCollisions(data.planets);
+
+                visiblePlanets.forEach(p => {
+                    // 트랙 계산: 0(기본), 1(안쪽), 2(바깥쪽)
+                    let r = CONFIG.radius.planet_base;
+                    if (p.track === 1) r -= CONFIG.radius.planet_step;
+                    else if (p.track === 2) r += CONFIG.radius.planet_step;
+
+                    const xy = this.getSvgPos(r, p.position, ascAbs);
+                    const realPos = this.getSvgPos(CONFIG.radius.sign - 3, p.position, ascAbs);
+
+                    // 지시선 (가볍게 점선)
+                    svgContent += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#d1d8dd", 1, "2,2");
+
+                    // 행성 배경 원 (라인 가리기용)
+                    svgContent += `<circle cx="${xy.x}" cy="${xy.y}" r="12" fill="white" stroke="none"/>`;
+
+                    // 행성 심볼
+                    svgContent += this.createText(xy.x, xy.y + 1, p.symbol, 18, "#2c3e50", "middle", "normal", "planet-glyph");
+
+                    // 역행 표시 (Rx)
+                    if (p.retrograde) {
+                        svgContent += this.createText(xy.x + 9, xy.y - 7, "Rx", 9, "#e74c3c", "start", "bold");
+                    }
+                });
+
+                // 6. 앵글 텍스트 (ASC/MC)
+                const ascP = this.getSvgPos(CONFIG.radius.outer + 12, ascAbs, ascAbs);
+                svgContent += this.createText(ascP.x, ascP.y, "ASC", 11, "#2c3e50", "middle", "bold", "angle-text");
+
+                const mcHouse = data.houses.find(h => h.number === 10);
+                if (mcHouse) {
+                    const mcZ = CONFIG.signs.indexOf(mcHouse.sign) * 30 + mcHouse.degree;
+                    const mcP = this.getSvgPos(CONFIG.radius.outer + 12, mcZ, ascAbs);
+                    svgContent += this.createText(mcP.x, mcP.y, "MC", 11, "#2c3e50", "middle", "bold", "angle-text");
+                }
+
+                this.svg.innerHTML = svgContent;
+            }
+        }
+
+        const engine = new ChartEngine('chart-svg');
+
+        // Form Submission
+        document.getElementById('input-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalTxt = btn.textContent;
+            btn.textContent = "계산 중...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/api/v1/natal-chart`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        birth_date: document.getElementById('birth_date').value,
+                        birth_time: document.getElementById('birth_time').value + ":00",
+                        place_name: document.getElementById('place_name').value
+                    })
+                });
+
+                if (!res.ok) throw new Error("API 연결 실패");
+                const data = await res.json();
+
+                // 1. 차트 렌더링
+                engine.render(data);
+
+                // 2. 메타 박스 업데이트 (한글 병기)
+                const metaBox = document.getElementById('chart-meta');
+                metaBox.innerHTML = `
+                    <strong>${data.input.place_name}</strong>
+                    <span>${data.input.birth_date} ${data.input.birth_time.substr(0, 5)}</span><br>
+                    <span style="color:#7f8c8d; font-size:11px;">Lat: ${data.input.latitude.toFixed(2)} / Lon: ${data.input.longitude.toFixed(2)}</span>
+                `;
+
+                // 3. 테이블 업데이트 (한글/영문 병기)
+                const tbody = document.getElementById('planet-table-body');
+                tbody.innerHTML = '';
+
+                // ASC Row
+                const ascSignIdx = CONFIG.signs.indexOf(data.ascendant.sign);
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="col-planet">
+                                <span class="name-en">Ascendant</span>
+                                <span class="name-ko">상승궁</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="symbol-icon">${CONFIG.signSymbols[ascSignIdx]}</span>
+                            <span class="name-en">${data.ascendant.sign}</span>
+                            <div class="name-ko">${data.ascendant.sign_ko}</div>
+                        </td>
+                        <td class="degree-text">${data.ascendant.degree_formatted}</td>
+                        <td style="color:#7f8c8d">1</td>
+                    </tr>`;
+
+                // Planet Rows
+                data.planets.forEach(p => {
+                    const signIdx = CONFIG.signs.indexOf(p.sign);
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <div class="col-planet">
+                                    <div style="display:flex; align-items:center;">
+                                        <span class="symbol-icon" style="color:#2c3e50">${p.symbol}</span>
+                                        <span class="name-en">${p.name}</span>
+                                    </div>
+                                    <span class="name-ko" style="padding-left:22px;">${p.name_ko}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center;">
+                                    <span class="symbol-icon" style="font-size:14px; color:#555;">${CONFIG.signSymbols[signIdx]}</span>
+                                    <span class="name-en" style="font-weight:400;">${p.sign}</span>
+                                </div>
+                                <div class="name-ko" style="padding-left:20px;">${p.sign_ko}</div>
+                            </td>
+                            <td class="degree-text">
+                                ${p.degree_formatted}
+                                ${p.retrograde ? '<span class="retro-tag">Rx</span>' : ''}
+                            </td>
+                            <td style="color:#555">${p.house}</td>
+                        </tr>`;
+                });
+
+                // 4. 애스펙트 리스트 (한글 병기)
+                const aspectDiv = document.getElementById('aspect-list');
+                const majors = data.aspects.filter(a => a.orb < 6);
+
+                if (majors.length === 0) aspectDiv.innerHTML = "<div style='padding:15px; text-align:center; color:#999; font-size:12px;'>주요 각도 없음</div>";
+                else {
+                    aspectDiv.innerHTML = majors.map(a => {
+                        let typeClass = 'type-Soft';
+                        if (["Square", "Opposition"].includes(a.type)) typeClass = 'type-Hard';
+                        if (a.type === "Conjunction") typeClass = 'type-Conj';
+
+                        return `
+                        <div class="aspect-item">
+                            <div class="asp-obj">
+                                <div>${a.planet1}</div>
+                                <div style="font-size:10px; color:#999;">${a.planet1_ko}</div>
+                            </div>
+                            <div class="asp-type ${typeClass}">
+                                ${a.type}
+                                <div style="font-weight:normal; font-size:10px; margin-top:1px;">${a.type_ko}</div>
+                            </div>
+                            <div class="asp-obj" style="text-align:right;">
+                                <div>${a.planet2}</div>
+                                <div style="font-size:10px; color:#999;">${a.planet2_ko}</div>
+                            </div>
+                            <div class="asp-orb">${a.orb.toFixed(1)}°</div>
+                        </div>`;
+                    }).join('');
+                }
+
+            } catch (err) {
+                alert("오류 발생: " + err.message);
+            } finally {
+                btn.textContent = originalTxt;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
