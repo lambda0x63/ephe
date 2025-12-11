@@ -4,17 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natal Chart Analytics</title>
+    <title>Natal Chart Analytics [PRO]</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;700;900&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --bg-body: #f5f7fa;
+            --bg-app: #e0e0e0;
             --bg-panel: #ffffff;
-            --text-main: #2c3e50;
-            --text-sub: #7f8c8d;
-            --border: #e1e4e8;
-            --accent: #34495e;
-            --highlight: #3498db;
-            --danger: #e74c3c;
+            --border-strong: #000000;
+            --text-main: #000000;
+            --text-sub: #555555;
+            --accent: #000000;
+            --danger: #d32f2f;
         }
 
         * {
@@ -24,8 +26,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-body);
+            font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-app);
             color: var(--text-main);
             height: 100vh;
             display: flex;
@@ -33,329 +35,297 @@
             overflow: hidden;
         }
 
-        /* 헤더: 깔끔하고 정돈된 스타일 */
+        /* 1. 상단 컨트롤 패널 */
         header {
-            background: var(--bg-panel);
-            border-bottom: 1px solid var(--border);
-            padding: 0 24px;
-            height: 60px;
+            background: #222;
+            color: #fff;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            padding: 0 24px;
             flex-shrink: 0;
-            z-index: 10;
+            border-bottom: 3px solid #000;
         }
 
-        .brand {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--accent);
+        .app-title {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .brand span {
-            font-weight: 400;
-            color: var(--text-sub);
-            font-size: 13px;
+        .app-title span {
+            background: #fff;
+            color: #000;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .controls {
             display: flex;
-            gap: 8px;
-        }
-
-        input {
-            padding: 6px 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #495057;
+            gap: 0;
             background: #fff;
-            transition: border-color 0.2s;
+            border: 1px solid #000;
         }
 
-        input:focus {
+        .controls input {
+            padding: 8px 12px;
+            border: none;
+            border-right: 1px solid #000;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            color: #000;
             outline: none;
-            border-color: var(--highlight);
+            height: 40px;
+            border-radius: 0;
+            /* 브라우저 기본 스타일 제거 */
         }
 
-        button {
-            padding: 6px 18px;
-            background: var(--accent);
+        .controls input:focus {
+            background: #f0f8ff;
+        }
+
+        .controls button {
+            padding: 0 24px;
+            background: #000;
             color: #fff;
             border: none;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: background 0.2s;
+            height: 40px;
         }
 
-        button:hover {
-            background: #2c3e50;
+        .controls button:hover {
+            background: #444;
         }
 
-        /* 메인 레이아웃 */
+        /* 2. 메인 워크스페이스 */
         main {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 380px;
-            /* 우측 패널 고정 */
+            grid-template-columns: 1fr 450px;
+            height: calc(100vh - 64px);
+        }
+
+        /* 좌측: 차트 캔버스 */
+        .canvas-area {
+            background: #dcdcdc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+            border-right: 2px solid #000;
             overflow: hidden;
         }
 
-        /* 좌측 차트 영역 */
-        .chart-container {
-            position: relative;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .chart-meta-box {
+        .chart-overlay-info {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            font-size: 12px;
-            line-height: 1.6;
-            color: var(--text-main);
-        }
-
-        .chart-meta-box strong {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 4px;
-            color: var(--accent);
+            background: #fff;
+            border: 2px solid #000;
+            padding: 15px;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            z-index: 10;
         }
 
         svg {
             width: 100%;
             height: 100%;
-            max-width: 750px;
-            max-height: 85vh;
+            max-height: 90vh;
+            filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.1));
         }
 
-        /* 우측 데이터 패널 */
+        /* 우측: 데이터 그리드 */
         .data-panel {
-            background: var(--bg-panel);
-            border-left: 1px solid var(--border);
+            background: #fff;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
         }
 
-        .panel-section {
-            padding: 0 0 20px 0;
-        }
-
-        .section-title {
-            padding: 12px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid var(--border);
-            border-top: 1px solid var(--border);
-            font-size: 12px;
+        .panel-header {
+            background: #000;
+            color: #fff;
+            padding: 12px 16px;
             font-weight: 700;
-            color: var(--text-sub);
             text-transform: uppercase;
+            font-size: 14px;
             letter-spacing: 0.5px;
-        }
-
-        .panel-section:first-child .section-title {
-            border-top: none;
+            border-bottom: 1px solid #000;
+            position: sticky;
+            top: 0;
+            z-index: 5;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         th {
+            background: #f0f0f0;
+            border-bottom: 2px solid #000;
+            border-right: 1px solid #ccc;
+            padding: 10px;
             text-align: left;
-            padding: 10px 16px;
-            font-size: 11px;
-            color: var(--text-sub);
-            border-bottom: 1px solid var(--border);
-            background: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
         }
 
         td {
-            padding: 8px 16px;
-            border-bottom: 1px solid #f1f3f5;
+            border-bottom: 1px solid #ccc;
+            border-right: 1px solid #eee;
+            padding: 10px 12px;
             vertical-align: middle;
         }
 
-        tr:nth-child(even) {
-            background-color: #fafbfc;
+        tr:hover td {
+            background: #f9f9f9;
         }
 
-        .col-planet {
-            display: flex;
-            flex-direction: column;
+        .data-primary {
+            font-weight: 700;
+            font-size: 15px;
+            display: block;
         }
 
-        .name-en {
-            font-weight: 600;
+        .data-secondary {
             font-size: 13px;
-            color: var(--text-main);
-        }
-
-        .name-ko {
-            font-size: 11px;
-            color: var(--text-sub);
-            margin-top: 1px;
-        }
-
-        .symbol-icon {
-            font-family: "Segoe UI Symbol", "Apple Symbols", sans-serif;
-            font-size: 16px;
-            margin-right: 6px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .degree-text {
-            font-family: "Roboto Mono", monospace;
             color: #555;
-            font-size: 12px;
+            font-family: 'Noto Sans KR', sans-serif;
+            display: block;
+            margin-top: 2px;
         }
 
-        .retro-tag {
-            color: var(--danger);
-            font-size: 10px;
+        .data-mono {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .symbol-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1px solid #000;
+            margin-right: 8px;
+            background: #fff;
+            font-family: "Segoe UI Symbol";
+            font-size: 16px;
             font-weight: bold;
+        }
+
+        .aspect-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .aspect-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .asp-label {
+            font-weight: 700;
+        }
+
+        .asp-sub {
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
             margin-left: 4px;
         }
 
-        /* Aspect List Style */
-        .aspect-list {
-            padding: 0;
-        }
-
-        .aspect-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 20px;
-            border-bottom: 1px solid #f1f3f5;
-            font-size: 13px;
-        }
-
-        .aspect-item:last-child {
-            border-bottom: none;
-        }
-
-        .asp-obj {
-            width: 80px;
-            font-weight: 500;
-        }
-
-        .asp-type {
-            flex: 1;
+        .asp-tag {
             text-align: center;
-            font-size: 11px;
-            padding: 2px 0;
-            border-radius: 4px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 0;
+            border: 1px solid #ccc;
+            background: #f8f8f8;
+            text-transform: uppercase;
         }
 
-        .type-Hard {
-            color: #c0392b;
-            background: #f9ebea;
+        .asp-hard {
+            border-color: #000;
+            background: #333;
+            color: #fff;
         }
 
-        .type-Soft {
-            color: #2980b9;
-            background: #eaf2f8;
-        }
-
-        .type-Conj {
-            color: #d35400;
-            background: #fbeee6;
-        }
-
-        .asp-orb {
-            font-family: monospace;
-            color: #999;
-            font-size: 11px;
-            width: 40px;
-            text-align: right;
+        .asp-soft {
+            border-color: #999;
+            color: #333;
         }
 
         /* SVG Styles */
         text {
-            font-family: -apple-system, sans-serif;
+            font-family: 'Roboto', sans-serif;
             pointer-events: none;
         }
 
         .sign-glyph {
-            font-size: 20px;
-            fill: #2c3e50;
+            font-size: 24px;
+            fill: #000;
             font-family: "Segoe UI Symbol";
+            font-weight: normal;
+        }
+
+        .planet-node-bg {
+            fill: #ffffff;
+            stroke: #000000;
+            stroke-width: 1.5px;
         }
 
         .planet-glyph {
-            font-size: 18px;
-            fill: #2c3e50;
+            font-size: 20px;
+            fill: #000;
             font-weight: bold;
             font-family: "Segoe UI Symbol";
         }
 
-        .angle-text {
-            font-size: 11px;
+        .house-num {
+            font-size: 12px;
             font-weight: 700;
-            fill: #2c3e50;
+            fill: #666;
         }
 
-        .house-idx {
-            font-size: 10px;
-            fill: #95a5a6;
-        }
-
-        @media (max-width: 900px) {
-            header {
-                height: auto;
-                flex-direction: column;
-                padding: 15px;
-                gap: 10px;
-            }
-
-            .controls {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .controls input {
-                flex: 1;
-            }
-
+        @media (max-width: 1000px) {
             main {
                 grid-template-columns: 1fr;
-                overflow-y: auto;
+                overflow-y: scroll;
             }
 
-            .chart-container {
-                min-height: 400px;
-                padding: 20px;
-                border-bottom: 1px solid var(--border);
-            }
-
-            svg {
-                max-height: 400px;
+            .canvas-area {
+                min-height: 500px;
+                border-right: none;
+                border-bottom: 2px solid #000;
             }
 
             .data-panel {
-                border-left: none;
+                height: auto;
             }
         }
     </style>
@@ -364,23 +334,23 @@
 <body>
 
     <header>
-        <div class="brand">
-            Natal Analysis <span>Ver 1.0</span>
+        <div class="app-title">
+            NATAL CHART <span>ANALYST</span>
         </div>
         <form id="input-form" class="controls">
             <input type="date" id="birth_date" value="1999-01-10">
             <input type="time" id="birth_time" value="00:31">
-            <input type="text" id="place_name" value="Daegu" placeholder="City">
-            <button type="submit">차트 생성</button>
+            <input type="text" id="place_name" value="Daegu" placeholder="LOCATION">
+            <button type="submit">GENERATE</button>
         </form>
     </header>
 
     <main>
         <!-- 차트 영역 -->
-        <section class="chart-container">
-            <div class="chart-meta-box" id="chart-meta">
-                <strong>No Data</strong>
-                <span>생년월일과 시간을 입력하여<br>분석을 시작하세요.</span>
+        <section class="canvas-area">
+            <div class="chart-overlay-info" id="chart-meta">
+                <strong>NO DATA LOADED</strong><br>
+                <span style="color:#666">Please enter birth details above.</span>
             </div>
             <svg id="chart-svg" viewBox="0 0 600 600"></svg>
         </section>
@@ -388,31 +358,27 @@
         <!-- 데이터 패널 -->
         <section class="data-panel">
 
-            <div class="panel-section">
-                <div class="section-title">Planetary Positions (행성 위치)</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="35%">Planet</th>
-                            <th width="35%">Sign</th>
-                            <th width="20%">Deg</th>
-                            <th width="10%">H</th>
-                        </tr>
-                    </thead>
-                    <tbody id="planet-table-body">
-                        <!-- JS Insert -->
-                        <tr>
-                            <td colspan="4" style="text-align:center; padding:20px; color:#ccc;">데이터 없음</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="panel-header">Planetary Coordinates</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="35%">Planet / 행성</th>
+                        <th width="35%">Sign / 별자리</th>
+                        <th width="20%">Pos / 도수</th>
+                        <th width="10%">H</th>
+                    </tr>
+                </thead>
+                <tbody id="planet-table-body">
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:30px; color:#999;">Ready for calculation...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <div class="panel-section">
-                <div class="section-title">Aspects (주요 각도)</div>
-                <div id="aspect-list" class="aspect-list">
-                    <div style="text-align:center; padding:20px; color:#ccc; font-size:13px;">데이터 없음</div>
-                </div>
+            <div class="panel-header" style="margin-top:20px; border-top:2px solid #000;">Aspect Configuration</div>
+            <div id="aspect-list" class="aspect-grid">
+                <!-- JS Render -->
             </div>
 
         </section>
@@ -425,12 +391,12 @@
             signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
             signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'],
             radius: {
-                outer: 260,  // 전체 크기 살짝 줄임 (여백 확보)
+                outer: 260,
                 sign: 220,
                 house: 180,
                 inner: 110,
                 planet_base: 150,
-                planet_step: 18 // 간격 조정
+                planet_step: 22
             }
         };
 
@@ -456,7 +422,7 @@
             }
 
             createLine(x1, y1, x2, y2, color, width, dash = '') {
-                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="round" />`;
+                return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="square" />`;
             }
 
             createText(x, y, text, size, color, anchor = "middle", weight = "normal", className = "") {
@@ -477,7 +443,6 @@
                 return `M ${x1_o} ${y1_o} A ${r1} ${r1} 0 0 0 ${x2_o} ${y2_o} L ${x2_i} ${y2_i} A ${r2} ${r2} 0 0 1 ${x1_i} ${y1_i} Z`;
             }
 
-            // 행성 겹침 해결 (Staggering)
             resolveCollisions(planets) {
                 const sorted = [...planets].filter(p => p.name !== 'Ascendant').sort((a, b) => a.position - b.position);
                 sorted.forEach((p, i) => {
@@ -485,9 +450,9 @@
                     if (i > 0) {
                         const prev = sorted[i - 1];
                         const diff = Math.abs(p.position - prev.position);
-                        if (diff < 8) { // 8도 이내 겹침 시 트랙 변경
-                            if (prev.track === 0) p.track = 1;      // 안쪽
-                            else if (prev.track === 1) p.track = 2; // 바깥쪽
+                        if (diff < 9) {
+                            if (prev.track === 0) p.track = 1;
+                            else if (prev.track === 1) p.track = 2;
                             else p.track = 0;
                         }
                     }
@@ -501,76 +466,63 @@
                 const ascAbs = data.planets.find(p => p.name === 'Ascendant')?.position ||
                     (CONFIG.signs.indexOf(data.ascendant.sign) * 30 + data.ascendant.degree);
 
-                // 1. 차트 기본 원 (부드러운 색상)
-                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="none" stroke="#2c3e50" stroke-width="1.5"/>`;
-                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#e1e4e8" stroke-width="1"/>`;
+                // 1. 차트 배경 (Base)
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="#fff" stroke="#000" stroke-width="3"/>`;
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#666" stroke-width="1"/>`;
 
-                // 2. 조디악 링 (12 Sign)
+                // 2. 조디악 링
                 for (let i = 0; i < 12; i++) {
                     const startZ = i * 30;
                     const endZ = (i + 1) * 30;
 
-                    // 구획선
-                    svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#bdc3c7" stroke-width="0.5" />`;
+                    svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#000" stroke-width="1" />`;
 
-                    // Sign Symbol
                     const midZ = startZ + 15;
                     const pos = this.getSvgPos((CONFIG.radius.outer + CONFIG.radius.sign) / 2, midZ, ascAbs);
-                    svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 20, "#34495e", "middle", "normal", "sign-glyph");
+                    svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 24, "#000", "middle", "normal", "sign-glyph");
 
-                    // 5도 단위 틱
-                    for (let d = 5; d < 30; d += 5) {
+                    // 눈금
+                    for (let d = 2; d < 30; d += 2) {
+                        const isTen = d % 10 === 0;
+                        const len = isTen ? 6 : 3;
                         const t1 = this.getSvgPos(CONFIG.radius.sign, startZ + d, ascAbs);
-                        const t2 = this.getSvgPos(CONFIG.radius.sign - 4, startZ + d, ascAbs);
-                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#bdc3c7", 1);
+                        const t2 = this.getSvgPos(CONFIG.radius.sign - len, startZ + d, ascAbs);
+                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#000", isTen ? 1 : 0.5);
                     }
                 }
 
-                // 3. 하우스 (House Lines)
+                // 3. 하우스
                 data.houses.forEach((h) => {
                     const signIdx = CONFIG.signs.indexOf(h.sign);
                     const cuspZ = signIdx * 30 + h.degree;
 
                     const p1 = this.getSvgPos(CONFIG.radius.inner, cuspZ, ascAbs);
                     const p2 = this.getSvgPos(CONFIG.radius.sign, cuspZ, ascAbs);
-
                     const isAngle = [1, 4, 7, 10].includes(h.number);
-                    // 앵글 하우스는 진하게, 나머지는 연하게
-                    svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#2c3e50" : "#dce1e6", isAngle ? 1.5 : 1);
+                    svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#000" : "#999", isAngle ? 2 : 1);
 
-                    // 하우스 번호
                     const midZ = cuspZ + 15;
                     const numPos = this.getSvgPos(CONFIG.radius.house, midZ, ascAbs);
-                    svgContent += this.createText(numPos.x, numPos.y, h.number, 10, "#95a5a6", "middle", "normal", "house-idx");
+                    svgContent += this.createText(numPos.x, numPos.y, h.number, 11, "#555", "middle", "bold", "house-num");
                 });
 
-                // 4. 애스펙트 (Aspect Lines)
+                // 4. 애스펙트 선
                 data.aspects.forEach(asp => {
                     const p1 = data.planets.find(p => p.name === asp.planet1);
                     const p2 = data.planets.find(p => p.name === asp.planet2);
                     if (p1 && p2 && asp.orb < 6) {
                         const xy1 = this.getSvgPos(CONFIG.radius.inner, p1.position, ascAbs);
                         const xy2 = this.getSvgPos(CONFIG.radius.inner, p2.position, ascAbs);
-
-                        let color = "#bdc3c7"; // 기본 (Soft)
-                        let width = 0.8;
-                        // Hard Aspect 강조
-                        if (["Square", "Opposition"].includes(asp.type)) {
-                            color = "rgba(192, 57, 43, 0.4)";
-                            width = 1.2;
-                        } else if (["Trine", "Sextile"].includes(asp.type)) {
-                            color = "rgba(41, 128, 185, 0.3)";
-                        }
-
+                        let color = "#aaa"; let width = 1;
+                        if (["Square", "Opposition"].includes(asp.type)) { color = "#000"; width = 1.5; }
                         svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width);
                     }
                 });
 
-                // 5. 행성 (Planets) - 충돌 방지 적용
+                // 5. 행성 (수정된 로직)
                 const visiblePlanets = this.resolveCollisions(data.planets);
 
                 visiblePlanets.forEach(p => {
-                    // 트랙 계산: 0(기본), 1(안쪽), 2(바깥쪽)
                     let r = CONFIG.radius.planet_base;
                     if (p.track === 1) r -= CONFIG.radius.planet_step;
                     else if (p.track === 2) r += CONFIG.radius.planet_step;
@@ -578,30 +530,28 @@
                     const xy = this.getSvgPos(r, p.position, ascAbs);
                     const realPos = this.getSvgPos(CONFIG.radius.sign - 3, p.position, ascAbs);
 
-                    // 지시선 (가볍게 점선)
-                    svgContent += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#d1d8dd", 1, "2,2");
+                    svgContent += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#999", 1);
 
-                    // 행성 배경 원 (라인 가리기용)
-                    svgContent += `<circle cx="${xy.x}" cy="${xy.y}" r="12" fill="white" stroke="none"/>`;
+                    // 행성 배경 노드
+                    svgContent += `<circle cx="${xy.x}" cy="${xy.y}" r="14" class="planet-node-bg" />`;
 
-                    // 행성 심볼
-                    svgContent += this.createText(xy.x, xy.y + 1, p.symbol, 18, "#2c3e50", "middle", "normal", "planet-glyph");
+                    // 심볼
+                    svgContent += this.createText(xy.x, xy.y + 1, p.symbol, 18, "#000", "middle", "normal", "planet-glyph");
 
-                    // 역행 표시 (Rx)
                     if (p.retrograde) {
-                        svgContent += this.createText(xy.x + 9, xy.y - 7, "Rx", 9, "#e74c3c", "start", "bold");
+                        svgContent += this.createText(xy.x + 10, xy.y - 8, "R", 10, "#d32f2f", "start", "bold");
                     }
                 });
 
-                // 6. 앵글 텍스트 (ASC/MC)
-                const ascP = this.getSvgPos(CONFIG.radius.outer + 12, ascAbs, ascAbs);
-                svgContent += this.createText(ascP.x, ascP.y, "ASC", 11, "#2c3e50", "middle", "bold", "angle-text");
+                // 6. 앵글 (ASC, MC)
+                const ascP = this.getSvgPos(CONFIG.radius.outer + 20, ascAbs, ascAbs);
+                svgContent += this.createText(ascP.x, ascP.y, "ASC", 14, "#000", "middle", "bold");
 
                 const mcHouse = data.houses.find(h => h.number === 10);
                 if (mcHouse) {
                     const mcZ = CONFIG.signs.indexOf(mcHouse.sign) * 30 + mcHouse.degree;
-                    const mcP = this.getSvgPos(CONFIG.radius.outer + 12, mcZ, ascAbs);
-                    svgContent += this.createText(mcP.x, mcP.y, "MC", 11, "#2c3e50", "middle", "bold", "angle-text");
+                    const mcP = this.getSvgPos(CONFIG.radius.outer + 20, mcZ, ascAbs);
+                    svgContent += this.createText(mcP.x, mcP.y, "MC", 14, "#000", "middle", "bold");
                 }
 
                 this.svg.innerHTML = svgContent;
@@ -610,12 +560,15 @@
 
         const engine = new ChartEngine('chart-svg');
 
-        // Form Submission
         document.getElementById('input-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const originalTxt = btn.textContent;
-            btn.textContent = "계산 중...";
+
+            // 입력값 저장 (에러 방지용)
+            const inputPlace = document.getElementById('place_name').value || "UNKNOWN";
+
+            btn.textContent = "PROCESSING...";
             btn.disabled = true;
 
             try {
@@ -625,108 +578,109 @@
                     body: JSON.stringify({
                         birth_date: document.getElementById('birth_date').value,
                         birth_time: document.getElementById('birth_time').value + ":00",
-                        place_name: document.getElementById('place_name').value
+                        place_name: inputPlace
                     })
                 });
 
-                if (!res.ok) throw new Error("API 연결 실패");
+                if (!res.ok) throw new Error("API FAILED");
                 const data = await res.json();
 
-                // 1. 차트 렌더링
                 engine.render(data);
 
-                // 2. 메타 박스 업데이트 (한글 병기)
+                // Meta Info Update (FIXED: Use input value instead of data.input.place_name)
                 const metaBox = document.getElementById('chart-meta');
                 metaBox.innerHTML = `
-                    <strong>${data.input.place_name}</strong>
-                    <span>${data.input.birth_date} ${data.input.birth_time.substr(0, 5)}</span><br>
-                    <span style="color:#7f8c8d; font-size:11px;">Lat: ${data.input.latitude.toFixed(2)} / Lon: ${data.input.longitude.toFixed(2)}</span>
+                    <strong>${inputPlace.toUpperCase()}</strong><br>
+                    DATE: ${data.input.birth_date}<br>
+                    TIME: ${data.input.birth_time.substr(0, 5)}<br>
+                    GEO : ${data.input.latitude.toFixed(2)}, ${data.input.longitude.toFixed(2)}
                 `;
 
-                // 3. 테이블 업데이트 (한글/영문 병기)
+                // Table Update
                 const tbody = document.getElementById('planet-table-body');
                 tbody.innerHTML = '';
 
-                // ASC Row
+                // Add ASC
                 const ascSignIdx = CONFIG.signs.indexOf(data.ascendant.sign);
                 tbody.innerHTML += `
                     <tr>
                         <td>
-                            <div class="col-planet">
-                                <span class="name-en">Ascendant</span>
-                                <span class="name-ko">상승궁</span>
-                            </div>
+                            <span class="data-primary">Ascendant</span>
+                            <span class="data-secondary">상승궁</span>
                         </td>
                         <td>
-                            <span class="symbol-icon">${CONFIG.signSymbols[ascSignIdx]}</span>
-                            <span class="name-en">${data.ascendant.sign}</span>
-                            <div class="name-ko">${data.ascendant.sign_ko}</div>
+                            <div style="display:flex; align-items:center;">
+                                <div class="symbol-box">${CONFIG.signSymbols[ascSignIdx]}</div>
+                                <div>
+                                    <span class="data-primary">${data.ascendant.sign}</span>
+                                    <span class="data-secondary">${data.ascendant.sign_ko}</span>
+                                </div>
+                            </div>
                         </td>
-                        <td class="degree-text">${data.ascendant.degree_formatted}</td>
-                        <td style="color:#7f8c8d">1</td>
+                        <td class="data-mono">${data.ascendant.degree_formatted}</td>
+                        <td class="data-mono">1</td>
                     </tr>`;
 
-                // Planet Rows
                 data.planets.forEach(p => {
                     const signIdx = CONFIG.signs.indexOf(p.sign);
                     tbody.innerHTML += `
                         <tr>
                             <td>
-                                <div class="col-planet">
-                                    <div style="display:flex; align-items:center;">
-                                        <span class="symbol-icon" style="color:#2c3e50">${p.symbol}</span>
-                                        <span class="name-en">${p.name}</span>
+                                <div style="display:flex; align-items:center;">
+                                    <div class="symbol-box" style="border-radius:50%;">${p.symbol}</div>
+                                    <div style="margin-left:8px;">
+                                        <span class="data-primary">${p.name}</span>
+                                        <span class="data-secondary">${p.name_ko}</span>
                                     </div>
-                                    <span class="name-ko" style="padding-left:22px;">${p.name_ko}</span>
                                 </div>
                             </td>
                             <td>
                                 <div style="display:flex; align-items:center;">
-                                    <span class="symbol-icon" style="font-size:14px; color:#555;">${CONFIG.signSymbols[signIdx]}</span>
-                                    <span class="name-en" style="font-weight:400;">${p.sign}</span>
+                                    <div class="symbol-box" style="border:none;">${CONFIG.signSymbols[signIdx]}</div>
+                                    <div>
+                                        <span class="data-primary">${p.sign}</span>
+                                        <span class="data-secondary">${p.sign_ko}</span>
+                                    </div>
                                 </div>
-                                <div class="name-ko" style="padding-left:20px;">${p.sign_ko}</div>
                             </td>
-                            <td class="degree-text">
+                            <td class="data-mono">
                                 ${p.degree_formatted}
-                                ${p.retrograde ? '<span class="retro-tag">Rx</span>' : ''}
+                                ${p.retrograde ? '<span style="color:red; font-weight:bold;"> R</span>' : ''}
                             </td>
-                            <td style="color:#555">${p.house}</td>
+                            <td class="data-mono">${p.house}</td>
                         </tr>`;
                 });
 
-                // 4. 애스펙트 리스트 (한글 병기)
+                // Aspect List
                 const aspectDiv = document.getElementById('aspect-list');
                 const majors = data.aspects.filter(a => a.orb < 6);
 
-                if (majors.length === 0) aspectDiv.innerHTML = "<div style='padding:15px; text-align:center; color:#999; font-size:12px;'>주요 각도 없음</div>";
+                if (majors.length === 0) aspectDiv.innerHTML = "<div style='padding:20px; text-align:center;'>NO MAJOR ASPECTS</div>";
                 else {
                     aspectDiv.innerHTML = majors.map(a => {
-                        let typeClass = 'type-Soft';
-                        if (["Square", "Opposition"].includes(a.type)) typeClass = 'type-Hard';
-                        if (a.type === "Conjunction") typeClass = 'type-Conj';
+                        let tagClass = 'asp-soft';
+                        if (["Square", "Opposition"].includes(a.type)) tagClass = 'asp-hard';
 
                         return `
-                        <div class="aspect-item">
-                            <div class="asp-obj">
-                                <div>${a.planet1}</div>
-                                <div style="font-size:10px; color:#999;">${a.planet1_ko}</div>
+                        <div class="aspect-row">
+                            <div>
+                                <span class="asp-label">${a.planet1}</span>
+                                <span class="asp-sub">${a.planet1_ko}</span>
                             </div>
-                            <div class="asp-type ${typeClass}">
+                            <div class="asp-tag ${tagClass}">
                                 ${a.type}
-                                <div style="font-weight:normal; font-size:10px; margin-top:1px;">${a.type_ko}</div>
                             </div>
-                            <div class="asp-obj" style="text-align:right;">
-                                <div>${a.planet2}</div>
-                                <div style="font-size:10px; color:#999;">${a.planet2_ko}</div>
+                            <div style="text-align:right;">
+                                <span class="asp-label">${a.planet2}</span>
+                                <span class="asp-sub">${a.planet2_ko}</span>
                             </div>
-                            <div class="asp-orb">${a.orb.toFixed(1)}°</div>
+                            <div style="text-align:right;" class="data-mono">${a.orb.toFixed(1)}°</div>
                         </div>`;
                     }).join('');
                 }
 
             } catch (err) {
-                alert("오류 발생: " + err.message);
+                alert("SYSTEM ERROR: " + err.message);
             } finally {
                 btn.textContent = originalTxt;
                 btn.disabled = false;
