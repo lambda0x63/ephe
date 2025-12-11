@@ -13,7 +13,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS 설정 (프론트엔드에서 호출 허용)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
