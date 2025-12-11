@@ -4,19 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natal Chart Analytics [PRO]</title>
+    <title>東方天宮圖</title>
+    <!-- 명조체(제목용)와 고딕체(본문용) 로드 -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-app: #e0e0e0;
+            --bg-app: #f5f5f5;
             --bg-panel: #ffffff;
-            --border-strong: #000000;
-            --text-main: #000000;
-            --text-sub: #555555;
-            --accent: #000000;
-            --danger: #d32f2f;
+            --border-heavy: #111;
+            --border-light: #ddd;
+            --text-main: #111;
+            --text-sub: #666;
+            --accent-red: #b71c1c;
         }
 
         * {
@@ -26,7 +27,7 @@
         }
 
         body {
-            font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
             height: 100vh;
@@ -35,109 +36,114 @@
             overflow: hidden;
         }
 
-        /* 1. 상단 컨트롤 패널 */
+        /* [HEADER] 무게감 있는 타이틀 */
         header {
-            background: #222;
-            color: #fff;
-            height: 64px;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 30px;
             flex-shrink: 0;
-            border-bottom: 3px solid #000;
+            border-bottom: 4px solid var(--border-heavy);
         }
 
-        .app-title {
-            font-family: 'Roboto', sans-serif;
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .brand-area {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .app-title span {
-            background: #fff;
-            color: #000;
-            padding: 2px 6px;
-            font-size: 12px;
-            font-weight: 700;
+        .brand-title {
+            font-family: 'Noto Serif KR', serif;
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: 0.1em;
+            color: #fff;
+            line-height: 1.1;
         }
 
+        .brand-sub {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* [CONTROLS] */
         .controls {
             display: flex;
-            gap: 0;
-            background: #fff;
-            border: 1px solid #000;
+            border: 1px solid #444;
+            background: #000;
         }
 
         .controls input {
-            padding: 8px 12px;
+            background: #222;
+            color: #fff;
             border: none;
-            border-right: 1px solid #000;
+            border-right: 1px solid #444;
+            padding: 0 14px;
             font-family: 'Roboto Mono', monospace;
             font-size: 14px;
-            color: #000;
+            height: 42px;
             outline: none;
-            height: 40px;
-            border-radius: 0;
-            /* 브라우저 기본 스타일 제거 */
         }
 
         .controls input:focus {
-            background: #f0f8ff;
+            background: #333;
         }
 
-        .controls button {
-            padding: 0 24px;
-            background: #000;
-            color: #fff;
+        .btn-analyze {
+            background: #ddd;
+            color: #000;
             border: none;
+            font-family: 'Noto Serif KR', serif;
+            /* 버튼만 한자 포인트 */
             font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
+            font-size: 15px;
+            padding: 0 20px;
             cursor: pointer;
-            height: 40px;
+            height: 42px;
+            transition: background 0.2s;
         }
 
-        .controls button:hover {
-            background: #444;
+        .btn-analyze:hover {
+            background: #fff;
         }
 
-        /* 2. 메인 워크스페이스 */
+        /* [MAIN] */
         main {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 450px;
-            height: calc(100vh - 64px);
+            grid-template-columns: 1fr 480px;
+            height: calc(100vh - 70px);
         }
 
-        /* 좌측: 차트 캔버스 */
+        /* 좌측: 차트 */
         .canvas-area {
-            background: #dcdcdc;
+            background: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             padding: 20px;
-            border-right: 2px solid #000;
+            border-right: 2px solid var(--border-heavy);
             overflow: hidden;
         }
 
-        .chart-overlay-info {
+        .chart-info-box {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: #fff;
-            border: 2px solid #000;
-            padding: 15px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+            top: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--border-heavy);
+            padding: 16px;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
             font-family: 'Roboto Mono', monospace;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
             z-index: 10;
         }
 
@@ -145,76 +151,75 @@
             width: 100%;
             height: 100%;
             max-height: 90vh;
-            filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.1));
+            filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, 0.1));
         }
 
-        /* 우측: 데이터 그리드 */
+        /* 우측: 데이터 */
         .data-panel {
-            background: #fff;
+            background: var(--bg-panel);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
         }
 
         .panel-header {
-            background: #000;
+            background: #222;
             color: #fff;
-            padding: 12px 16px;
+            padding: 12px 20px;
             font-weight: 700;
-            text-transform: uppercase;
             font-size: 14px;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid #000;
+            border-bottom: 2px solid var(--border-heavy);
             position: sticky;
             top: 0;
             z-index: 5;
+            letter-spacing: 0.05em;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
         }
 
         th {
-            background: #f0f0f0;
+            background: #f4f4f4;
             border-bottom: 2px solid #000;
-            border-right: 1px solid #ccc;
-            padding: 10px;
+            border-right: 1px solid #ddd;
+            padding: 10px 12px;
             text-align: left;
             font-weight: 700;
             font-size: 12px;
-            text-transform: uppercase;
+            color: #333;
             position: sticky;
             top: 0;
         }
 
         td {
-            border-bottom: 1px solid #ccc;
-            border-right: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #fafafa;
             padding: 10px 12px;
             vertical-align: middle;
+            font-size: 14px;
         }
 
         tr:hover td {
             background: #f9f9f9;
         }
 
-        .data-primary {
+        /* 타이포그래피 */
+        .txt-main {
             font-weight: 700;
-            font-size: 15px;
-            display: block;
+            font-size: 14px;
+            color: #000;
         }
 
-        .data-secondary {
-            font-size: 13px;
-            color: #555;
-            font-family: 'Noto Sans KR', sans-serif;
-            display: block;
-            margin-top: 2px;
+        .txt-sub {
+            font-size: 12px;
+            color: #666;
+            margin-left: 4px;
+            font-weight: 400;
         }
 
-        .data-mono {
+        .txt-mono {
             font-family: 'Roboto Mono', monospace;
             font-size: 14px;
             color: #333;
@@ -226,63 +231,42 @@
             justify-content: center;
             width: 24px;
             height: 24px;
-            border: 1px solid #000;
-            margin-right: 8px;
+            border: 1px solid #333;
+            margin-right: 10px;
             background: #fff;
             font-family: "Segoe UI Symbol";
             font-size: 16px;
             font-weight: bold;
         }
 
-        .aspect-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
+        /* Aspect List */
         .aspect-row {
             display: grid;
             grid-template-columns: 1.2fr 1fr 1.2fr 0.8fr;
             padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
             align-items: center;
-            font-size: 14px;
-        }
-
-        .asp-label {
-            font-weight: 700;
-        }
-
-        .asp-sub {
-            font-size: 12px;
-            color: #666;
-            font-weight: normal;
-            margin-left: 4px;
+            font-size: 13px;
         }
 
         .asp-tag {
             text-align: center;
-            font-size: 12px;
             font-weight: 700;
-            padding: 4px 0;
+            padding: 3px 0;
             border: 1px solid #ccc;
             background: #f8f8f8;
-            text-transform: uppercase;
+            font-size: 11px;
         }
 
         .asp-hard {
             border-color: #000;
-            background: #333;
+            background: #222;
             color: #fff;
-        }
-
-        .asp-soft {
-            border-color: #999;
-            color: #333;
         }
 
         /* SVG Styles */
         text {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             pointer-events: none;
         }
 
@@ -290,7 +274,6 @@
             font-size: 24px;
             fill: #000;
             font-family: "Segoe UI Symbol";
-            font-weight: normal;
         }
 
         .planet-node-bg {
@@ -300,16 +283,16 @@
         }
 
         .planet-glyph {
-            font-size: 20px;
+            font-size: 18px;
             fill: #000;
             font-weight: bold;
             font-family: "Segoe UI Symbol";
         }
 
-        .house-num {
-            font-size: 12px;
-            font-weight: 700;
-            fill: #666;
+        .angle-label {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            fill: #000;
         }
 
         @media (max-width: 1000px) {
@@ -334,50 +317,56 @@
 <body>
 
     <header>
-        <div class="app-title">
-            柳氏天宮圖
+        <div class="brand-area">
+            <div class="brand-title">東方天宮圖</div>
+            <div class="brand-sub">Natal Chart | DEV. 柳东润</div>
         </div>
+
         <form id="input-form" class="controls">
             <input type="date" id="birth_date" value="1999-01-10">
             <input type="time" id="birth_time" value="00:31">
-            <input type="text" id="place_name" value="Daegu" placeholder="LOCATION">
-            <button type="submit">分析</button>
+            <input type="text" id="place_name" value="Daegu" placeholder="Location"
+                style="width: 100px; text-transform:uppercase;">
+            <button type="submit" class="btn-analyze">分析</button>
         </form>
     </header>
 
     <main>
-        <!-- 차트 영역 -->
+        <!-- 좌측: 차트 -->
         <section class="canvas-area">
-            <div class="chart-overlay-info" id="chart-meta">
-                <strong>NO DATA LOADED</strong><br>
-                <span style="color:#666">Please enter birth details above.</span>
+            <div class="chart-info-box" id="chart-meta">
+                <strong style="font-size:16px; display:block; margin-bottom:6px;">NO DATA</strong>
+                <span style="color:#666">생년월일 입력 후 분석을 시작하세요.</span>
             </div>
             <svg id="chart-svg" viewBox="0 0 600 600"></svg>
         </section>
 
-        <!-- 데이터 패널 -->
+        <!-- 우측: 데이터 -->
         <section class="data-panel">
 
-            <div class="panel-header">Planetary Coordinates</div>
+            <div class="panel-header">
+                Planetary Positions (행성 위치)
+            </div>
             <table>
                 <thead>
                     <tr>
-                        <th width="35%">Planet / 행성</th>
-                        <th width="35%">Sign / 별자리</th>
-                        <th width="20%">Pos / 도수</th>
+                        <th width="35%">Planet (행성)</th>
+                        <th width="35%">Sign (별자리)</th>
+                        <th width="20%">Pos (도수)</th>
                         <th width="10%">H</th>
                     </tr>
                 </thead>
                 <tbody id="planet-table-body">
                     <tr>
-                        <td colspan="4" style="text-align:center; padding:30px; color:#999;">Ready for calculation...
-                        </td>
+                        <td colspan="4" style="text-align:center; padding:40px; color:#999;">Waiting for input...</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="panel-header" style="margin-top:20px; border-top:2px solid #000;">Aspect Configuration</div>
-            <div id="aspect-list" class="aspect-grid">
+            <div class="panel-header" style="margin-top:20px; border-top:2px solid #000;">
+                Aspects (주요 각도)
+            </div>
+            <div id="aspect-list" class="aspect-list">
                 <!-- JS Render -->
             </div>
 
@@ -390,14 +379,7 @@
         const CONFIG = {
             signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
             signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'],
-            radius: {
-                outer: 260,
-                sign: 220,
-                house: 180,
-                inner: 110,
-                planet_base: 150,
-                planet_step: 22
-            }
+            radius: { outer: 260, sign: 220, house: 180, inner: 110, planet_base: 150, planet_step: 24 }
         };
 
         class ChartEngine {
@@ -405,30 +387,22 @@
                 this.svg = document.getElementById(svgId);
                 this.center = { x: 300, y: 300 };
             }
-
             clear() { this.svg.innerHTML = ''; }
 
             getSvgPos(radius, zodiacDegree, ascDegree) {
                 const angleDeg = 180 - (zodiacDegree - ascDegree);
                 const rad = angleDeg * (Math.PI / 180);
-                return {
-                    x: this.center.x + radius * Math.cos(rad),
-                    y: this.center.y + radius * Math.sin(rad)
-                };
+                return { x: this.center.x + radius * Math.cos(rad), y: this.center.y + radius * Math.sin(rad) };
             }
-
             getSvgAngle(zodiacDegree, ascDegree) {
                 return (180 - (zodiacDegree - ascDegree)) * (Math.PI / 180);
             }
-
             createLine(x1, y1, x2, y2, color, width, dash = '') {
                 return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="square" />`;
             }
-
             createText(x, y, text, size, color, anchor = "middle", weight = "normal", className = "") {
                 return `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}" dominant-baseline="central" font-weight="${weight}" class="${className}">${text}</text>`;
             }
-
             createArcPath(r1, r2, startDeg, endDeg, ascDeg) {
                 const startAngle = this.getSvgAngle(startDeg, ascDeg);
                 const endAngle = this.getSvgAngle(endDeg, ascDeg);
@@ -466,62 +440,56 @@
                 const ascAbs = data.planets.find(p => p.name === 'Ascendant')?.position ||
                     (CONFIG.signs.indexOf(data.ascendant.sign) * 30 + data.ascendant.degree);
 
-                // 1. 차트 배경 (Base)
+                // Base
                 svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.outer}" fill="#fff" stroke="#000" stroke-width="3"/>`;
-                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#666" stroke-width="1"/>`;
+                svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CONFIG.radius.inner}" fill="none" stroke="#888" stroke-width="1"/>`;
 
-                // 2. 조디악 링
+                // Zodiac Ring
                 for (let i = 0; i < 12; i++) {
                     const startZ = i * 30;
                     const endZ = (i + 1) * 30;
-
                     svgContent += `<path d="${this.createArcPath(CONFIG.radius.outer, CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#000" stroke-width="1" />`;
-
                     const midZ = startZ + 15;
                     const pos = this.getSvgPos((CONFIG.radius.outer + CONFIG.radius.sign) / 2, midZ, ascAbs);
                     svgContent += this.createText(pos.x, pos.y, CONFIG.signSymbols[i], 24, "#000", "middle", "normal", "sign-glyph");
 
-                    // 눈금
                     for (let d = 2; d < 30; d += 2) {
                         const isTen = d % 10 === 0;
-                        const len = isTen ? 6 : 3;
+                        const len = isTen ? 7 : 3;
                         const t1 = this.getSvgPos(CONFIG.radius.sign, startZ + d, ascAbs);
                         const t2 = this.getSvgPos(CONFIG.radius.sign - len, startZ + d, ascAbs);
-                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#000", isTen ? 1 : 0.5);
+                        svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, "#000", isTen ? 1.2 : 0.5);
                     }
                 }
 
-                // 3. 하우스
+                // Houses
                 data.houses.forEach((h) => {
                     const signIdx = CONFIG.signs.indexOf(h.sign);
                     const cuspZ = signIdx * 30 + h.degree;
-
                     const p1 = this.getSvgPos(CONFIG.radius.inner, cuspZ, ascAbs);
                     const p2 = this.getSvgPos(CONFIG.radius.sign, cuspZ, ascAbs);
                     const isAngle = [1, 4, 7, 10].includes(h.number);
                     svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, isAngle ? "#000" : "#999", isAngle ? 2 : 1);
-
                     const midZ = cuspZ + 15;
                     const numPos = this.getSvgPos(CONFIG.radius.house, midZ, ascAbs);
-                    svgContent += this.createText(numPos.x, numPos.y, h.number, 11, "#555", "middle", "bold", "house-num");
+                    svgContent += this.createText(numPos.x, numPos.y, h.number, 12, "#555", "middle", "bold");
                 });
 
-                // 4. 애스펙트 선
+                // Aspects
                 data.aspects.forEach(asp => {
                     const p1 = data.planets.find(p => p.name === asp.planet1);
                     const p2 = data.planets.find(p => p.name === asp.planet2);
                     if (p1 && p2 && asp.orb < 6) {
                         const xy1 = this.getSvgPos(CONFIG.radius.inner, p1.position, ascAbs);
                         const xy2 = this.getSvgPos(CONFIG.radius.inner, p2.position, ascAbs);
-                        let color = "#aaa"; let width = 1;
-                        if (["Square", "Opposition"].includes(asp.type)) { color = "#000"; width = 1.5; }
+                        let color = "#bbb"; let width = 1;
+                        if (["Square", "Opposition"].includes(asp.type)) { color = "#000"; width = 1.8; }
                         svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width);
                     }
                 });
 
-                // 5. 행성 (수정된 로직)
+                // Planets
                 const visiblePlanets = this.resolveCollisions(data.planets);
-
                 visiblePlanets.forEach(p => {
                     let r = CONFIG.radius.planet_base;
                     if (p.track === 1) r -= CONFIG.radius.planet_step;
@@ -529,31 +497,24 @@
 
                     const xy = this.getSvgPos(r, p.position, ascAbs);
                     const realPos = this.getSvgPos(CONFIG.radius.sign - 3, p.position, ascAbs);
-
                     svgContent += this.createLine(xy.x, xy.y, realPos.x, realPos.y, "#999", 1);
-
-                    // 행성 배경 노드
-                    svgContent += `<circle cx="${xy.x}" cy="${xy.y}" r="14" class="planet-node-bg" />`;
-
-                    // 심볼
+                    svgContent += `<circle cx="${xy.x}" cy="${xy.y}" r="15" class="planet-node-bg" />`;
                     svgContent += this.createText(xy.x, xy.y + 1, p.symbol, 18, "#000", "middle", "normal", "planet-glyph");
-
                     if (p.retrograde) {
-                        svgContent += this.createText(xy.x + 10, xy.y - 8, "R", 10, "#d32f2f", "start", "bold");
+                        svgContent += this.createText(xy.x + 11, xy.y - 9, "R", 10, "#b71c1c", "start", "bold");
                     }
                 });
 
-                // 6. 앵글 (ASC, MC)
+                // Angles
                 const ascP = this.getSvgPos(CONFIG.radius.outer + 20, ascAbs, ascAbs);
-                svgContent += this.createText(ascP.x, ascP.y, "ASC", 14, "#000", "middle", "bold");
+                svgContent += this.createText(ascP.x, ascP.y, "ASC", 16, "#000", "middle", "bold", "angle-label");
 
                 const mcHouse = data.houses.find(h => h.number === 10);
                 if (mcHouse) {
                     const mcZ = CONFIG.signs.indexOf(mcHouse.sign) * 30 + mcHouse.degree;
                     const mcP = this.getSvgPos(CONFIG.radius.outer + 20, mcZ, ascAbs);
-                    svgContent += this.createText(mcP.x, mcP.y, "MC", 14, "#000", "middle", "bold");
+                    svgContent += this.createText(mcP.x, mcP.y, "MC", 16, "#000", "middle", "bold", "angle-label");
                 }
-
                 this.svg.innerHTML = svgContent;
             }
         }
@@ -564,11 +525,9 @@
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const originalTxt = btn.textContent;
-
-            // 입력값 저장 (에러 방지용)
             const inputPlace = document.getElementById('place_name').value || "UNKNOWN";
 
-            btn.textContent = "PROCESSING...";
+            btn.textContent = "Processing...";
             btn.disabled = true;
 
             try {
@@ -582,43 +541,42 @@
                     })
                 });
 
-                if (!res.ok) throw new Error("API FAILED");
+                if (!res.ok) throw new Error("Server Error");
                 const data = await res.json();
 
                 engine.render(data);
 
-                // Meta Info Update (FIXED: Use input value instead of data.input.place_name)
+                // Meta Info
                 const metaBox = document.getElementById('chart-meta');
                 metaBox.innerHTML = `
-                    <strong>${inputPlace.toUpperCase()}</strong><br>
-                    DATE: ${data.input.birth_date}<br>
-                    TIME: ${data.input.birth_time.substr(0, 5)}<br>
-                    GEO : ${data.input.latitude.toFixed(2)}, ${data.input.longitude.toFixed(2)}
+                    <strong style="font-size:20px; display:block; margin-bottom:6px;">${inputPlace.toUpperCase()}</strong>
+                    <span style="font-weight:700">DATE:</span> ${data.input.birth_date}<br>
+                    <span style="font-weight:700">TIME:</span> ${data.input.birth_time.substr(0, 5)}<br>
+                    <span style="font-weight:700">GEO :</span> ${data.input.latitude.toFixed(2)}, ${data.input.longitude.toFixed(2)}
                 `;
 
-                // Table Update
+                // Table
                 const tbody = document.getElementById('planet-table-body');
                 tbody.innerHTML = '';
 
-                // Add ASC
                 const ascSignIdx = CONFIG.signs.indexOf(data.ascendant.sign);
                 tbody.innerHTML += `
                     <tr>
                         <td>
-                            <span class="data-primary">Ascendant</span>
-                            <span class="data-secondary">상승궁</span>
+                            <span class="txt-main">Ascendant</span>
+                            <span class="txt-sub">상승궁</span>
                         </td>
                         <td>
                             <div style="display:flex; align-items:center;">
                                 <div class="symbol-box">${CONFIG.signSymbols[ascSignIdx]}</div>
                                 <div>
-                                    <span class="data-primary">${data.ascendant.sign}</span>
-                                    <span class="data-secondary">${data.ascendant.sign_ko}</span>
+                                    <span class="txt-main">${data.ascendant.sign}</span>
+                                    <span class="txt-sub">${data.ascendant.sign_ko}</span>
                                 </div>
                             </div>
                         </td>
-                        <td class="data-mono">${data.ascendant.degree_formatted}</td>
-                        <td class="data-mono">1</td>
+                        <td class="txt-mono">${data.ascendant.degree_formatted}</td>
+                        <td class="txt-mono">1</td>
                     </tr>`;
 
                 data.planets.forEach(p => {
@@ -628,9 +586,9 @@
                             <td>
                                 <div style="display:flex; align-items:center;">
                                     <div class="symbol-box" style="border-radius:50%;">${p.symbol}</div>
-                                    <div style="margin-left:8px;">
-                                        <span class="data-primary">${p.name}</span>
-                                        <span class="data-secondary">${p.name_ko}</span>
+                                    <div>
+                                        <span class="txt-main">${p.name}</span>
+                                        <span class="txt-sub">${p.name_ko}</span>
                                     </div>
                                 </div>
                             </td>
@@ -638,49 +596,49 @@
                                 <div style="display:flex; align-items:center;">
                                     <div class="symbol-box" style="border:none;">${CONFIG.signSymbols[signIdx]}</div>
                                     <div>
-                                        <span class="data-primary">${p.sign}</span>
-                                        <span class="data-secondary">${p.sign_ko}</span>
+                                        <span class="txt-main">${p.sign}</span>
+                                        <span class="txt-sub">${p.sign_ko}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="data-mono">
+                            <td class="txt-mono">
                                 ${p.degree_formatted}
-                                ${p.retrograde ? '<span style="color:red; font-weight:bold;"> R</span>' : ''}
+                                ${p.retrograde ? '<span style="color:#b71c1c; font-weight:900;"> R</span>' : ''}
                             </td>
-                            <td class="data-mono">${p.house}</td>
+                            <td class="txt-mono">${p.house}</td>
                         </tr>`;
                 });
 
-                // Aspect List
+                // Aspects
                 const aspectDiv = document.getElementById('aspect-list');
                 const majors = data.aspects.filter(a => a.orb < 6);
 
-                if (majors.length === 0) aspectDiv.innerHTML = "<div style='padding:20px; text-align:center;'>NO MAJOR ASPECTS</div>";
+                if (majors.length === 0) aspectDiv.innerHTML = "<div style='padding:20px; text-align:center;'>No Major Aspects</div>";
                 else {
                     aspectDiv.innerHTML = majors.map(a => {
-                        let tagClass = 'asp-soft';
+                        let tagClass = '';
                         if (["Square", "Opposition"].includes(a.type)) tagClass = 'asp-hard';
 
                         return `
                         <div class="aspect-row">
                             <div>
-                                <span class="asp-label">${a.planet1}</span>
-                                <span class="asp-sub">${a.planet1_ko}</span>
+                                <span class="txt-main">${a.planet1}</span>
+                                <span class="txt-sub">${a.planet1_ko}</span>
                             </div>
                             <div class="asp-tag ${tagClass}">
                                 ${a.type}
                             </div>
                             <div style="text-align:right;">
-                                <span class="asp-label">${a.planet2}</span>
-                                <span class="asp-sub">${a.planet2_ko}</span>
+                                <span class="txt-main">${a.planet2}</span>
+                                <span class="txt-sub">${a.planet2_ko}</span>
                             </div>
-                            <div style="text-align:right;" class="data-mono">${a.orb.toFixed(1)}°</div>
+                            <div style="text-align:right;" class="txt-mono">${a.orb.toFixed(1)}°</div>
                         </div>`;
                     }).join('');
                 }
 
             } catch (err) {
-                alert("SYSTEM ERROR: " + err.message);
+                alert("Error: " + err.message);
             } finally {
                 btn.textContent = originalTxt;
                 btn.disabled = false;
