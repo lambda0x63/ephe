@@ -108,6 +108,9 @@ class ChartResponse(BaseModel):
     """네이탈차트 응답"""
     id: Optional[int] = None  # DB 저장 시 생성되는 ID
     name: str  # 차트 소유자 이름
+    gender: Optional[str] = None
+    birth_date: Optional[str] = None
+    birth_time: Optional[str] = None
     planets: list[Planet]
     houses: list[House]
     aspects: list[Aspect]

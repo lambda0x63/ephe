@@ -105,6 +105,7 @@ def create_natal_chart(request: ChartRequest):
         midheaven=chart_data["midheaven"],
         fortuna=chart_data["fortuna"],
         input={
+            "place_name": request.place_name,
             "birth_date": request.birth_date,
             "birth_time": request.birth_time,
             "latitude": latitude,
@@ -195,6 +196,38 @@ def list_saved_charts(db: Session = Depends(get_db)):
             created_at=record.created_at.strftime("%Y-%m-%d %H:%M:%S")
         ) for record in charts
     ]
+
+
+@app.get("/api/v1/charts/{chart_id}", response_model=ChartResponse)
+def get_saved_chart(chart_id: int, db: Session = Depends(get_db)):
+    """저장된 차트 상세 조회 (재계산 없이 저장된 데이터 반환)"""
+    record = db.query(ChartRecord).filter(ChartRecord.id == chart_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Chart not found")
+    
+    chart_data = record.chart_data
+    
+    return ChartResponse(
+        name=record.name,
+        gender=record.gender or "unknown",
+        birth_date=record.birth_date,
+        birth_time=record.birth_time,
+        planets=chart_data["planets"],
+        houses=chart_data["houses"],
+        aspects=chart_data["aspects"],
+        ascendant=chart_data["ascendant"],
+        midheaven=chart_data["midheaven"],
+        fortuna=chart_data["fortuna"],
+        input={
+            "place_name": record.place_name,
+            "birth_date": record.birth_date,
+            "birth_time": record.birth_time,
+            "latitude": record.latitude,
+            "longitude": record.longitude,
+            "timezone": record.timezone or "Asia/Seoul"
+        },
+        summary_prompt=record.summary_prompt
+    )
 
 
 @app.delete("/api/v1/charts/{chart_id}")

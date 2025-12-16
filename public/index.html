@@ -788,19 +788,32 @@
                 this.loadHistory();
             },
 
-            loadChart(item) {
-                document.getElementById('name').value = item.name;
-                document.getElementById('date').value = item.birth_date;
-                document.getElementById('time').value = item.birth_time;
-                document.getElementById('place').value = item.place_name || '';
+            async loadChart(item) {
+                // 저장된 차트 상세 조회 (재계산 없이 저장된 데이터 사용)
+                try {
+                    const res = await fetch(`/api/v1/charts/${item.id}`);
+                    if (!res.ok) throw new Error('Failed to load chart');
+                    const data = await res.json();
 
-                // 성별 세팅 (기본값 male, 데이터 없으면 male)
-                const g = item.gender || 'male';
-                const radio = document.querySelector(`input[name="gender"][value="${g}"]`);
-                if (radio) radio.checked = true;
+                    // 폼 필드 세팅
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('date').value = data.birth_date;
+                    document.getElementById('time').value = data.birth_time;
+                    document.getElementById('place').value = data.input?.place_name || '';
 
-                this.toggleSaveBtn(false); // Hide save for loaded charts
-                this.generate(); // Re-calc
+                    // 성별 세팅
+                    const g = data.gender || 'male';
+                    const radio = document.querySelector(`input[name="gender"][value="${g}"]`);
+                    if (radio) radio.checked = true;
+
+                    // 결과 표시 (재계산 없이)
+                    this.data = data;
+                    this.render(data);
+                    this.toggleSaveBtn(false);
+                } catch (err) {
+                    console.error('Load chart error:', err);
+                    alert('차트 불러오기 실패');
+                }
             },
 
             toggleSaveBtn(show) {
