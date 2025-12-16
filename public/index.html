@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natal Chart API</title>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Prism.js (Syntax Highlighter) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <!-- JetBrains Mono Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+
+    <style>
+        :root {
+            --bg-body: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --border-color: #E5E7EB;
+            --primary: #111827;
+            /* Near Black */
+            --primary-hover: #374151;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --accent: #6366F1;
+            /* Indigo */
+            --radius: 8px;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            body {
+                padding: 20px;
+            }
+        }
+
+        /* Left Column: Input */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-sub);
+            font-size: 15px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-main);
+            background: #fff;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: #9CA3AF;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--focus-ring);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-sub);
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        button.primary-btn {
+            width: 100%;
+            height: 44px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button.primary-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.primary-btn:disabled {
+            background-color: #9CA3AF;
+            cursor: not-allowed;
+        }
+
+        /* Right Column: Output */
+        .output-section {
+            position: sticky;
+            top: 40px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+
+        .toggle-lang {
+            background: none;
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toggle-lang:hover {
+            color: var(--text-main);
+        }
+
+        .toggle-lang.active {
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
+            /* faint indigo */
+        }
+
+        /* JSON View Styling (Prism Overrides) */
+        .result-box {
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            /* For border radius */
+            background: #2d2d2d;
+            /* Tomorrow Night bg */
+            min-height: 480px;
+            max-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        pre[class*="language-"],
+        code[class*="language-"] {
+            margin: 0 !important;
+            padding: 20px !important;
+            height: 100%;
+            overflow: auto !important;
+            border-radius: 0 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace !important;
+            font-size: 13px !important;
+            line-height: 1.6 !important;
+            background: transparent !important;
+            text-shadow: none !important;
+
+            /* 가로 스크롤 방지 및 줄바꿈 처리 (강제) */
+            white-space: pre-wrap !important;
+            word-spacing: normal !important;
+            word-break: break-all !important;
+            word-wrap: break-word !important;
+        }
+
+        /* code 태그 패딩 제거 (중복 방지) */
+        code[class*="language-"] {
+            padding: 0 !important;
+        }
+
+        /* Scrollbar */
+        pre[class*="language-"]::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        pre[class*="language-"]::-webkit-scrollbar-thumb {
+            background: #4B5563;
+            border-radius: 5px;
+            border: 2px solid #2d2d2d;
+        }
+
+        pre[class*="language-"]::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #888;
+            text-align: center;
+            font-family: 'Pretendard', sans-serif;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-success {
+            background: #10B981;
+            color: #fff;
+        }
+
+        .status-error {
+            background: #EF4444;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Left Section -->
+        <div class="input-section">
+            <header>
+                <h1>Natal Chart API</h1>
+                <p>생년월일시와 장소를 입력하여 네이탈 차트 JSON 결과를 확인하세요.</p>
+            </header>
+
+            <div class="card">
+                <form id="chartForm">
+                    <div class="form-group">
+                        <label>생년월일 (Birth Date)</label>
+                        <input type="date" id="birth_date" value="1999-01-10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>태어난 시간 (Birth Time)</label>
+                        <input type="time" id="birth_time" value="00:31" required>
+                    </div>
+
+                    <div class="divider">
+                        <span>출생 장소 (Location)</span>
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>도시 검색 (Place Name)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="place_name" value="대구광역시" placeholder="예: 서울, Busan, New York">
+                            <button type="button" id="searchPlaceBtn"
+                                style="white-space: nowrap; padding: 0 16px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; color: var(--text-main); font-size: 13px; font-weight: 500;">검색</button>
+                        </div>
+                        <!-- Search Results Dropdown -->
+                        <div id="placeSearchResults"
+                            style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 50; max-height: 200px; overflow-y: auto; margin-top: 4px;">
+                        </div>
+                    </div>
+
+                    <div class="divider">
+                        <span>또는 직접 좌표 입력 (Option)</span>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label>위도 (Latitude)</label>
+                            <input type="number" step="0.0001" id="latitude" placeholder="37.56">
+                        </div>
+                        <div class="form-group">
+                            <label>경도 (Longitude)</label>
+                            <input type="number" step="0.0001" id="longitude" placeholder="126.97">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <button type="submit" class="primary-btn" id="submitBtn">
+                            결과 생성하기 (Generate JSON)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="output-section">
+            <div class="controls">
+                <button id="copySummaryBtn" class="toggle-lang" style="margin-right: auto; display: none;">📋 AI 프롬프트
+                    복사</button>
+                <button class="toggle-lang active" data-lang="ko">한국어 결과</button>
+                <button class="toggle-lang" data-lang="en">English Result</button>
+            </div>
+            <div class="result-box" id="resultBox">
+                <pre><code id="json-code" class="language-json"></code></pre>
+                <div class="empty-state" id="emptyState">
+                    정보를 입력하면<br>여기에 JSON 결과가 표시됩니다.
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Prism JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+
+    <script>
+        const API_URL = '/api/v1/natal-chart';
+        let currentData = null;
+        let currentLang = 'ko';
+
+        // Elements
+        const form = document.getElementById('chartForm');
+        const jsonCode = document.getElementById('json-code');
+        const emptyState = document.getElementById('emptyState');
+        const resultBox = document.getElementById('resultBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const langBtns = document.querySelectorAll('.toggle-lang');
+        const copySummaryBtn = document.getElementById('copySummaryBtn');
+
+        // Copy Summary Logic
+        copySummaryBtn.addEventListener('click', async () => {
+            if (!currentData || !currentData.summary_prompt) return;
+
+            try {
+                await navigator.clipboard.writeText(currentData.summary_prompt);
+
+                // Visual feedback
+                const originalText = copySummaryBtn.innerText;
+                copySummaryBtn.innerText = '✅ 복사됨!';
+                copySummaryBtn.style.color = 'var(--text-main)';
+                copySummaryBtn.style.background = '#dcfce7'; // light green value
+
+                setTimeout(() => {
+                    copySummaryBtn.innerText = originalText;
+                    copySummaryBtn.style.color = '';
+                    copySummaryBtn.style.background = '';
+                }, 2000);
+
+            } catch (err) {
+                alert('복사 실패: ' + err);
+            }
+        });
+
+        // Language Toggle
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                langBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                if (currentData) renderJSON(currentData);
+            });
+        });
+
+        // Place Search Logic
+        const searchPlaceBtn = document.getElementById('searchPlaceBtn');
+        const placeResults = document.getElementById('placeSearchResults');
+        const placeInput = document.getElementById('place_name');
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+
+        searchPlaceBtn.addEventListener('click', async () => {
+            const query = placeInput.value.trim();
+            if (!query) return;
+
+            searchPlaceBtn.disabled = true;
+            searchPlaceBtn.textContent = '...';
+            placeResults.style.display = 'block';
+            placeResults.innerHTML = '<div style="padding: 12px; text-align: center; color: #666;">검색 중...</div>';
+
+            try {
+                const res = await fetch(`/api/v1/search-place?query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.results && data.results.length > 0) {
+                    placeResults.innerHTML = '';
+                    data.results.forEach(item => {
+                        const div = document.createElement('div');
+                        div.style.padding = '8px 12px';
+                        div.style.cursor = 'pointer';
+                        div.style.borderBottom = '1px solid #f0f0f0';
+                        div.style.fontSize = '13px';
+                        div.onmouseover = () => div.style.background = '#f9fafb';
+                        div.onmouseout = () => div.style.background = '#fff';
+
+                        div.innerHTML = `
+                            <div style="font-weight: 600; color: #111;">${item.display_name}</div>
+                            <div style="color: #666; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                        `;
+
+                        div.onclick = () => {
+                            // Select Place
+                            placeInput.value = item.display_name;
+                            latInput.value = item.latitude;
+                            lngInput.value = item.longitude;
+                            placeResults.style.display = 'none';
+                        };
+                        placeResults.appendChild(div);
+                    });
+                } else {
+                    placeResults.innerHTML = '<div style="padding: 12px; text-align: center; color: #666;">검색 결과가 없습니다.</div>';
+                }
+            } catch (err) {
+                placeResults.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--error-color);">오류: ${err.message}</div>`;
+            } finally {
+                searchPlaceBtn.disabled = false;
+                searchPlaceBtn.textContent = '검색';
+            }
+        });
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!placeInput.contains(e.target) && !searchPlaceBtn.contains(e.target) && !placeResults.contains(e.target)) {
+                placeResults.style.display = 'none';
+            }
+        });
+
+        // Form Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // UI Loading State
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div> 생성 중...';
+
+            // Clear previous status badges
+            document.querySelectorAll('.status-badge').forEach(el => el.remove());
+
+            // Prepare Payload
+            const placeName = document.getElementById('place_name').value.trim();
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+
+            // 날짜와 시간 값 가져오기
+            const birthDateVal = document.getElementById('birth_date').value;
+            let birthTimeVal = document.getElementById('birth_time').value;
+
+            // 시간 포맷 보정 (HH:MM -> HH:MM:SS)
+            if (birthTimeVal.length === 5) {
+                birthTimeVal += ':00';
+            }
+
+            const payload = {
+                birth_date: birthDateVal,
+                birth_time: birthTimeVal
+            };
+
+            if (placeName) payload.place_name = placeName;
+            else if (lat && lng) {
+                payload.latitude = parseFloat(lat);
+                payload.longitude = parseFloat(lng);
+            } else {
+                payload.place_name = 'Seoul'; // Fallback
+            }
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                currentData = data;
+
+                if (res.ok) {
+                    renderJSON(data);
+                    showStatus(true);
+                } else {
+                    renderError(data);
+                    showStatus(false);
+                }
+            } catch (err) {
+                renderError({ error: err.message });
+                showStatus(false);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '결과 생성하기 (Generate JSON)';
+            }
+        });
+
+        function showStatus(isSuccess) {
+            const badge = document.createElement('div');
+            badge.className = `status-badge ${isSuccess ? 'status-success' : 'status-error'}`;
+            badge.innerText = isSuccess ? '200 OK' : 'ERROR';
+            resultBox.appendChild(badge);
+        }
+
+        function renderJSON(data) {
+            emptyState.style.display = 'none';
+
+            // Show copy button if summary exists
+            if (data.summary_prompt) {
+                copySummaryBtn.style.display = 'block';
+            } else {
+                copySummaryBtn.style.display = 'none';
+            }
+
+            const filtered = filterByLang(data, currentLang);
+
+            // Format JSON string
+            const jsonString = JSON.stringify(filtered, null, 2);
+
+            // Update code element and highlight
+            jsonCode.textContent = jsonString;
+            Prism.highlightElement(jsonCode);
+        }
+
+        function renderError(data) {
+            emptyState.style.display = 'none';
+            const jsonString = JSON.stringify(data, null, 2);
+            jsonCode.textContent = jsonString;
+            Prism.highlightElement(jsonCode);
+        }
+
+        function filterByLang(data, lang) {
+            // Deep clone to avoid mutating original
+            const clone = JSON.parse(JSON.stringify(data));
+
+            function traverse(obj) {
+                if (typeof obj !== 'object' || obj === null) return;
+
+                Object.keys(obj).forEach(key => {
+                    // If English mode, remove keys ending with _ko
+                    if (lang === 'en') {
+                        if (key.endsWith('_ko')) delete obj[key];
+                        else traverse(obj[key]);
+                    }
+                    // If Korean mode, keep _ko and remove English counterpart if it exists?
+                    // Actually the user request is "Select one of EN/KO".
+                    // Usually this means: if I select KO, I want Korean values. 
+                    // But the API returns BOTH separate fields like "name" and "name_ko".
+                    // Let's hide the non-selected language fields to make it cleaner.
+                    else if (lang === 'ko') {
+                        // Logic: If there is a key "foo_ko", remove "foo" (the english one).
+                        // This is heuristic.
+                        // Let's just remove simple English fields if a corresponding _ko version exists in the same object.
+
+                        // First pass to find keys to remove
+                        const keysToRemove = [];
+                        Object.keys(obj).forEach(k => {
+                            if (obj[k + '_ko'] !== undefined) {
+                                keysToRemove.push(k);
+                            }
+                        });
+
+                        keysToRemove.forEach(k => delete obj[k]);
+                        traverse(obj[key]);
+                    }
+                });
+            }
+            traverse(clone);
+            return clone;
+        }
+    </script>
+
+</body>
+
+</html>

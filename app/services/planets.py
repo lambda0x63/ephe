@@ -28,6 +28,28 @@ SIGNS = [
 ]
 
 
+# 고전점성술 룰러십 (Sign -> Planet Name)
+RULERSHIPS = {
+    "Aries": "Mars",
+    "Taurus": "Venus",
+    "Gemini": "Mercury",
+    "Cancer": "Moon",
+    "Leo": "Sun",
+    "Virgo": "Mercury",
+    "Libra": "Venus",
+    "Scorpio": "Mars",
+    "Sagittarius": "Jupiter",
+    "Capricorn": "Saturn",
+    "Aquarius": "Saturn",
+    "Pisces": "Jupiter"
+}
+
+
+def get_ruler_planet(sign_name: str) -> str:
+    """별자리의 주인 행성(Ruler) 반환"""
+    return RULERSHIPS.get(sign_name)
+
+
 def get_sign(longitude: float) -> tuple[str, str, str, float]:
     """
     황도 경도(0-360)를 사인과 사인 내 도수로 변환

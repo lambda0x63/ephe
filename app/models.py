@@ -111,4 +111,5 @@ class ChartResponse(BaseModel):
     midheaven: Midheaven
     fortuna: Fortuna
     input: InputInfo
+    summary_prompt: Optional[str] = None
 
