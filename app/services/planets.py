@@ -50,6 +50,97 @@ def get_ruler_planet(sign_name: str) -> str:
     return RULERSHIPS.get(sign_name)
 
 
+# ============================================================
+# Essential Dignities (Hellenistic - Ptolemy's Tetrabiblos)
+# ============================================================
+# 각 행성별 Domicile(본궁), Exaltation(고양), Detriment(손상), Fall(추락)
+# Peregrine(이방인)은 위 4가지 중 어느 것도 아닌 경우
+
+ESSENTIAL_DIGNITIES = {
+    "Sun": {
+        "domicile": ["Leo"],
+        "exaltation": ["Aries"],
+        "detriment": ["Aquarius"],
+        "fall": ["Libra"]
+    },
+    "Moon": {
+        "domicile": ["Cancer"],
+        "exaltation": ["Taurus"],
+        "detriment": ["Capricorn"],
+        "fall": ["Scorpio"]
+    },
+    "Mercury": {
+        "domicile": ["Gemini", "Virgo"],
+        "exaltation": ["Virgo"],
+        "detriment": ["Sagittarius", "Pisces"],
+        "fall": ["Pisces"]
+    },
+    "Venus": {
+        "domicile": ["Taurus", "Libra"],
+        "exaltation": ["Pisces"],
+        "detriment": ["Scorpio", "Aries"],
+        "fall": ["Virgo"]
+    },
+    "Mars": {
+        "domicile": ["Aries", "Scorpio"],
+        "exaltation": ["Capricorn"],
+        "detriment": ["Libra", "Taurus"],
+        "fall": ["Cancer"]
+    },
+    "Jupiter": {
+        "domicile": ["Sagittarius", "Pisces"],
+        "exaltation": ["Cancer"],
+        "detriment": ["Gemini", "Virgo"],
+        "fall": ["Capricorn"]
+    },
+    "Saturn": {
+        "domicile": ["Capricorn", "Aquarius"],
+        "exaltation": ["Libra"],
+        "detriment": ["Cancer", "Leo"],
+        "fall": ["Aries"]
+    }
+}
+
+
+def get_planet_dignity(planet_name: str, sign_name: str) -> str:
+    """
+    행성의 Essential Dignity(품위) 판정
+    
+    Args:
+        planet_name: "Mars", "Venus" 등 영문 행성명
+        sign_name: "Aries", "Libra" 등 영문 별자리명
+        
+    Returns:
+        "Domicile" | "Exaltation" | "Detriment" | "Fall" | "Peregrine"
+    """
+    dignities = ESSENTIAL_DIGNITIES.get(planet_name)
+    if not dignities:
+        return "Peregrine"
+    
+    if sign_name in dignities["domicile"]:
+        return "Domicile"
+    elif sign_name in dignities["exaltation"]:
+        return "Exaltation"
+    elif sign_name in dignities["detriment"]:
+        return "Detriment"
+    elif sign_name in dignities["fall"]:
+        return "Fall"
+    else:
+        return "Peregrine"
+
+
+def get_dignity_description(dignity: str) -> str:
+    """품위에 대한 한글 설명"""
+    descriptions = {
+        "Domicile": "본궁 (매우 강함)",
+        "Exaltation": "고양 (강화됨)",
+        "Detriment": "손상 (약화됨)",
+        "Fall": "추락 (매우 약함)",
+        "Peregrine": "이방인 (중립)"
+    }
+    return descriptions.get(dignity, dignity)
+
+
 def get_sign(longitude: float) -> tuple[str, str, str, float]:
     """
     황도 경도(0-360)를 사인과 사인 내 도수로 변환

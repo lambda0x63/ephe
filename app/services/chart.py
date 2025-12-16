@@ -65,6 +65,7 @@ def calculate_chart(
         "planets": planets,
         "houses": houses,
         "aspects": aspects,
+        "sect": "Day" if is_day else "Night",  # 주/야 정보 추가
         "ascendant": {
             "sign": asc_sign,
             "sign_ko": asc_sign_ko,
