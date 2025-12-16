@@ -434,7 +434,12 @@
             </div>
 
             <form id="chartForm" class="card">
-                <div class="section-title">1. Birth Information</div>
+                <div class="section-title">1. Basic Information</div>
+
+                <div class="form-group">
+                    <label>이름 (Name)</label>
+                    <input type="text" id="chart_name" placeholder="홍길동" required>
+                </div>
 
                 <div class="form-row">
                     <div>
@@ -620,6 +625,7 @@
             if (birthTimeVal.length === 5) birthTimeVal += ':00';
 
             const payload = {
+                name: document.getElementById('chart_name').value,
                 birth_date: document.getElementById('birth_date').value,
                 birth_time: birthTimeVal,
                 place_name: placeInput.value

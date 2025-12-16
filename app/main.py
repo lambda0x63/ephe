@@ -1,14 +1,21 @@
 """FastAPI 앱 진입점"""
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from sqlalchemy.orm import Session
 from app.models import ChartRequest, ChartResponse
 from app.services.chart import calculate_chart
 from app.services.summary import generate_ai_summary
 from app.utils.geocoding import geocode, search_places
 from app.utils.timezone import get_timezone
+from app.database import engine, get_db, Base
+from app.db_models import ChartRecord
+
+
+# 테이블 자동 생성
+Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -59,8 +66,8 @@ def search_place_api(query: str):
 
 
 @app.post("/api/v1/natal-chart", response_model=ChartResponse)
-def create_natal_chart(request: ChartRequest):
-    """네이탈차트 계산"""
+def create_natal_chart(request: ChartRequest, db: Session = Depends(get_db)):
+    """네이탈차트 계산 및 저장"""
     
     # 1. 좌표 확보 (place_name 또는 lat/lng)
     if request.place_name:
@@ -95,8 +102,26 @@ def create_natal_chart(request: ChartRequest):
     # 4. AI 요약 리포트 생성
     summary_text = generate_ai_summary(chart_data)
     
-    # 5. 응답 조합
+    # 5. DB에 저장
+    db_record = ChartRecord(
+        name=request.name,
+        birth_date=request.birth_date,
+        birth_time=request.birth_time,
+        place_name=request.place_name,
+        latitude=latitude,
+        longitude=longitude,
+        timezone=timezone_str,
+        chart_data=chart_data,
+        summary_prompt=summary_text
+    )
+    db.add(db_record)
+    db.commit()
+    db.refresh(db_record)
+    
+    # 6. 응답 조합
     return ChartResponse(
+        id=db_record.id,
+        name=request.name,
         planets=chart_data["planets"],
         houses=chart_data["houses"],
         aspects=chart_data["aspects"],

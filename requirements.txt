@@ -12,3 +12,7 @@ pytz
 
 # Data Validation
 pydantic
+
+# Database
+sqlalchemy
+psycopg2-binary

@@ -5,6 +5,7 @@ from typing import Optional
 
 class ChartRequest(BaseModel):
     """네이탈차트 계산 요청"""
+    name: str  # 차트 소유자 이름
     birth_date: str  # YYYY-MM-DD
     birth_time: str  # HH:MM:SS
     
@@ -104,6 +105,8 @@ class InputInfo(BaseModel):
 
 class ChartResponse(BaseModel):
     """네이탈차트 응답"""
+    id: Optional[int] = None  # DB 저장 시 생성되는 ID
+    name: str  # 차트 소유자 이름
     planets: list[Planet]
     houses: list[House]
     aspects: list[Aspect]
