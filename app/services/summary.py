@@ -80,5 +80,13 @@ def generate_ai_summary(chart_data: dict) -> str:
         orb = f"{aspect['orb']}°"
         lines.append(f"- {aspect['type_ko']}: {aspect['planet1_ko']} ↔ {aspect['planet2_ko']} (오차 {orb})")
 
+    lines.append("")
+    lines.append("---")
+    lines.append("!!! AI 해석 지침 (Strict Guidelines for AI) !!!")
+    lines.append("1. [중요] 오직 '고전 7행성'만 사용하십시오. (천왕성, 해왕성, 명왕성, 키론 등 현대 천체 절대 언급 금지)")
+    lines.append("2. 심리적 성향보다 '현실적 사건'과 '길흉' 위주로 해석하십시오.")
+    lines.append("3. 하우스가 비어있을 경우, 반드시 제공된 가이드에 따라 '하우스 룰러'의 상태를 추적하여 통변하십시오.")
+    lines.append("4. 현대 점성술의 심리적 위로보다는, 고전의 결정론적이고 운명론적인 뉘앙스를 유지하십시오.")
+
     report = "\n".join(lines)
     return report
