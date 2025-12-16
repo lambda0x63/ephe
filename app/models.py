@@ -97,6 +97,7 @@ class Fortuna(BaseModel):
 
 class InputInfo(BaseModel):
     """입력 정보 확인용"""
+    place_name: Optional[str] = None
     birth_date: str
     birth_time: str
     latitude: float
