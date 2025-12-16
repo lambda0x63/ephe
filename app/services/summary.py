@@ -231,17 +231,68 @@ def generate_ai_summary(data: dict, name: str = "Unknown", gender: str = "unknow
         lines.append("- 주요 메이저 애스펙트 없음")
     lines.append("")
     
+    # [5] Annual Profections 계산
+    lines.append("[5] Annual Profections (연간 테마)")
+    try:
+        from datetime import datetime
+        birth_year = int(birth_date.split('-')[0])
+        current_year = datetime.now().year
+        current_age = current_year - birth_year
+        
+        # Ascendant 사인 인덱스 (0-11)
+        asc_sign_en = data['ascendant']['sign']
+        sign_order = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+                      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
+        asc_index = sign_order.index(asc_sign_en)
+        
+        # Profected House & Sign
+        profected_offset = current_age % 12
+        profected_house = profected_offset + 1
+        profected_sign_index = (asc_index + profected_offset) % 12
+        profected_sign = sign_order[profected_sign_index]
+        
+        # Lord of the Year
+        lord_of_year = get_ruler_planet(profected_sign)
+        lord_data = next((p for p in data['planets'] if p['name'] == lord_of_year), None)
+        lord_info = "정보 없음"
+        if lord_data:
+            lord_dignity = get_planet_dignity(lord_data['name'], lord_data['sign'])
+            lord_info = f"{lord_data['name_ko']} in {lord_data['sign_ko']} {lord_data['house']}H [{lord_dignity}]"
+        
+        lines.append(f"- 현재 나이: 만 {current_age}세")
+        lines.append(f"- 활성화 하우스: {profected_house}H ({profected_sign})")
+        lines.append(f"- 올해의 Lord: {lord_info}")
+        lines.append(f"  -> (해석): {profected_house}H 주제가 올해의 핵심 테마. Lord의 상태가 올해 운의 질을 결정.")
+    except:
+        lines.append("- 계산 불가 (생년월일 정보 부족)")
+    lines.append("")
+    
     # === AI 해석 지침 ===
     lines.append("---")
     lines.append("")
-    lines.append("!!! AI 해석 지침 !!!")
-    lines.append("1. 위 데이터에 명시된 7행성만 사용. 현대 천체(천왕성/해왕성/명왕성) 절대 금지.")
-    lines.append("2. Dignity(품위)를 참고하여 행성의 길흉 상태를 반영.")
-    lines.append("3. Sect(주/야)를 고려하여 길성/흉성 판단 (Day: 태양/목성 유리, Night: 달/금성 유리).")
-    lines.append("4. 빈 하우스는 반드시 룰러를 추적하여 통변.")
+    lines.append("!!! AI 해석 지침 (Valens Method) !!!")
+    lines.append("")
+    lines.append("## 해석 순서 (필수)")
+    lines.append("1. Sect 확인 → Luminary of Sect 결정")
+    lines.append("2. Chart Ruler 상태 분석 (Ascendant 지배성)")
+    lines.append("3. Angular Planets 점검 (1H, 7H, 10H, 4H)")
+    lines.append("4. Luminaries (Sun/Moon) 위치 및 Dignity")
+    lines.append("5. 길/흉성 Sect 기반 분류")
+    lines.append("6. Aspects 해석 (Orb 고려)")
+    lines.append("7. Houses + Ruler 추적")
+    lines.append("8. Annual Profections 반영 (올해 테마)")
+    lines.append("9. 종합 Life Theme 도출")
+    lines.append("")
+    lines.append("## 해석 원칙")
+    lines.append("1. 7행성만 사용. 현대 천체(천왕성/해왕성/명왕성) 절대 금지.")
+    lines.append("2. Dignity를 참고하여 행성의 강약 반영.")
+    lines.append("3. Sect 기반 길/흉 판정 (Day: Sun/Jupiter 유리, Night: Moon/Venus 유리).")
+    lines.append("4. 빈 하우스는 Ruler를 추적하여 통변.")
     lines.append("5. 심리적 위로보다 현실적 사건과 결정론적 뉘앙스 유지.")
-    lines.append("6. 결과는 반드시 한국어로 작성.")
+    lines.append("6. Annual Profections의 Lord가 올해 모든 사건의 '필터' 역할.")
+    lines.append("7. 결과는 반드시 한국어로 작성.")
     lines.append("")
     lines.append(f"[내담자 정보] 이름: {name} / 성별: {gender} / 생년월일: {birth_date} / 출생시간: {birth_time} / 출생지: {place_name or 'Unknown'}")
     
     return "\n".join(lines)
+
