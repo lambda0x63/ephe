@@ -67,6 +67,8 @@ def create_natal_chart(request: ChartRequest):
         houses=chart_data["houses"],
         aspects=chart_data["aspects"],
         ascendant=chart_data["ascendant"],
+        midheaven=chart_data["midheaven"],
+        fortuna=chart_data["fortuna"],
         input={
             "birth_date": request.birth_date,
             "birth_time": request.birth_time,

@@ -76,6 +76,23 @@ class Ascendant(BaseModel):
     degree_formatted: str  # "16°37'"
 
 
+class Midheaven(BaseModel):
+    """MC(천정) 정보"""
+    sign: str
+    sign_ko: str
+    degree: float
+    degree_formatted: str  # "18°31'"
+
+
+class Fortuna(BaseModel):
+    """포르투나(Part of Fortune) 정보"""
+    sign: str
+    sign_ko: str
+    degree: float
+    degree_formatted: str
+    house: int
+
+
 class InputInfo(BaseModel):
     """입력 정보 확인용"""
     birth_date: str
@@ -91,5 +108,7 @@ class ChartResponse(BaseModel):
     houses: list[House]
     aspects: list[Aspect]
     ascendant: Ascendant
+    midheaven: Midheaven
+    fortuna: Fortuna
     input: InputInfo
 

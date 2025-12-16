@@ -114,12 +114,15 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
     return planets
 
 
-def calculate_ascendant(birth_date: str, birth_time: str, latitude: float, longitude: float, timezone_str: str) -> tuple[float, str, str, float]:
+def calculate_angles(birth_date: str, birth_time: str, latitude: float, longitude: float, timezone_str: str) -> dict:
     """
-    ASC(Ascendant) 계산
+    ASC(Ascendant)와 MC(Midheaven) 계산
     
     Returns:
-        (asc_longitude, sign_en, sign_ko, degree_in_sign)
+        {
+            "asc": (longitude, sign_en, sign_ko, degree_in_sign),
+            "mc": (longitude, sign_en, sign_ko, degree_in_sign)
+        }
     """
     dt = datetime.strptime(f"{birth_date} {birth_time}", "%Y-%m-%d %H:%M:%S")
     jd = datetime_to_julian_day(dt, timezone_str)
@@ -128,8 +131,58 @@ def calculate_ascendant(birth_date: str, birth_time: str, latitude: float, longi
     # 'W' = Whole Sign
     houses, ascmc = swe.houses(jd, latitude, longitude, b'W')
     
+    # ASC = ascmc[0], MC = ascmc[1]
     asc_longitude = ascmc[0]
-    sign_en, sign_symbol, sign_ko, degree = get_sign(asc_longitude)
+    mc_longitude = ascmc[1]
     
-    return (asc_longitude, sign_en, sign_ko, degree)
+    asc_sign_en, _, asc_sign_ko, asc_degree = get_sign(asc_longitude)
+    mc_sign_en, _, mc_sign_ko, mc_degree = get_sign(mc_longitude)
+    
+    return {
+        "asc": (asc_longitude, asc_sign_en, asc_sign_ko, asc_degree),
+        "mc": (mc_longitude, mc_sign_en, mc_sign_ko, mc_degree)
+    }
+
+
+def calculate_fortuna(sun_longitude: float, moon_longitude: float, asc_longitude: float, is_day_chart: bool) -> float:
+    """
+    포르투나(Part of Fortune) 계산
+    
+    고전점성술 공식:
+    - 낮 차트: ASC + Moon - Sun
+    - 밤 차트: ASC + Sun - Moon
+    
+    Args:
+        sun_longitude: 태양의 황도 경도
+        moon_longitude: 달의 황도 경도
+        asc_longitude: ASC의 황도 경도
+        is_day_chart: 낮 차트 여부 (태양이 지평선 위)
+        
+    Returns:
+        포르투나의 황도 경도 (0-360)
+    """
+    if is_day_chart:
+        fortuna = asc_longitude + moon_longitude - sun_longitude
+    else:
+        fortuna = asc_longitude + sun_longitude - moon_longitude
+    
+    # 0-360 범위로 정규화
+    fortuna = fortuna % 360
+    if fortuna < 0:
+        fortuna += 360
+        
+    return fortuna
+
+
+def is_day_chart(sun_longitude: float, asc_longitude: float) -> bool:
+    """
+    낮 차트 여부 판별
+    
+    태양이 ASC(1하우스 cusp) 기준 위쪽 반구(7-12하우스)에 있으면 낮 차트
+    """
+    # 태양과 ASC의 차이 계산
+    diff = (sun_longitude - asc_longitude) % 360
+    
+    # 태양이 ASC 기준으로 180도 미만 차이면 (desc~asc 사이 = 7~12하우스) 낮
+    return diff > 180
 
