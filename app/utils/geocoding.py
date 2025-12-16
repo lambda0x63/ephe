@@ -27,7 +27,7 @@ def geocode(place_name: str) -> tuple[float, float]:
         ValueError: 위치를 찾을 수 없을 때
     """
     geolocator = get_geolocator()
-    location = geolocator.geocode(place_name)
+    location = geolocator.geocode(place_name, timeout=10)
     
     if location is None:
         raise ValueError(f"Cannot find location: {place_name}")

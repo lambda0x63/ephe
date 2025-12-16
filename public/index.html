@@ -4,696 +4,910 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natal Chart API Tester</title>
+    <title>네이탈 차트 | Natal Chart</title>
 
-    <!-- Pretendard Font -->
-    <link rel="stylesheet" as="style" crossorigin
+    <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <!-- Prism.js (Syntax Highlighter) -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <!-- JetBrains Mono Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
-
     <style>
         :root {
-            --bg-body: #F3F4F6;
+            /* Apple Design Tokens */
+            --bg-body: #F5F5F7;
             --bg-card: #FFFFFF;
-            --text-main: #1F2937;
-            --text-sub: #6B7280;
-            --primary: #4F46E5;
-            /* Indigo 600 */
-            --primary-hover: #4338CA;
-            --border: #E5E7EB;
-            --radius-lg: 16px;
-            --radius-md: 8px;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --bg-sidebar: rgba(245, 245, 247, 0.8);
+            --border-color: #E5E5EA;
+
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-tertiary: #AEAEB2;
+
+            --accent-color: #0071E3;
+            --accent-hover: #0077ED;
+
+            --radius-L: 18px;
+            --radius-M: 12px;
+            --radius-S: 8px;
+
+            --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Pretendard", sans-serif;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
+        /* Update 2024: Normalize & Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Pretendard', sans-serif;
+            font-family: var(--font-main);
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: var(--text-primary);
+            height: 100vh;
             display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 40px 20px;
+            overflow: hidden;
         }
 
-        .container {
+        /* --- Layout --- */
+        .app-container {
+            display: flex;
             width: 100%;
-            max-width: 1100px;
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 32px;
-            align-items: start;
+            height: 100%;
         }
 
-        /* --- Left Column: Control Panel --- */
-        .control-panel {
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #fff;
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .header-group h1 {
-            font-size: 24px;
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-title {
+            font-size: 16px;
             font-weight: 700;
-            color: #111;
-            letter-spacing: -0.5px;
-            margin-bottom: 4px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
         }
 
-        .header-group p {
-            font-size: 14px;
-            color: var(--text-sub);
+        .btn-new {
+            width: 100%;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
+        .btn-new:hover {
+            background: #F5F5F7;
+        }
+
+        .chart-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .list-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin: 16px 12px 8px;
+            text-transform: uppercase;
+        }
+
+        .chart-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .chart-item:hover {
+            background: #F5F5F7;
+        }
+
+        .chart-item.active {
+            background: #E8E8ED;
+        }
+
+        .item-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .item-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .btn-delete {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #FF3B30;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .chart-item:hover .btn-delete {
+            display: block;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        /* Input Form (Minimal) */
         .card {
             background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-L);
+            box-shadow: var(--shadow-card);
+            padding: 32px;
+            margin-bottom: 32px;
             border: 1px solid rgba(0, 0, 0, 0.02);
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+        }
+
         .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #9CA3AF;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
         }
 
-        .form-row {
+        .input-group {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
         }
 
-        .form-group {
+        .input-full {
+            grid-column: span 2;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             position: relative;
-            margin-bottom: 20px;
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
         }
 
         label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-main);
-            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
 
         input {
-            width: 100%;
-            height: 42px;
+            height: 40px;
+            border: 1px solid #D2D2D7;
+            border-radius: 8px;
             padding: 0 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
             font-size: 14px;
-            color: var(--text-main);
-            transition: all 0.2s;
-            background: #F9FAFB;
+            color: var(--text-primary);
+            transition: border 0.2s;
+            background: #fff;
+            font-family: var(--font-main);
         }
 
         input:focus {
             outline: none;
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: var(--accent-color);
         }
 
         input::placeholder {
-            color: #D1D5DB;
+            color: #C7C7CC;
         }
 
-        /* Search Button Integration */
-        .search-wrapper {
-            display: flex;
-            gap: 8px;
-        }
-
-        .search-btn {
-            height: 42px;
-            padding: 0 16px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            color: var(--text-main);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .search-btn:hover {
-            background: #F3F4F6;
-            border-color: #D1D5DB;
-        }
-
-        /* Search Results Dropdown */
-        .search-results {
-            display: none;
+        .dropdown-results {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
             background: #fff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            max-height: 240px;
-            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             margin-top: 6px;
-            z-index: 50;
-        }
-
-        .search-item {
-            padding: 10px 14px;
-            border-bottom: 1px solid #F3F4F6;
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-
-        .search-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-item:hover {
-            background: #F9FAFB;
-        }
-
-        .search-item-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #111;
-        }
-
-        .search-item-sub {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        /* Toggle Details (Coordinates) */
-        .details-toggle {
-            font-size: 12px;
-            color: var(--text-sub);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 12px;
-            width: fit-content;
-        }
-
-        .details-toggle:hover {
-            color: var(--primary);
-        }
-
-        .details-content {
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
             display: none;
-            padding: 16px;
-            background: #F9FAFB;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
         }
 
-        .details-content.open {
-            display: block;
+        .dropdown-item {
+            padding: 10px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #F2F2F7;
         }
 
-        .submit-btn {
-            width: 100%;
-            height: 48px;
-            background-color: var(--primary);
+        .dropdown-item:hover {
+            background: #F2F2F7;
+        }
+
+        .btn-primary {
+            height: 40px;
+            background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: var(--radius-md);
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 600;
+            padding: 0 24px;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+            transition: background 0.2s, transform 0.1s;
         }
 
-        .submit-btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
+        .btn-primary:hover {
+            background: var(--accent-hover);
         }
 
-        .submit-btn:active {
-            transform: translateY(0);
+        .btn-primary:active {
+            transform: scale(0.98);
         }
 
-        .submit-btn:disabled {
-            background-color: #9CA3AF;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* --- Right Column: Result --- */
-        .result-panel {
-            height: calc(100vh - 80px);
-            /* 뷰포트 높이에 맞춤 */
-            min-height: 600px;
+        .actions-row {
             display: flex;
-            flex-direction: column;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
         }
 
-        .mac-window {
-            background: #282c34;
-            /* Dark BG similar to Prism Tomorrow */
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
+
+        /* Results View (Structured) */
+        .result-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
         }
 
-        .window-header {
-            height: 44px;
-            background: #21252b;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            border-bottom: 1px solid #181a1f;
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
-        .window-dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .dot.red {
-            background: #FF5F56;
-        }
-
-        .dot.yellow {
-            background: #FFBD2E;
-        }
-
-        .dot.green {
-            background: #27C93F;
-        }
-
-        .window-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #abb2bf;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Pretendard', sans-serif;
-        }
-
-        .action-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        .action-btn.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .action-btn.copy-ai {
-            color: #A78BFA;
-            background: rgba(167, 139, 250, 0.1);
-            font-weight: 600;
-        }
-
-        .action-btn.copy-ai:hover {
-            background: rgba(167, 139, 250, 0.25);
-        }
-
-        .window-content {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: #2d2d2d;
-        }
-
-        pre[class*="language-"],
-        code[class*="language-"] {
-            margin: 0 !important;
-            padding: 24px !important;
-            height: 100%;
-            overflow: auto !important;
-            font-family: 'JetBrains Mono', monospace !important;
-            font-size: 13px !important;
-            line-height: 1.6 !important;
-            background: transparent !important;
-            text-shadow: none !important;
-            /* 가로 스크롤 방지 */
-            white-space: pre-wrap !important;
-            word-spacing: normal !important;
-            word-break: break-all !important;
-            word-wrap: break-word !important;
-        }
-
-        code[class*="language-"] {
-            padding: 0 !important;
-        }
-
-        .empty-state {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .summary-card {
+            background: #F5F5F7;
+            border-radius: 12px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #6B7280;
-            pointer-events: none;
             text-align: center;
         }
 
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.3;
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
         }
 
-        /* Responsive */
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 12px 0;
+            color: var(--text-primary);
+            border-bottom: 1px solid #F2F2F7;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .prompt-box {
+            background: #F9F9F9;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+
+        .btn-outline {
+            height: 32px;
+            padding: 0 16px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #F5F5F7;
+            border-color: #C7C7CC;
+        }
+
+        .btn-save {
+            color: #34C759;
+            border-color: #34C759;
+            background: rgba(52, 199, 89, 0.05);
+        }
+
+        .btn-save:hover {
+            background: rgba(52, 199, 89, 0.1);
+        }
+
+        /* Empty State */
+        .empty-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            color: var(--text-tertiary);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 900px) {
-            .container {
+            .app-container {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+
+            .content-scroll {
+                padding: 20px;
+            }
+
+            .summary-grid {
                 grid-template-columns: 1fr;
             }
 
-            .result-panel {
-                height: 500px;
-                min-height: auto;
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .input-full {
+                grid-column: span 1;
             }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="container">
-        <!-- Left: Inputs -->
-        <div class="control-panel">
-            <div class="header-group">
-                <h1>Natal Chart API</h1>
-                <p>Hellenistic Astrology / Whole Sign House</p>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-title">Natal Chart</div>
+                <button class="btn-new" onclick="app.reset()">New Chart</button>
             </div>
-
-            <form id="chartForm" class="card">
-                <div class="section-title">1. Basic Information</div>
-
-                <div class="form-group">
-                    <label>이름 (Name)</label>
-                    <input type="text" id="chart_name" placeholder="홍길동" required>
-                </div>
-
-                <div class="form-row">
-                    <div>
-                        <label>생년월일 (Date)</label>
-                        <input type="date" id="birth_date" value="1999-01-10" required>
-                    </div>
-                    <div>
-                        <label>시간 (Time)</label>
-                        <input type="time" id="birth_time" value="00:31" required>
-                    </div>
-                </div>
-
-                <div class="section-title" style="margin-top: 24px;">2. Location</div>
-
-                <div class="form-group">
-                    <label>도시 검색 (City Search)</label>
-                    <div class="search-wrapper">
-                        <input type="text" id="place_name" value="대구광역시" placeholder="예: Seoul, New York">
-                        <button type="button" class="search-btn" id="searchPlaceBtn">검색</button>
-                    </div>
-                    <!-- Dropdown -->
-                    <div id="placeSearchResults" class="search-results"></div>
-                </div>
-
-                <div class="details-toggle" onclick="toggleDetails()">
-                    <span>🛠 좌표 직접 입력 (Advanced)</span>
-                    <span id="arrow">▼</span>
-                </div>
-
-                <div class="details-content" id="coordsDetails">
-                    <div class="form-group">
-                        <label>위도 (Lat)</label>
-                        <input type="number" step="0.0001" id="latitude" placeholder="37.56">
-                    </div>
-                    <div class="form-group">
-                        <label>경도 (Lng)</label>
-                        <input type="number" step="0.0001" id="longitude" placeholder="126.97">
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    Generate Chart
-                </button>
-            </form>
-
-            <div
-                style="text-align: center; font-size: 11px; color: #9CA3AF; margin-top: 10px; font-family: 'JetBrains Mono', monospace;">
-                Powered by Swiss Ephemeris & FastAPI
-            </div>
-        </div>
-
-        <!-- Right: Output -->
-        <div class="result-panel">
-            <div class="mac-window">
-                <div class="window-header">
-                    <div class="window-dots">
-                        <div class="dot red"></div>
-                        <div class="dot yellow"></div>
-                        <div class="dot green"></div>
-                    </div>
-                    <div class="window-actions">
-                        <button id="copySummaryBtn" class="action-btn copy-ai" style="display: none;">Copy AI
-                            Prompt</button>
-                        <button class="action-btn toggle-lang active" data-lang="ko">KO</button>
-                        <button class="action-btn toggle-lang" data-lang="en">EN</button>
-                    </div>
-                </div>
-                <div class="window-content" id="resultBox">
-                    <pre><code id="json-code" class="language-json"></code></pre>
-                    <div class="empty-state" id="emptyState">
-                        <div class="empty-icon" style="opacity: 0.1; font-size: 32px;">{}</div>
-                        <div style="font-size: 13px; color: #555;">Ready to calculate</div>
-                    </div>
+            <div class="chart-list-container">
+                <div class="list-label">History</div>
+                <div id="historyList">
+                    <!-- Javascript Injected -->
                 </div>
             </div>
-        </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="content-scroll">
+
+                <!-- Input Form -->
+                <div class="card" id="inputCard">
+                    <div class="section-header">
+                        <div class="section-title">Birth Information</div>
+                    </div>
+
+                    <form id="chartForm">
+                        <div class="input-group">
+                            <div class="field">
+                                <label>Name</label>
+                                <input type="text" id="name" placeholder="Name" required>
+                            </div>
+                            <div class="field">
+                                <label>생년월일</label>
+                                <input type="date" id="date" required>
+                            </div>
+                            <div class="field">
+                                <label>시간</label>
+                                <input type="time" id="time" required>
+                            </div>
+                            <div class="field"
+                                style="display: flex; flex-direction: column; justify-content: flex-end;">
+                                <label style="margin-bottom:8px;">성별</label>
+                                <div style="display: flex; gap: 16px; align-items: center; height: 40px;">
+                                    <label
+                                        style="font-weight: 500; display:flex; align-items:center; gap:4px; font-size:14px; color:var(--text-primary);">
+                                        <input type="radio" name="gender" value="male" style="width:auto; margin:0;"
+                                            checked> 남성
+                                    </label>
+                                    <label
+                                        style="font-weight: 500; display:flex; align-items:center; gap:4px; font-size:14px; color:var(--text-primary);">
+                                        <input type="radio" name="gender" value="female" style="width:auto; margin:0;">
+                                        여성
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="field input-full">
+                                <label>출생 장소 (도시 검색)</label>
+                                <input type="text" id="place" placeholder="예: 서울, 부산, New York">
+                                <div class="dropdown-results" id="placeResult"></div>
+                                <input type="hidden" id="lat">
+                                <input type="hidden" id="lng">
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button type="submit" class="btn-primary" id="btnGenerate">차트 분석하기</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyView" class="empty-view">
+                    <div style="font-size: 14px;">출생 정보를 입력하여 네이탈 차트를 분석해보세요.</div>
+                </div>
+
+                <!-- Result View -->
+                <div id="resultView" class="result-view">
+
+                    <!-- Summary Cards -->
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-label">Sun Sign</div>
+                            <div class="summary-value" id="resSun"></div>
+                            <div class="summary-sub" id="resSunDeg"></div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Moon Sign</div>
+                            <div class="summary-value" id="resMoon"></div>
+                            <div class="summary-sub" id="resMoonDeg"></div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Ascendant</div>
+                            <div class="summary-value" id="resAsc"></div>
+                            <div class="summary-sub" id="resAscDeg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Table -->
+                    <div class="card">
+                        <div class="section-header">
+                            <div class="section-title">Planetary Positions</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-outline btn-save" id="btnSave" onclick="app.save()">Save</button>
+                                <button class="btn-outline" onclick="app.toggleRaw()">Raw JSON</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Planet</th>
+                                    <th>Sign</th>
+                                    <th>Degree</th>
+                                    <th>House</th>
+                                </tr>
+                            </thead>
+                            <tbody id="planetTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- AI Prompt Section -->
+                    <div class="card" id="promptSection">
+                        <div class="section-header">
+                            <div class="section-title">AI Interpretation Prompt</div>
+                            <button class="btn-outline" id="btnCopyPrompt" onclick="app.copyPrompt()">Copy to
+                                Clipboard</button>
+                        </div>
+                        <div class="prompt-box" id="promptText"></div>
+                    </div>
+
+                    <!-- Raw JSON (Hidden) -->
+                    <div id="rawSection" class="card" style="display: none; background: #fafafa;">
+                        <pre style="font-size: 11px; color: #555; overflow-x: auto;" id="rawJson"></pre>
+                    </div>
+
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <!-- Logic -->
     <script>
-        // Logic
-        const API_URL = '/api/v1/natal-chart';
-        let currentData = null;
-        let currentLang = 'ko';
+        const API = '/api/v1';
 
-        const form = document.getElementById('chartForm');
-        const jsonCode = document.getElementById('json-code');
-        const emptyState = document.getElementById('emptyState');
-        const submitBtn = document.getElementById('submitBtn');
-        const copySummaryBtn = document.getElementById('copySummaryBtn');
-        const placeResults = document.getElementById('placeSearchResults');
-        const placeInput = document.getElementById('place_name');
-        const latInput = document.getElementById('latitude');
-        const lngInput = document.getElementById('longitude');
+        const app = {
+            data: null,
+            payload: null,
 
-        // Toggle Coords
-        function toggleDetails() {
-            const content = document.getElementById('coordsDetails');
-            content.classList.toggle('open');
-        }
+            init() {
+                // Init Date
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('time').value = '12:00';
 
-        // Language Toggle
-        document.querySelectorAll('.toggle-lang').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.toggle-lang').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentLang = btn.dataset.lang;
-                if (currentData) renderJSON(currentData);
-            });
-        });
+                this.loadHistory();
+                this.bindEvents();
+            },
 
-        // Copy AI Prompt
-        copySummaryBtn.addEventListener('click', async () => {
-            if (!currentData || !currentData.summary_prompt) return;
-            try {
-                await navigator.clipboard.writeText(currentData.summary_prompt);
-                const originalText = copySummaryBtn.innerText;
-                copySummaryBtn.innerText = 'Copied';
-                setTimeout(() => { copySummaryBtn.innerText = originalText; }, 2000);
-            } catch (err) { alert('Failed to copy'); }
-        });
-
-        // Search Place
-        const searchBtn = document.getElementById('searchPlaceBtn');
-        searchBtn.addEventListener('click', async () => {
-            const query = placeInput.value.trim();
-            if (!query) return;
-
-            searchBtn.innerText = '...';
-            placeResults.style.display = 'block';
-            placeResults.innerHTML = '<div style="padding:12px;text-align:center;color:#666;font-size:12px">Searching...</div>';
-
-            try {
-                const res = await fetch(`/api/v1/search-place?query=${encodeURIComponent(query)}`);
-                const data = await res.json();
-
-                placeResults.innerHTML = '';
-                if (data.results && data.results.length > 0) {
-                    data.results.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'search-item';
-                        div.innerHTML = `
-                        <div class="search-item-title">${item.display_name}</div>
-                        <div class="search-item-sub">${item.name}</div>
-                    `;
-                        div.onclick = () => {
-                            placeInput.value = item.display_name;
-                            latInput.value = item.latitude;
-                            lngInput.value = item.longitude;
-                            placeResults.style.display = 'none';
-                            // Auto open coords to show user it changed
-                            document.getElementById('coordsDetails').classList.add('open');
-                        };
-                        placeResults.appendChild(div);
-                    });
-                } else {
-                    placeResults.innerHTML = '<div style="padding:12px;text-align:center;color:#666;font-size:12px">No results found</div>';
-                }
-            } catch (err) {
-                placeResults.innerHTML = '<div style="padding:12px;text-align:center;color:red;font-size:12px">Error occurred</div>';
-            } finally {
-                searchBtn.innerText = 'Search';
-            }
-        });
-
-        // Close search on outside click
-        document.addEventListener('click', (e) => {
-            if (!placeInput.contains(e.target) && !searchBtn.contains(e.target) && !placeResults.contains(e.target)) {
-                placeResults.style.display = 'none';
-            }
-        });
-
-        // Submit
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = 'Calculating...';
-
-            // Time logic
-            let birthTimeVal = document.getElementById('birth_time').value;
-            if (birthTimeVal.length === 5) birthTimeVal += ':00';
-
-            const payload = {
-                name: document.getElementById('chart_name').value,
-                birth_date: document.getElementById('birth_date').value,
-                birth_time: birthTimeVal,
-                place_name: placeInput.value
-            };
-
-            if (latInput.value && lngInput.value) {
-                payload.latitude = parseFloat(latInput.value);
-                payload.longitude = parseFloat(lngInput.value);
-            }
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+            bindEvents() {
+                // Form Submit
+                document.getElementById('chartForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.generate();
                 });
-                const data = await res.json();
-                currentData = data;
 
-                if (res.ok) {
-                    renderJSON(data);
-                } else {
-                    renderError(data);
-                }
-            } catch (err) {
-                renderError({ error: err.message });
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Generate Chart';
-            }
-        });
+                // Place Search Debounce
+                let timer;
+                const placeIn = document.getElementById('place');
+                placeIn.addEventListener('input', (e) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => this.searchPlace(e.target.value), 300);
+                });
 
-        function renderJSON(data) {
-            emptyState.style.display = 'none';
-
-            if (data.summary_prompt) copySummaryBtn.style.display = 'block';
-            else copySummaryBtn.style.display = 'none';
-
-            const filtered = filterByLang(data, currentLang);
-            jsonCode.textContent = JSON.stringify(filtered, null, 2);
-            Prism.highlightElement(jsonCode);
-        }
-
-        function renderError(data) {
-            emptyState.style.display = 'none';
-            jsonCode.textContent = JSON.stringify(data, null, 2);
-            Prism.highlightElement(jsonCode);
-        }
-
-        function filterByLang(data, lang) {
-            const clone = JSON.parse(JSON.stringify(data));
-            function traverse(obj) {
-                if (typeof obj !== 'object' || obj === null) return;
-                Object.keys(obj).forEach(key => {
-                    if (lang === 'en') {
-                        if (key.endsWith('_ko')) delete obj[key];
-                        else traverse(obj[key]);
-                    } else if (lang === 'ko') {
-                        const keysToRemove = [];
-                        Object.keys(obj).forEach(k => { if (obj[k + '_ko'] !== undefined) keysToRemove.push(k); });
-                        keysToRemove.forEach(k => delete obj[k]);
-                        traverse(obj[key]);
+                // Clicking outside dropdown
+                document.addEventListener('click', (e) => {
+                    if (!placeIn.contains(e.target)) {
+                        document.getElementById('placeResult').style.display = 'none';
                     }
                 });
+            },
+
+            async loadHistory() {
+                try {
+                    const res = await fetch(`${API}/charts`);
+                    const list = await res.json();
+                    const el = document.getElementById('historyList');
+                    el.innerHTML = '';
+
+                    if (list.length === 0) {
+                        el.innerHTML = '<div style="padding:12px; color:#aaa; font-size:12px;">저장된 차트가 없습니다.</div>';
+                        return;
+                    }
+
+                    list.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'chart-item';
+                        div.innerHTML = `
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-date">${item.birth_date}</div>
+                            <button class="btn-delete" onclick="app.delete(${item.id}, event)">×</button>
+                        `;
+                        div.onclick = () => this.loadChart(item);
+                        el.appendChild(div);
+                    });
+                } catch (e) { console.error(e); }
+            },
+
+            async generate() {
+                const btn = document.getElementById('btnGenerate');
+                const originalText = btn.innerText;
+                btn.innerText = '계산 중...'; btn.disabled = true;
+
+                const name = document.getElementById('name').value;
+                const date = document.getElementById('date').value;
+                let time = document.getElementById('time').value;
+                if (time.length === 5) time += ':00';
+
+                // 성별 값 가져오기
+                const gender = document.querySelector('input[name="gender"]:checked').value;
+
+                const payload = {
+                    name, gender, birth_date: date, birth_time: time,
+                    place_name: document.getElementById('place').value
+                };
+
+                const lat = document.getElementById('lat').value;
+                const lng = document.getElementById('lng').value;
+                if (lat && lng) {
+                    payload.latitude = parseFloat(lat);
+                    payload.longitude = parseFloat(lng);
+                }
+
+                try {
+                    const res = await fetch(`${API}/natal-chart`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        this.data = data;
+                        this.payload = payload;
+                        this.render(data);
+                        this.toggleSaveBtn(true);
+                    } else {
+                        alert("오류: " + JSON.stringify(data));
+                    }
+                } catch (e) { alert("네트워크 오류"); }
+                finally {
+                    btn.innerText = originalText; btn.disabled = false;
+                }
+            },
+
+            render(data) {
+                document.getElementById('emptyView').style.display = 'none';
+                document.getElementById('resultView').style.display = 'block';
+
+                // Summary
+                const sun = data.planets.find(p => p.name === 'Sun');
+                const moon = data.planets.find(p => p.name === 'Moon');
+
+                this.setText('resSun', `${sun.symbol || '☉'} ${sun.sign_ko}`);
+                this.setText('resSunDeg', sun.degree_formatted);
+                this.setText('resMoon', `${moon.symbol || '☽'} ${moon.sign_ko}`);
+                this.setText('resMoonDeg', moon.degree_formatted);
+                this.setText('resAsc', data.ascendant.sign_ko);
+                this.setText('resAscDeg', data.ascendant.degree_formatted);
+
+                // Table
+                const tbody = document.getElementById('planetTableBody');
+                tbody.innerHTML = '';
+                data.planets.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="symbol-cell">${p.symbol || '-'}</td>
+                        <td class="name-cell">${p.name_ko}</td>
+                        <td><div class="sign-badge">${p.sign_ko}</div></td>
+                        <td>${p.degree_formatted}</td>
+                        <td>${p.house} House</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Prompt
+                const promptBox = document.getElementById('promptText');
+                const promptSection = document.getElementById('promptSection');
+                if (data.summary_prompt) {
+                    promptSection.style.display = 'block';
+                    promptBox.textContent = data.summary_prompt;
+                } else {
+                    promptSection.style.display = 'none';
+                }
+
+                // Raw
+                document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+            },
+
+            async save() {
+                if (!this.payload) return;
+                const btn = document.getElementById('btnSave');
+                btn.innerText = '저장 중...';
+
+                try {
+                    const res = await fetch(`${API}/charts`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.payload)
+                    });
+                    if (res.ok) {
+                        btn.innerText = '저장됨';
+                        setTimeout(() => this.toggleSaveBtn(false), 1000);
+                        this.loadHistory();
+                    }
+                } catch (e) { alert('저장 실패'); }
+            },
+
+            async delete(id, e) {
+                e.stopPropagation();
+                if (!confirm('정말 삭제하시겠습니까?')) return;
+                await fetch(`${API}/charts/${id}`, { method: 'DELETE' });
+                this.loadHistory();
+            },
+
+            loadChart(item) {
+                document.getElementById('name').value = item.name;
+                document.getElementById('date').value = item.birth_date;
+                document.getElementById('time').value = item.birth_time;
+                document.getElementById('place').value = item.place_name || '';
+
+                // 성별 세팅 (기본값 male, 데이터 없으면 male)
+                const g = item.gender || 'male';
+                const radio = document.querySelector(`input[name="gender"][value="${g}"]`);
+                if (radio) radio.checked = true;
+
+                this.toggleSaveBtn(false); // Hide save for loaded charts
+                this.generate(); // Re-calc
+            },
+
+            toggleSaveBtn(show) {
+                const btn = document.getElementById('btnSave');
+                if (show) {
+                    btn.style.display = 'inline-block';
+                    btn.innerText = '저장하기';
+                } else {
+                    btn.style.display = 'none';
+                }
+            },
+
+            toggleRaw() {
+                const s = document.getElementById('rawSection');
+                s.style.display = s.style.display === 'none' ? 'block' : 'none';
+            },
+
+            copyPrompt() {
+                if (!this.data?.summary_prompt) return;
+
+                const text = this.data.summary_prompt;
+                const btn = document.getElementById('btnCopyPrompt');
+
+                const success = () => {
+                    const original = btn.innerText;
+                    btn.innerText = '복사됨!';
+                    setTimeout(() => btn.innerText = original, 2000);
+                };
+
+                // 1. Try Modern API (HTTPS)
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(success).catch(() => fallbackCopy(text));
+                } else {
+                    // 2. Fallback for HTTP
+                    fallbackCopy(text);
+                }
+
+                function fallbackCopy(txt) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = txt;
+
+                    // Avoid scrolling to bottom
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
+
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) success();
+                        else alert('복사 실패');
+                    } catch (err) {
+                        alert('복사 실패');
+                    }
+
+                    document.body.removeChild(textArea);
+                }
+            },
+
+            reset() {
+                document.getElementById('chartForm').reset();
+                this.init(); // Reset date/time
+                document.getElementById('emptyView').style.display = 'flex';
+                document.getElementById('resultView').style.display = 'none';
+            },
+
+            setText(id, txt) {
+                document.getElementById(id).innerText = txt;
+            },
+
+            async searchPlace(q) {
+                if (!q) return;
+                const dropdown = document.getElementById('placeResult');
+                dropdown.style.display = 'block';
+                dropdown.innerHTML = '<div style="padding:10px; color:#999; font-size:12px;">검색 중...</div>';
+
+                try {
+                    const res = await fetch(`${API}/search-place?query=${q}`);
+                    const data = await res.json();
+                    dropdown.innerHTML = '';
+
+                    if (!data.results?.length) {
+                        dropdown.innerHTML = '<div style="padding:10px; color:#999; font-size:12px;">결과 없음</div>';
+                        return;
+                    }
+
+                    data.results.forEach(r => {
+                        const div = document.createElement('div');
+                        div.className = 'dropdown-item';
+                        div.innerHTML = `${r.display_name} <br><span style='font-size:10px; color:#999'>${r.name}</span>`;
+                        div.onclick = () => {
+                            document.getElementById('place').value = r.display_name;
+                            document.getElementById('lat').value = r.latitude;
+                            document.getElementById('lng').value = r.longitude;
+                            dropdown.style.display = 'none';
+                        };
+                        dropdown.appendChild(div);
+                    });
+                } catch (e) { dropdown.style.display = 'none'; }
             }
-            traverse(clone);
-            return clone;
-        }
+        };
+
+        app.init();
     </script>
 </body>
 

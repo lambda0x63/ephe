@@ -8,6 +8,7 @@ class ChartRequest(BaseModel):
     name: str  # 차트 소유자 이름
     birth_date: str  # YYYY-MM-DD
     birth_time: str  # HH:MM:SS
+    gender: str = 'unknown'  # male, female, other
     
     # 둘 중 하나 필수
     place_name: Optional[str] = None
@@ -116,3 +117,12 @@ class ChartResponse(BaseModel):
     input: InputInfo
     summary_prompt: Optional[str] = None
 
+
+class ChartListItem(BaseModel):
+    """저장된 차트 목록 아이템"""
+    id: int
+    name: str
+    birth_date: str
+    birth_time: str
+    place_name: Optional[str]
+    created_at: str

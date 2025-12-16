@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from app.models import ChartRequest, ChartResponse
+from app.models import ChartRequest, ChartResponse, ChartListItem
 from app.services.chart import calculate_chart
 from app.services.summary import generate_ai_summary
 from app.utils.geocoding import geocode, search_places
@@ -66,10 +66,10 @@ def search_place_api(query: str):
 
 
 @app.post("/api/v1/natal-chart", response_model=ChartResponse)
-def create_natal_chart(request: ChartRequest, db: Session = Depends(get_db)):
-    """네이탈차트 계산 및 저장"""
+def create_natal_chart(request: ChartRequest):
+    """네이탈차트 단순 계산 (저장 X)"""
     
-    # 1. 좌표 확보 (place_name 또는 lat/lng)
+    # 1. 좌표 확보
     if request.place_name:
         try:
             latitude, longitude = geocode(request.place_name)
@@ -79,49 +79,25 @@ def create_natal_chart(request: ChartRequest, db: Session = Depends(get_db)):
         latitude = request.latitude
         longitude = request.longitude
     else:
-        raise HTTPException(
-            status_code=400,
-            detail="Either place_name or latitude/longitude is required"
-        )
+        raise HTTPException(status_code=400, detail="Location required")
     
-    # 2. 타임존 추론
+    # 2. 타임존
     try:
         timezone_str = get_timezone(latitude, longitude)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    # 3. 차트 계산
-    chart_data = calculate_chart(
-        birth_date=request.birth_date,
-        birth_time=request.birth_time,
-        latitude=latitude,
-        longitude=longitude,
-        timezone_str=timezone_str
-    )
+    # 3. 계산
+    chart_data = calculate_chart(request.birth_date, request.birth_time, latitude, longitude, timezone_str)
     
-    # 4. AI 요약 리포트 생성
-    summary_text = generate_ai_summary(chart_data)
+    # 4. Generate AI Summary Prompt
+    summary = generate_ai_summary(chart_data, request.name, request.gender, request.birth_date, request.birth_time, request.place_name)
     
-    # 5. DB에 저장
-    db_record = ChartRecord(
-        name=request.name,
-        birth_date=request.birth_date,
-        birth_time=request.birth_time,
-        place_name=request.place_name,
-        latitude=latitude,
-        longitude=longitude,
-        timezone=timezone_str,
-        chart_data=chart_data,
-        summary_prompt=summary_text
-    )
-    db.add(db_record)
-    db.commit()
-    db.refresh(db_record)
-    
-    # 6. 응답 조합
     return ChartResponse(
-        id=db_record.id,
         name=request.name,
+        gender=request.gender,
+        birth_date=request.birth_date,
+        birth_time=request.birth_time,
         planets=chart_data["planets"],
         houses=chart_data["houses"],
         aspects=chart_data["aspects"],
@@ -135,5 +111,99 @@ def create_natal_chart(request: ChartRequest, db: Session = Depends(get_db)):
             "longitude": longitude,
             "timezone": timezone_str
         },
-        summary_prompt=summary_text
+        summary_prompt=summary
     )
+
+
+@app.post("/api/v1/charts", response_model=ChartResponse)
+def save_chart(request: ChartRequest, db: Session = Depends(get_db)):
+    """차트 계산 후 DB 저장"""
+    # (로직 재사용을 위해 내부 호출 가능하지만, 명시적으로 다시 수행)
+    
+    # 1. 좌표
+    if request.place_name:
+        try:
+            lat, lng = geocode(request.place_name)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif request.latitude and request.longitude:
+        lat, lng = request.latitude, request.longitude
+    else:
+        raise HTTPException(status_code=400, detail="Location required")
+        
+    # 2. 타임존
+    try:
+        tz = get_timezone(lat, lng)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
+    # 3. 계산
+    chart_data = calculate_chart(request.birth_date, request.birth_time, lat, lng, tz)
+    # 4. Generate AI Summary Prompt
+    summary = generate_ai_summary(chart_data, request.name, request.gender, request.birth_date, request.birth_time, request.place_name)
+    
+    # 5. 저장
+    db_record = ChartRecord(
+        name=request.name,
+        gender=request.gender,
+        birth_date=request.birth_date,
+        birth_time=request.birth_time,
+        place_name=request.place_name,
+        latitude=lat,
+        longitude=lng,
+        timezone=tz,
+        chart_data=chart_data,
+        summary_prompt=summary
+    )
+    db.add(db_record)
+    db.commit()
+    db.refresh(db_record)
+    
+    return ChartResponse(
+        id=db_record.id,
+        name=request.name,
+        gender=request.gender,
+        planets=chart_data["planets"],
+        houses=chart_data["houses"],
+        aspects=chart_data["aspects"],
+        ascendant=chart_data["ascendant"],
+        midheaven=chart_data["midheaven"],
+        fortuna=chart_data["fortuna"],
+        input={
+            "birth_date": request.birth_date,
+            "birth_time": request.birth_time,
+            "latitude": lat,
+            "longitude": lng,
+            "timezone": tz
+        },
+        summary_prompt=summary
+    )
+
+
+@app.get("/api/v1/charts", response_model=list[ChartListItem])
+def list_saved_charts(db: Session = Depends(get_db)):
+    """저장된 차트 목록 조회"""
+    charts = db.query(ChartRecord).order_by(ChartRecord.created_at.desc()).all()
+    return [
+        ChartListItem(
+            id=record.id,
+            name=record.name,
+            gender=record.gender,
+            birth_date=record.birth_date,
+            birth_time=record.birth_time,
+            place_name=record.place_name,
+            created_at=record.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        ) for record in charts
+    ]
+
+
+@app.delete("/api/v1/charts/{chart_id}")
+def delete_chart(chart_id: int, db: Session = Depends(get_db)):
+    """차트 삭제"""
+    chart = db.query(ChartRecord).filter(ChartRecord.id == chart_id).first()
+    if not chart:
+        raise HTTPException(status_code=404, detail="Chart not found")
+    
+    db.delete(chart)
+    db.commit()
+    return {"message": "Deleted successfully"}

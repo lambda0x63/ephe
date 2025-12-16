@@ -11,7 +11,8 @@ class ChartRecord(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # 기본 정보
-    name = Column(String(100), nullable=False, index=True)
+    name = Column(String, index=True, default="Unknown")
+    gender = Column(String, default="unknown")
     birth_date = Column(String(10), nullable=False)  # YYYY-MM-DD
     birth_time = Column(String(8), nullable=False)   # HH:MM:SS
     place_name = Column(String(200), nullable=True)
