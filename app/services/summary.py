@@ -1,18 +1,20 @@
+"""AI 프롬프트 생성 - Hellenistic Astrology 전문가 스타일"""
+
 from app.services.planets import get_ruler_planet, ESSENTIAL_DIGNITIES
 
 HOUSE_MEANINGS = [
-    "생명, 자아, 외모, 활력 (1H)",
-    "소유, 재물, 가치관 (2H)",
-    "형제, 커뮤니케이션, 단거리 여행, 학습 (3H)",
-    "가정, 부모, 뿌리, 노년 (4H)",
-    "창조, 유흥, 자녀, 로맨스 (5H)",
-    "노동, 질병, 의무, 반려동물 (6H)",
-    "결혼, 파트너십, 공개된 적 (7H)",
-    "타인의 돈, 죽음, 오컬트, 유산 (8H)",
-    "철학, 종교, 장거리 여행, 고등교육 (9H)",
-    "직업, 명예, 사회적 지위, 권위 (10H)",
-    "친구, 소망, 그룹 활동, 행운 (11H)",
-    "고립, 숨겨진 적, 무의식, 자선 (12H)"
+    "생명, 자아, 신체, 외모",                          # 1H - Horoskopos
+    "생계, 재물, 소유, 거래",                          # 2H - Gate of Hades
+    "형제, 이동, 친척, 꿈",                            # 3H - Goddess
+    "가정, 부모, 부동산, 뿌리, 노년",                   # 4H - Subterraneous
+    "자녀, 쾌락, 우정, 창조",                          # 5H - Good Fortune
+    "질병, 노동, 하인, 작은 동물",                      # 6H - Bad Fortune
+    "결혼, 배우자, 파트너십, 공개된 적",                 # 7H - Descendant
+    "죽음, 유산, 타인의 자원, 법적 문제",                # 8H - Idle Place (오컬트 X)
+    "철학, 종교, 여행, 점술, 신탁, 신비로운 사항",        # 9H - God (오컬트 O)
+    "직업, 명예, 사회적 지위, 행동",                    # 10H - Midheaven
+    "친구, 희망, 후원자, 선물",                        # 11H - Good Spirit
+    "외국, 적대, 고립, 숨겨진 적, 위험"                  # 12H - Bad Spirit (업보 X)
 ]
 
 ASPECT_MEANINGS = {
@@ -23,114 +25,223 @@ ASPECT_MEANINGS = {
     "Opposition": "대립과 타협, 긴장 관계"
 }
 
-def get_planet_dignity(planet_name, sign_name):
-    """행성의 본질적 위계(Essential Dignity) 판별"""
-    # planets.py의 구조: { "Sun": { "domicile": ["Leo"], ... } }
+DIGNITY_LABELS = {
+    "domicile": "Domicile (매우 강함)",
+    "exaltation": "Exaltation (강화됨)",
+    "detriment": "Detriment (약화됨)",
+    "fall": "Fall (매우 약함)",
+    "peregrine": "Peregrine (중립)"
+}
+
+# 행성의 본질적 성질 (Sect 무관)
+BENEFICS = {"Venus", "Jupiter"}
+MALEFICS = {"Mars", "Saturn"}
+LUMINARIES = {"Sun", "Moon"}
+NEUTRAL = {"Mercury"}  # Mercury는 함께 있는 행성에 따라 결정
+
+
+def get_sect_status(planet_name: str, is_day_chart: bool) -> str:
+    """
+    Sect에 따른 행성의 길/흉 상태 판정 (헬레니즘 기준)
+    
+    Day Chart: Sun=Sect Light, Jupiter=Benefic of Sect, Saturn=Malefic of Sect (건설적)
+               Venus=Benefic out of Sect, Mars=Malefic out of Sect (파괴적)
+    Night Chart: Moon=Sect Light, Venus=Benefic of Sect, Mars=Malefic of Sect (건설적)
+                 Jupiter=Benefic out of Sect, Saturn=Malefic out of Sect (파괴적)
+    """
+    if is_day_chart:
+        if planet_name == "Sun":
+            return "Sect Light (주도 행성)"
+        elif planet_name == "Jupiter":
+            return "Benefic of Sect (강한 길성)"
+        elif planet_name == "Saturn":
+            return "Malefic of Sect (건설적 흉성)"
+        elif planet_name == "Venus":
+            return "Benefic out of Sect (약한 길성)"
+        elif planet_name == "Mars":
+            return "Malefic out of Sect (파괴적 흉성)"
+        elif planet_name == "Moon":
+            return "Luminary (보조광)"
+        else:
+            return "Neutral"
+    else:  # Night Chart
+        if planet_name == "Moon":
+            return "Sect Light (주도 행성)"
+        elif planet_name == "Venus":
+            return "Benefic of Sect (강한 길성)"
+        elif planet_name == "Mars":
+            return "Malefic of Sect (건설적 흉성)"
+        elif planet_name == "Jupiter":
+            return "Benefic out of Sect (약한 길성)"
+        elif planet_name == "Saturn":
+            return "Malefic out of Sect (파괴적 흉성)"
+        elif planet_name == "Sun":
+            return "Luminary (보조광)"
+        else:
+            return "Neutral"
+
+
+def get_conjunction_quality(planet1: str, planet2: str) -> str:
+    """
+    Conjunction의 길/흉 판정 (헬레니즘 기준)
+    
+    길성+길성 = Benefic
+    흉성+흉성 = Malefic  
+    혼합 = Mixed
+    """
+    def get_nature(p):
+        if p in BENEFICS:
+            return "benefic"
+        elif p in MALEFICS:
+            return "malefic"
+        else:
+            return "neutral"  # Luminaries, Mercury
+    
+    n1 = get_nature(planet1)
+    n2 = get_nature(planet2)
+    
+    if n1 == "benefic" and n2 == "benefic":
+        return "Benefic (길)"
+    elif n1 == "malefic" and n2 == "malefic":
+        return "Malefic (흉)"
+    elif n1 == "neutral" or n2 == "neutral":
+        return "Neutral (중립)"
+    else:
+        return "Mixed (혼합)"
+
+
+def get_planet_dignity(planet_name: str, sign_name: str) -> str:
+    """행성의 Essential Dignity 판별"""
     dignity_data = ESSENTIAL_DIGNITIES.get(planet_name, {})
     
     if sign_name in dignity_data.get('domicile', []):
-        return "Domicile (Ruler) - 매우 강력함"
+        return DIGNITY_LABELS["domicile"]
     if sign_name in dignity_data.get('exaltation', []):
-        return "Exaltation - 고귀하고 강력함"
+        return DIGNITY_LABELS["exaltation"]
     if sign_name in dignity_data.get('detriment', []):
-        return "Detriment - 힘을 쓰기 어려움"
+        return DIGNITY_LABELS["detriment"]
     if sign_name in dignity_data.get('fall', []):
-        return "Fall - 매우 약하고 불편함"
-        
-    return "Peregrine - 중립적"
+        return DIGNITY_LABELS["fall"]
+    return DIGNITY_LABELS["peregrine"]
 
-def generate_ai_summary(data, name="Unknown", gender="unknown", birth_date="", birth_time="", place_name=""):
+
+
+def generate_ai_summary(data: dict, name: str = "Unknown", gender: str = "unknown", 
+                        birth_date: str = "", birth_time: str = "", place_name: str = "") -> str:
     """
-    네이탈 차트 데이터를 기반으로 AI(ChatGPT/Claude)가 해석할 수 있는
-    상세한 프롬프트 텍스트를 생성합니다.
+    네이탈 차트 데이터를 기반으로 AI 프롬프트 생성.
+    결정론적/구조적 관점의 Hellenistic 분석을 유도하는 형식.
     """
+    lines = []
     
-    # 1. 헤더 및 System Instructions (강력한 지침 복원)
-    prompt_lines = [
-        "## System: Role & Context",
-        "You are an expert Hellenistic Astrologer. Analyze the following natal chart data using Whole Sign Houses.",
-        "**Strict Guidelines:**",
-        "1. **Methodology**: Use strictly Hellenistic techniques. Focus on Essential Dignities (Domicile, Exaltation, Detriment, Fall), House rulers, and Sect.",
-        "2. **Exclusions**: Do NOT focus on modern outer planets (Uranus, Neptune, Pluto) as primary significators.",
-        "3. **Structure**: Provide a comprehensive reading covering Life Purpose (Sun), Emotions/Body (Moon), Communication (Mercury), Relationships (Venus), Action (Mars), Wisdom (Jupiter), and Challenges (Saturn).",
-        "4. **Tone**: Be insightful, empathetic, yet clear and professional.",
-        "5. **Language**: Write the FINAL reading IN KOREAN (결과는 반드시 한국어로 작성하십시오).",
-        "",
-        "## 1. Querent Information (내담자 정보)",
-        f"- Name: {name}",
-        f"- Gender: {gender} (Consider gender context if relevant to traditional interpretations, but apply modern flexibility)",
-        f"- Birth Date: {birth_date}",
-        f"- Birth Time: {birth_time}",
-        f"- Place: {place_name or 'Unknown'}",
-        "",
-        "## 2. Chart Data Report",
-        ""
-    ]
-
-    # 2. Ascendant & Sect
+    # === SYSTEM HEADER ===
+    lines.append("=== SYSTEM: Hellenistic Astrology / Classical 7 Planets Only ===")
+    lines.append("(천왕성, 해왕성, 명왕성, 키론 등 현대 천체 절대 언급 금지)")
+    lines.append("")
+    
+    # [1] 핵심 지표
     sect = data.get('sect', 'Unknown')
-    prompt_lines.append(f"### [1] 기본 구조")
-    prompt_lines.append(f"- Ascendant (상승궁): {data['ascendant']['sign_ko']} {data['ascendant']['degree_formatted']}")
-    prompt_lines.append(f"- Chart Sect: {sect} (낮의 차트인가 밤의 차트인가?)")
-    if sect == "Day Chart":
-        prompt_lines.append("  -> Key Planets: Sun(빛), Jupiter(협조), Saturn(도전)")
-    else:
-        prompt_lines.append("  -> Key Planets: Moon(빛), Venus(협조), Mars(도전)")
-    prompt_lines.append("")
-
-    # 3. 행성 배치
-    prompt_lines.append("### [2] 행성 배치 및 위계 (Planets & Dignities)")
-    for p in data['planets']:
-        retro = " (Retrograde - 역행)" if p['retrograde'] else ""
-        dignity = get_planet_dignity(p['name'], p['sign'])
-        # symbol 사용 가능 시 사용
-        symbol = p.get('symbol', '')
-        prompt_lines.append(f"- {symbol} {p['name_ko']}: {p['sign_ko']} {p['degree_formatted']}{retro} / {p['house']}H [{dignity}]")
-    prompt_lines.append("")
-
-    # 4. 하우스별 상세
-    prompt_lines.append("### [3] 하우스별 상세 구조 (Whole Sign Houses)")
+    is_day = sect == 'Day'
+    asc = data['ascendant']
     
+    # Chart Ruler 찾기
+    asc_sign_en = asc['sign']
+    chart_ruler_name = get_ruler_planet(asc_sign_en)
+    chart_ruler = next((p for p in data['planets'] if p['name'] == chart_ruler_name), None)
+    chart_ruler_info = "정보 없음"
+    if chart_ruler:
+        dignity = get_planet_dignity(chart_ruler['name'], chart_ruler['sign'])
+        chart_ruler_info = f"{chart_ruler['name_ko']} in {chart_ruler['sign_ko']} {chart_ruler['house']}H [{dignity}]"
+    
+    lines.append("[1] 핵심 지표 (Primary Indicators)")
+    lines.append(f"- Sect: {'낮 차트 (Day Chart)' if is_day else '밤 차트 (Night Chart)'}")
+    lines.append(f"- 상승궁(ASC): {asc['sign_ko']} {asc['degree_formatted']}")
+    lines.append(f"- 차트 룰러: {chart_ruler_info}")
+    lines.append(f"- MC(중천): {data['midheaven']['sign_ko']} {data['midheaven']['degree_formatted']}")
+    lines.append(f"- 포르투나: {data['fortuna']['sign_ko']} {data['fortuna']['degree_formatted']} ({data['fortuna']['house']}H)")
+    lines.append("")
+    
+    # [2] 행성 배치 + Sect Status
+    lines.append("[2] 행성 배치 (Planetary Positions with Dignity & Sect)")
+    for p in data['planets']:
+        symbol = p.get('symbol', '')
+        dignity = get_planet_dignity(p['name'], p['sign'])
+        sect_status = get_sect_status(p['name'], is_day)
+        retro = " (R)" if p.get('retrograde') else ""
+        lines.append(f"- {symbol} {p['name_ko']}: {p['sign_ko']} {p['degree_formatted']}{retro} / {p['house']}H")
+        lines.append(f"    Dignity: {dignity} | Sect: {sect_status}")
+    lines.append("")
+    
+    # [3] 하우스별 상세
+    lines.append("[3] 하우스별 상세 구조 (Whole Sign Houses)")
+    
+    # 하우스별 행성 맵핑
     house_planets = {i: [] for i in range(1, 13)}
     for p in data['planets']:
         house_planets[p['house']].append(p['name_ko'])
     
     for house in data['houses']:
         num = house['number']
-        sign = house['sign_ko']
+        sign_ko = house['sign_ko']
         sign_en = house['sign']
         
-        # Ruler Info
-        ruler_en = get_ruler_planet(sign_en)
-        ruler_data = next((p for p in data['planets'] if p['name'] == ruler_en), None)
+        # Ruler
+        ruler_name = get_ruler_planet(sign_en)
+        ruler_data = next((p for p in data['planets'] if p['name'] == ruler_name), None)
         
-        ruler_info = "정보 없음"
+        ruler_str = "정보 없음"
+        ruler_dignity = ""
         if ruler_data:
             ruler_dignity = get_planet_dignity(ruler_data['name'], ruler_data['sign'])
-            ruler_info = f"{ruler_data['name_ko']} in {ruler_data['sign_ko']} {ruler_data['house']}H [{ruler_dignity}]"
-
+            ruler_str = f"{ruler_data['name_ko']} in {ruler_data['sign_ko']} {ruler_data['house']}H [{ruler_dignity}]"
+        
         occupants = house_planets.get(num, [])
         occupants_str = ", ".join(occupants) if occupants else "없음"
         
-        prompt_lines.append(f"#### {num}H ({sign})")
-        prompt_lines.append(f"- 주제: {HOUSE_MEANINGS[num-1]}")
-        prompt_lines.append(f"- 내재 행성: {occupants_str}")
-        prompt_lines.append(f"- 하우스 룰러: {ruler_info}")
+        lines.append(f"### {num}H ({sign_ko})")
+        lines.append(f"- 주제: {HOUSE_MEANINGS[num - 1]}")
+        lines.append(f"- 내재 행성: {occupants_str}")
+        lines.append(f"- 룰러: {ruler_str}")
+        
+        # 빈 하우스 가이드
         if not occupants and ruler_data:
-            # 빈 하우스일 때 룰러 해석 가이드
-            prompt_lines.append(f"  -> (Tip): 빈 하우스입니다. 이 하우스의 문제는 주인 행성인 '{ruler_data['name_ko']}'의 상태를 보고 판단하세요.")
-        prompt_lines.append("")
-
-    # 5. 애스펙트
-    prompt_lines.append("### [4] 주요 애스펙트 (Major Aspects)")
+            lines.append(f"  -> (Guide): 빈 하우스. 룰러 '{ruler_data['name_ko']}'의 상태({ruler_data['sign_ko']}, {ruler_data['house']}H)를 추적하여 해석.")
+        lines.append("")
+    
+    # [4] 주요 애스펙트
+    lines.append("[4] 주요 애스펙트 (Aspects)")
     if data['aspects']:
         for asp in data['aspects']:
-            # P1 (orb) Aspect P2
-            meaning = ASPECT_MEANINGS.get(asp['type'], asp['type'])
-            prompt_lines.append(f"- {asp['planet1']} {asp['type']} {asp['planet2']} (Orb: {asp['orb']:.1f}°)")
-            prompt_lines.append(f"  -> 의미: {meaning}")
+            aspect_type = asp['type']
+            meaning = ASPECT_MEANINGS.get(aspect_type, aspect_type)
+            
+            # 길/흉 판정
+            if aspect_type in ["Trine", "Sextile"]:
+                nature = "Soft (길각)"
+            elif aspect_type in ["Square", "Opposition"]:
+                nature = "Hard (흉각)"
+            elif aspect_type == "Conjunction":
+                # Conjunction은 행성 조합에 따라 판정
+                nature = get_conjunction_quality(asp['planet1'], asp['planet2'])
+            else:
+                nature = "Neutral"
+            
+            lines.append(f"- {aspect_type} [{nature}]: {asp['planet1']} - {asp['planet2']} (orb {asp['orb']:.2f}°)")
     else:
-        prompt_lines.append("- 주요 메이저 애스펙트 없음")
-    prompt_lines.append("")
-
-    return "\n".join(prompt_lines)
+        lines.append("- 주요 메이저 애스펙트 없음")
+    lines.append("")
+    
+    # === AI 해석 지침 ===
+    lines.append("---")
+    lines.append("")
+    lines.append("!!! AI 해석 지침 !!!")
+    lines.append("1. 위 데이터에 명시된 7행성만 사용. 현대 천체(천왕성/해왕성/명왕성) 절대 금지.")
+    lines.append("2. Dignity(품위)를 참고하여 행성의 길흉 상태를 반영.")
+    lines.append("3. Sect(주/야)를 고려하여 길성/흉성 판단 (Day: 태양/목성 유리, Night: 달/금성 유리).")
+    lines.append("4. 빈 하우스는 반드시 룰러를 추적하여 통변.")
+    lines.append("5. 심리적 위로보다 현실적 사건과 결정론적 뉘앙스 유지.")
+    lines.append("6. 결과는 반드시 한국어로 작성.")
+    lines.append("")
+    lines.append(f"[내담자 정보] 이름: {name} / 성별: {gender} / 생년월일: {birth_date} / 출생시간: {birth_time} / 출생지: {place_name or 'Unknown'}")
+    
+    return "\n".join(lines)
