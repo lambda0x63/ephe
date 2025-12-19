@@ -28,3 +28,18 @@ curl -X POST http://localhost:8000/api/v1/natal-chart \
 
 - API 문서: http://localhost:8000/docs
 - 아키텍처: [docs/architecture.md](docs/architecture.md)
+
+## Deployment (PM2)
+
+서버 배포 시 PM2를 사용하여 관리합니다.
+
+```bash
+# PM2로 시작 (최초 1회)
+pm2 start ecosystem.config.js
+
+# 재시작 (코드 업데이트 후)
+pm2 restart natal-chart-backend
+
+# 로그 확인
+pm2 logs natal-chart-backend
+```
