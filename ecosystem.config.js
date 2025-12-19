@@ -2,8 +2,8 @@ module.exports = {
     apps: [
         {
             name: "natal-chart-backend",
-            script: "venv/bin/uvicorn",
-            args: "app.main:app --host 0.0.0.0 --port 8000",
+            script: "python3",
+            args: "-m uvicorn app.main:app --host 0.0.0.0 --port 8000",
             cwd: "/var/www/natal-fastapi",
             interpreter: "none",
             autorestart: true,

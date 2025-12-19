@@ -19,19 +19,14 @@ BRANCH=$(git branch --show-current)
 if [ -z "$BRANCH" ]; then BRANCH="main"; fi
 git pull origin $BRANCH || git pull origin master
 
-# 3. 가상환경 설정 및 의존성 설치
-if [ ! -d "venv" ]; then
-    echo ">>> 가상환경 생성 중 (venv)..."
-    python3 -m venv venv
-fi
-
-echo ">>> 가상환경 활성화 및 의존성 설치..."
-source venv/bin/activate
-pip install --upgrade pip
+# 3. 의존성 설치 (전역 python3 사용)
+echo ">>> 의존성 설치 (전역)..."
+python3 -m pip install --upgrade pip
 if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
+    python3 -m pip install -r requirements.txt
 fi
-pip install uvicorn  # uvicorn이 확실히 설치되도록 추가
+python3 -m pip install uvicorn
+
 
 # 4. PM2를 통한 프로세스 재시작
 echo ">>> PM2 Reload..."
