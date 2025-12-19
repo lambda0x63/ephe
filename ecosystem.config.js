@@ -4,7 +4,7 @@ module.exports = {
             name: "natal-chart-backend",
             script: "venv/bin/uvicorn",
             args: "app.main:app --host 0.0.0.0 --port 8000",
-            cwd: "/var/www/natal-chart/backend",
+            cwd: "/var/www/natal-chart",
             interpreter: "none",
             autorestart: true,
             watch: false,
