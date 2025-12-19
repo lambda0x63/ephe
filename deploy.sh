@@ -13,8 +13,10 @@ else
     exit 1
 fi
 
-# 2. 최신 코드 가져오기 (브랜치 자동 감지)
-echo ">>> Git Pull..."
+# 2. 로컬 변경사항 초기화 및 최신 코드 가져오기
+echo ">>> Git Reset & Pull..."
+git reset --hard HEAD
+git clean -fd
 BRANCH=$(git branch --show-current)
 if [ -z "$BRANCH" ]; then BRANCH="main"; fi
 git pull origin $BRANCH || git pull origin master
