@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
@@ -28,78 +28,60 @@
             --line-border: #ccc;
             --text-main: #1a1a1a;
             --text-muted: #555;
-            --accent-blue: #8B0000;
-            /* Redefined as Classical Red */
+            --accent: #8B0000;
 
             --font-serif: "Noto Serif KR", "Playfair Display", serif;
             --font-sans: "Inter", "Noto Serif KR", sans-serif;
-            /* Fallback to serif for consistency */
 
-            --paper-bg: #F9F7F1;
-            --angle-color: #8B0000;
+            --sidebar-width: 320px;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-sans);
-            background: var(--bg-body);
+            font-family: var(--font-serif);
+            background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
             overflow: hidden;
             display: flex;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
         }
 
-        .layout-container {
+        .app-container {
             display: flex;
             width: 100%;
             height: 100%;
         }
 
-        /* Chart Pane */
-        .chart-pane {
-            flex: 1.6;
-            background: var(--paper-bg);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid var(--line-border);
-            overflow: hidden;
-            background-image: radial-gradient(#e3e1d9 1px, transparent 1px), radial-gradient(circle at center, #F9F7F1 0%, #EFEBE0 100%);
-            background-size: 20px 20px, 100% 100%;
-        }
-
-        .chart-pane svg {
-            filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.1));
-            max-width: 98%;
-            max-height: 98%;
-            transition: transform 0.1s;
-        }
-
         /* Sidebar */
         .sidebar {
-            width: 240px;
+            width: var(--sidebar-width);
             background: #fff;
             border-right: 1px solid var(--line-border);
             display: flex;
             flex-direction: column;
-            z-index: 10;
+            z-index: 20;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 20px 24px;
             border-bottom: 1px solid var(--line-border);
-            font-weight: 700;
-            font-family: var(--font-serif);
-            font-size: 18px;
+            background: var(--bg-body);
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
         .history-list {
@@ -110,62 +92,63 @@
 
         .chart-item {
             padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 4px;
+            border-bottom: 1px solid #eee;
             cursor: pointer;
             position: relative;
-            border: 1px solid transparent;
         }
 
         .chart-item:hover {
-            background: #F3F4F6;
+            background: #f9fafb;
         }
 
         .item-name {
             font-weight: 600;
-            font-size: 14px;
-            font-family: var(--font-serif);
+            font-size: 15px;
         }
 
         .item-date {
             font-size: 11px;
             color: #666;
-            margin-top: 2px;
         }
 
-        .btn-delete {
-            position: absolute;
-            right: 10px;
-            top: 12px;
-            border: none;
-            background: none;
-            color: #ff3b30;
-            cursor: pointer;
-            display: none;
-        }
-
-        .chart-item:hover .btn-delete {
-            display: block;
-        }
-
-        /* Data Pane */
-        .data-pane {
+        /* Chart & Data Views */
+        .main-view {
             flex: 1;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            overflow-y: auto;
+            display: flex;
+            overflow: hidden;
+            background: var(--bg-body);
+        }
+
+        /* Chart View Area */
+        .chart-pane {
+            flex: 2;
             position: relative;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-right: 1px solid var(--line-border);
+        }
+
+        .chart-paper {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        /* Data & Input Pane */
+        .data-pane {
+            flex: 1;
+            min-width: 400px;
+            background: #fff;
+            overflow-y: auto;
+            display: flex;
             flex-direction: column;
-            border-left: 1px solid var(--line-border);
         }
 
         .data-content {
             padding: 32px;
-            max-width: 600px;
-            margin: 0 auto;
             width: 100%;
-            padding-bottom: 100px;
         }
 
         .pane-header {
@@ -177,403 +160,103 @@
             align-items: flex-end;
         }
 
-        .chart-title {
-            font-family: var(--font-serif);
-            font-size: 32px;
-            color: var(--text-main);
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
-
-        .chart-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-family: var(--font-sans);
-            font-weight: 500;
-        }
-
-        .edit-toggle-btn {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-            background: #E5E7EB;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Input Drawer (Alpine Managed Transition) */
         .input-drawer {
-            background: #F9FAFB;
+            background: #fafafa;
+            border: 1px solid #ddd;
             padding: 24px;
-            border-radius: 8px;
-            border: 1px solid var(--line-border);
-            margin-bottom: 32px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
-            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
-        /* Summary Cards & Tables (Shared Styles) */
-        .summary-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-
-        .kpi-card {
-            background: #fff;
-            border: 1px solid var(--line-border);
-            border-radius: 8px;
-            padding: 20px 16px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent-blue);
-        }
-
-        .kpi-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: block;
-            height: 36px;
-            line-height: 36px;
-        }
-
-        .kpi-value {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .kpi-label {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 6px;
-        }
-
-        .section-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-main);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 32px;
-        }
-
-        .section-label::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: var(--text-main);
-            opacity: 0.2;
-        }
-
-        .data-table-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            cursor: default;
-        }
-
-        .data-table-row:hover {
-            background: #F8FAFC;
-        }
-
-        .col-planet {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-            width: 35%;
-            font-family: var(--font-serif);
-        }
-
-        .col-sign {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 30%;
-            color: #444;
-        }
-
-        .col-deg {
-            font-family: monospace;
-            color: #555;
-            width: 25%;
-            text-align: right;
-            font-size: 13px;
-        }
-
-        .col-house {
-            width: 10%;
-            text-align: right;
-            color: #888;
-            font-size: 12px;
-        }
-
-        .planet-symbol {
-            font-family: "Segoe UI Symbol", sans-serif;
-            font-weight: 400;
-            font-size: 16px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .badge {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            background: #f0f0f0;
-            color: #555;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .badge-fire {
-            background: #FEF2F2;
-            color: #991B1B;
-        }
-
-        .badge-earth {
-            background: #F0FDF4;
-            color: #166534;
-        }
-
-        .badge-air {
-            background: #FFFBEB;
-            color: #92400E;
-        }
-
-        .badge-water {
-            background: #EFF6FF;
-            color: #1E40AF;
-        }
-
-        /* Form */
         .input-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
         .form-input {
             width: 100%;
-            height: 40px;
-            border: 1px solid #D1D5DB;
-            border-radius: 4px;
-            padding: 0 12px;
-            font-size: 14px;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid var(--line-border);
+            border-radius: 2px;
             font-family: var(--font-sans);
-            background: #fff;
+            font-size: 14px;
         }
 
         .form-btn {
+            margin-top: 16px;
             width: 100%;
-            height: 40px;
+            padding: 12px;
             background: var(--text-main);
             color: #fff;
             border: none;
-            border-radius: 4px;
+            cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            margin-top: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .form-btn:hover {
-            background: #000;
-        }
-
-        .btn-outline {
-            padding: 4px 12px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .htmx-indicator {
-            display: none;
-        }
-
-        .htmx-request .htmx-indicator {
-            display: inline;
-        }
-
-        /* Interactive Highlight Classes (Managed by SVG Engine) */
-        text {
-            font-family: "Playfair Display", serif;
-        }
-
-        .planet-group {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.9;
-        }
-
-        .planet-group:hover,
-        .planet-group.active {
-            opacity: 1;
-        }
-
-        .planet-group:hover text,
-        .planet-group.active text {
-            fill: var(--accent-blue) !important;
-            font-weight: 700;
-            font-size: 28px !important;
-            filter: drop-shadow(0 0 2px #fff);
-        }
-
-        .planet-group:hover circle,
-        .planet-group.active circle {
-            stroke: var(--accent-blue);
-            stroke-width: 3px;
-            fill: #fff;
-            filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4));
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        /* ... Animations ... */
-
-        /* Responsive Design (Mobile) */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
+        /* Responsive */
+        @media (max-width: 1024px) {
             .app-container {
                 flex-direction: column;
             }
 
             .sidebar {
                 position: fixed;
-                top: 0;
                 left: 0;
+                top: 0;
                 bottom: 0;
-                width: 280px;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-                z-index: 100;
-                box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
             }
 
             .sidebar.mobile-open {
                 transform: translateX(0);
             }
 
-            /* Mobile Header Toggle */
-            .mobile-header-btn {
-                display: flex !important;
-            }
-
             .main-view {
-                padding: 16px;
-                width: 100%;
-                padding-top: 60px;
-                /* Space for button */
-            }
-
-            .chart-paper {
-                padding: 10px;
-                box-shadow: none;
-                border: none;
-                background: transparent;
-            }
-
-            .chart-svg {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 1/1;
-            }
-
-            /* Input form stack */
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .pane-header {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
             }
 
-            .edit-toggle-btn {
-                width: 100%;
-                margin-top: 10px;
+            .data-pane {
+                min-width: 100%;
             }
         }
 
-        .mobile-header-btn {
+        .mobile-toggle {
             display: none;
-            /* Desktop hidden */
             position: fixed;
             top: 12px;
             left: 16px;
             z-index: 50;
             background: #fff;
-            padding: 8px 12px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 6px 10px;
         }
 
-        .mobile-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 90;
-            display: none;
-            backdrop-filter: blur(2px);
+        @media (max-width: 1024px) {
+            .mobile-toggle {
+                display: block;
+            }
         }
     </style>
 </head>
 
 <body x-data="natalApp()">
 
-    <!-- Mobile UI Elements -->
-    <button class="mobile-header-btn" @click="mobileMenuOpen = !mobileMenuOpen">☰</button>
-    <div class="mobile-backdrop" :class="{ 'active': mobileMenuOpen }" @click="mobileMenuOpen = false"></div>
+    <button class="mobile-toggle" @click="mobileMenuOpen = !mobileMenuOpen">☰</button>
 
     <div class="app-container">
         <!-- Sidebar -->
@@ -581,145 +264,117 @@
             <div class="sidebar-header">
                 <span class="brand-title">저장 기록</span>
                 <a href="/dashboard"
-                    style="font-size:11px; color:#666; text-decoration:none; text-transform:uppercase; letter-spacing:0.5px; border:1px solid #ddd; padding:2px 6px; border-radius:4px;">New</a>
+                    style="font-size:11px; color:#666; text-decoration:none; border:1px solid #ddd; padding:2px 6px;">New</a>
             </div>
             <div id="historyList" class="history-list">
                 {% include "partials/history_list.html" %}
             </div>
         </aside>
 
-        <!-- Chart Pane -->
-        <section class="chart-pane" id="chart-section" style="position:relative;">
-
-            <!-- Mode Toggle -->
-            <button id="modeBtn" onclick="toggleChartMode()"
-                style="position:absolute; top:20px; right:20px; z-index:10; background:#fff; border:1px solid #1a1a1a; padding:8px 16px; font-family:'Noto Serif KR'; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.1); transition:all 0.2s;">
-                학습 모드 (켜기)
-            </button>
-
-            <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800"></svg>
-            <div
-                style="position: absolute; bottom: 20px; left: 24px; font-size: 11px; color: #444; font-family: var(--font-serif); opacity: 0.6;">
-                <i>Whole Sign House System • Tropical Zodiac</i>
-            </div>
-        </section>
-
-        <!-- Data Pane -->
-        <section class="data-pane">
-            <div class="data-content">
-                <div class="pane-header">
-                    <div>
-                        <h1 class="chart-title">천궁도 (Natal Chart)</h1>
-                        <div class="chart-subtitle" id="headerSub">
-                            {% if chart_data %} <span style="font-weight:600; color:#000;">{{ chart_data.name }}</span>
-                            • {{ input_data.birth_date }} {% else %} 생년월일을 입력하여 차트를 생성하세요. {% endif %}
-                        </div>
-                    </div>
-                    <div>
-                        <button class="edit-toggle-btn" @click="drawerOpen = !drawerOpen"
-                            x-text="drawerOpen ? '입력창 닫기' : '입력 정보 수정'"></button>
-                    </div>
+        <main class="main-view">
+            <!-- Chart Section -->
+            <section class="chart-pane">
+                <!-- Mode Toggle -->
+                <button id="modeBtn" onclick="toggleChartMode()"
+                    style="position:absolute; top:20px; right:20px; z-index:30; background:#fff; border:1px solid #1a1a1a; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer;">
+                    학습 모드 (켜기)
+                </button>
+                <div class="chart-paper">
+                    <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
                 </div>
+                <div style="position: absolute; bottom: 15px; left: 20px; font-size: 10px; opacity: 0.5;">
+                    <i>Whole Sign • Tropical • Traditional Rulership</i>
+                </div>
+            </section>
 
-                <!-- Input Drawer (Alpine controlled) -->
-                <div id="inputDrawer" class="input-drawer" x-show="drawerOpen" x-transition.duration.300ms>
-                    <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML"
-                        hx-indicator="#loadingIndicator">
-
-                        <div class="input-grid">
-                            <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">이름
-                                    (Name)</label>
-                                <input type="text" name="name" class="form-input" required
-                                    value="{{ input_data.name }}">
+            <!-- Data & Input Section -->
+            <section class="data-pane">
+                <div class="data-content">
+                    <div class="pane-header">
+                        <div>
+                            <h1 style="font-size:24px; font-weight:700;">천궁도 분석</h1>
+                            <div class="chart-subtitle" id="headerSub" style="font-size:13px; color:#666;">
+                                {% if chart_data %} <b>{{ chart_data.name }}</b> • {{ input_data.birth_date }}
+                                {% else %} 정보를 입력하여 분석을 시작하세요. {% endif %}
                             </div>
-                            <!-- Autocomplete -->
-                            <div style="display:flex; flex-direction:column; gap:4px; position:relative;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">출생 도시
-                                    (City)</label>
-                                <input type="text" name="place_name" class="form-input" x-model="searchQuery"
-                                    @input.debounce.300ms="fetchPlaces" @click.outside="places = []" autocomplete="off"
-                                    required placeholder="예: Seoul, New York">
+                        </div>
+                        <button
+                            style="font-size:12px; font-weight:600; cursor:pointer; background:none; border:1px solid #ccc; padding:4px 8px;"
+                            @click="drawerOpen = !drawerOpen">
+                            <span x-text="drawerOpen ? '닫기' : '정보 수정'"></span>
+                        </button>
+                    </div>
 
-                                <!-- Suggestions -->
-                                <div x-show="places.length > 0"
-                                    style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; border-radius:4px; max-height:200px; overflow-y:auto; z-index:50; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-                                    <template x-for="p in places" :key="p.display_name">
-                                        <div class="dropdown-item" @click="searchQuery = p.display_name; places = [];"
-                                            style="padding:10px; cursor:pointer; font-size:13px; border-bottom:1px solid #f3f3f3;"
-                                            x-html="p.display_name"></div>
-                                    </template>
+                    <!-- Input Drawer -->
+                    <div class="input-drawer" x-show="drawerOpen" x-transition>
+                        <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML">
+                            <div class="input-grid">
+                                <div class="form-group">
+                                    <label class="form-label">이름</label>
+                                    <input type="text" name="name" class="form-input" required
+                                        value="{{ input_data.name }}">
+                                </div>
+                                <div class="form-group" style="position:relative;">
+                                    <label class="form-label">출생 도시</label>
+                                    <input type="text" name="place_name" class="form-input" x-model="searchQuery"
+                                        @input.debounce.300ms="fetchPlaces" placeholder="예: Seoul">
+                                    <div x-show="places.length > 0"
+                                        style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; z-index:100; max-height:150px; overflow-y:auto;">
+                                        <template x-for="p in places">
+                                            <div @click="searchQuery = p.display_name; places = [];"
+                                                style="padding:8px 12px; cursor:pointer; font-size:12px; border-bottom:1px solid #eee;"
+                                                x-html="p.display_name"></div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">생년월일</label>
+                                    <input type="date" name="birth_date" class="form-input" required
+                                        value="{{ input_data.birth_date }}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">태어난 시간</label>
+                                    <input type="time" name="birth_time" class="form-input" required
+                                        value="{{ input_data.birth_time }}">
                                 </div>
                             </div>
-                            <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">생년월일
-                                    (Date)</label>
-                                <input type="date" name="birth_date" class="form-input" required
-                                    value="{{ input_data.birth_date }}">
-                            </div>
-                            <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">태어난 시간
-                                    (Time)</label>
-                                <input type="time" name="birth_time" class="form-input" required
-                                    value="{{ input_data.birth_time }}">
-                            </div>
-                        </div>
-
-                        <div style="margin-top:16px; display:flex; gap:20px; align-items:center; font-size:13px;">
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                                <input type="radio" name="gender" value="male" checked> 남성 (Male)
-                            </label>
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                                <input type="radio" name="gender" value="female"> 여성 (Female)
-                            </label>
-                        </div>
-                        <button type="submit" class="form-btn">차트 분석하기 (Analyze) <span id="loadingIndicator"
-                                class="htmx-indicator">...</span></button>
-                    </form>
-                </div>
-
-                <div id="resultViewContent">
-                    {% if chart_data %}
-                    {% include "partials/chart_result.html" %}
-                    {% else %}
-                    <div
-                        style="text-align:center; padding: 100px 0; color:#aaa; display:flex; flex-direction:column; align-items:center;">
-                        <div style="font-size:32px; margin-bottom:16px; opacity:0.2;">✵</div>
-                        <div style="font-size:14px; font-family: var(--font-serif); font-style: italic;">"Astra
-                            inclinant, sed non obligant."</div>
-                        <div style="font-size:11px; margin-top:8px;">(별들은 기울기를 줄 뿐, 강요하지 않는다.)</div>
+                            <button type="submit" class="form-btn">차트 분석하기</button>
+                        </form>
                     </div>
-                    {% endif %}
+
+                    <div id="resultViewContent">
+                        {% if chart_data %}
+                        {% include "partials/chart_result.html" %}
+                        {% else %}
+                        <div style="text-align:center; padding:60px 0; color:#ccc;">
+                            <div style="font-size:40px; margin-bottom:10px;">✧</div>
+                            <p style="font-size:13px; font-style:italic;">하늘의 지도를 그리려면 정보를 입력하세요.</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
     </div>
 
-    <!-- Server State Storage (Decoupled from JS) -->
+    <!-- State Helper (Hidden) -->
     <div id="server-state" data-drawer-open="{{ 'false' if chart_data else 'true' }}"
         data-place-name="{{ input_data.place_name }}" style="display:none;"></div>
 
-    <!-- Application Logic -->
     <script>
-        // Global Engine Instance
         window.chartEngine = new ChartEngine('chart-svg');
 
         function natalApp() {
-            // Read initial state from DOM
             const stateEl = document.getElementById('server-state');
-            const initialQuery = stateEl ? stateEl.dataset.placeName : '';
-            const initialDrawer = stateEl ? stateEl.dataset.drawerOpen === 'true' : true;
-
             return {
-                mobileMenuOpen: false, /* Mobile State */
-                drawerOpen: initialDrawer,
-                searchQuery: initialQuery,
+                mobileMenuOpen: false,
+                drawerOpen: stateEl ? stateEl.dataset.drawerOpen === 'true' : true,
+                searchQuery: stateEl ? stateEl.dataset.placeName : '',
                 places: [],
-
                 async fetchPlaces() {
                     if (this.searchQuery.length < 2) { this.places = []; return; }
                     try {
-                        const res = await fetch(`/api/v1/search-place?query=${this.searchQuery}`);
+                        const res = await fetch(`/api/v1/search-place?query=${encodeURIComponent(this.searchQuery)}`);
                         const data = await res.json();
                         this.places = data.results || [];
                     } catch (e) { this.places = []; }
@@ -727,40 +382,32 @@
             }
         }
 
-        // HTMX Hooks
+        function toggleChartMode() {
+            if (window.chartEngine) {
+                const mode = window.chartEngine.toggleMode();
+                const btn = document.getElementById('modeBtn');
+                btn.innerText = (mode === 'text') ? "전문가 모드 (복귀)" : "학습 모드 (켜기)";
+                btn.style.background = (mode === 'text') ? "#1a1a1a" : "#fff";
+                btn.style.color = (mode === 'text') ? "#fff" : "#1a1a1a";
+            }
+        }
+
         function drawChartFromHtmx() {
             const dataEl = document.getElementById('chartDataContainer');
             if (dataEl && window.chartEngine) {
                 try {
                     const json = JSON.parse(dataEl.dataset.chartJson);
                     window.chartEngine.render(json);
-                } catch (e) { console.error("Chart Render Failed", e); }
+                } catch (e) { console.error(e); }
             }
         }
 
-        // Global Highlight Bridge (called by inline events in partials)
         function highlightPlanet(name) {
-            if (window.chartEngine) window.chartEngine.highlight(name);
-        }
-
-        // Mode Toggle
-        function toggleChartMode() {
-            if (window.chartEngine) {
-                const newMode = window.chartEngine.toggleMode();
-                const btn = document.getElementById('modeBtn');
-                if (newMode === 'text') {
-                    btn.innerText = "전문가 모드 (Symbol)";
-                    btn.style.background = "#1a1a1a";
-                    btn.style.color = "#fff";
-                } else {
-                    btn.innerText = "학습 모드 (Text)";
-                    btn.style.background = "#fff";
-                    btn.style.color = "#1a1a1a";
-                }
+            if (window.chartEngine && typeof window.chartEngine.highlight === 'function') {
+                window.chartEngine.highlight(name);
             }
         }
 
-        // Initial Render
         document.addEventListener("DOMContentLoaded", () => { drawChartFromHtmx(); });
     </script>
 </body>
