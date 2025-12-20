@@ -19,9 +19,9 @@ const CHART_CONFIG = {
         'North Node': '북노드', 'South Node': '남노드', 'Chiron': '카이론', 'Fortuna': '포르투나'
     },
     houseKeywords: [
-        "신체/성격/외형", "재산/소유/생계", "형제/소통/이웃", "가정/가족/기초",
-        "자녀/즐거움/창의", "질병/고난/일", "결혼/파트너/계약", "죽음/유산/숨겨진 것",
-        "철학/종교/여행", "경력/명성/권위", "친구/도움/획득", "적/고통/은둔"
+        "자아/신체/성격", "돈/소유물/가치관", "형제/소통/여행", "가정/부모/뿌리",
+        "자녀/연애/창조성", "건강/업무/봉사", "결혼/파트너/계약", "죽음/유산/변화",
+        "철학/교육/여행", "경력/명성/지위", "친구/희망/공동체", "은둔/비밀/무의식"
     ],
     // Concentric Band Architecture: Zodiac -> Planets -> Houses -> Aspects
     r: {
@@ -35,15 +35,15 @@ const CHART_CONFIG = {
     },
     center: { x: 400, y: 400 },
     weights: {
-        asc: 2.2,
+        asc: 1.8,        // Refined for technical elegance
         ring: 1.2,
-        house: 0.5,
+        house: 0.8,      // Increased for visibility
         aspect: 0.3
     },
     colors: {
         ink: '#111111',
         grey: '#888888',
-        accent: '#9A2121',
+        accent: '#6B1B1B', // Deep Oxblood / Muted Red
         paper: '#F9F7F1'
     },
     elementColors: {
@@ -106,9 +106,13 @@ class ChartEngine {
         let html = `<rect width="800" height="800" fill="transparent" />`;
 
         // 1. Concentric Bands (The Framework)
+        // Subtle fill for the House Band to make it distinct
+        html += `<circle cx="400" cy="400" r="${r.planet_in}" fill="rgba(0,0,0,0.03)" stroke="none" />`;
+        html += `<circle cx="400" cy="400" r="${r.house_in}" fill="${c.paper}" stroke="none" />`;
+
         html += `<circle cx="400" cy="400" r="${r.outer}" fill="none" stroke="${c.ink}" stroke-width="${w.ring}" />`;
         html += `<circle cx="400" cy="400" r="${r.sign_in}" fill="none" stroke="${c.ink}" stroke-width="${w.house}" opacity="0.6" />`;
-        html += `<circle cx="400" cy="400" r="${r.planet_in}" fill="none" stroke="${c.ink}" stroke-width="${w.house}" opacity="0.3" />`;
+        html += `<circle cx="400" cy="400" r="${r.planet_in}" fill="none" stroke="${c.ink}" stroke-width="${w.house}" opacity="0.4" />`;
         html += `<circle cx="400" cy="400" r="${r.house_in}" fill="none" stroke="${c.ink}" stroke-width="${w.ring}" />`;
 
         // 2. Technical Degree Scale (Angle Ticks) - Restored
@@ -137,7 +141,34 @@ class ChartEngine {
         html += this.text({ x: mX, y: mY + 12 }, data.birth_time || "", 13, mCol, "middle", "700", "'Inter'");
         html += this.text({ x: mX, y: mY + 40 }, data.place_name || "", 11, mCol, "middle", "500", "'Noto Serif KR'");
 
-        // 5. Band-Specific Content (Zodiac & Houses)
+        // 5. Aspects (Drawn behind planets to avoid text overlap)
+        data.aspects.forEach(asp => {
+            if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type) && asp.orb < 8) {
+                const active = (this.activePlanet === asp.planet1 || this.activePlanet === asp.planet2);
+                if (this.activePlanet && !active) return;
+                const p1 = data.planets.find(p => p.name === asp.planet1);
+                const p2 = data.planets.find(p => p.name === asp.planet2);
+                if (p1 && p2) {
+                    const rot1 = p1.position - asc + 180;
+                    const rot2 = p2.position - asc + 180;
+                    const pos1 = this.getPos(r.inner, rot1);
+                    const pos2 = this.getPos(r.inner, rot2);
+                    let aCol = active ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.1)";
+                    if (asp.type === "Square" || asp.type === "Opposition") aCol = active ? c.accent : "rgba(107,27,27,0.1)";
+
+                    // Main Connection Line
+                    html += this.line(pos1, pos2, aCol, active ? 1.5 : w.aspect, asp.type === "Sextile" ? "6,6" : "");
+
+                    // Radial Rays to Protractor
+                    if (active) {
+                        html += this.line(pos1, this.getPos(r.outer, rot1), aCol, 0.4, "4,4");
+                        html += this.line(pos2, this.getPos(r.outer, rot2), aCol, 0.4, "4,4");
+                    }
+                }
+            }
+        });
+
+        // 6. Band-Specific Content (Zodiac & Houses)
         for (let i = 0; i < 12; i++) {
             const rot = (i * 30) - asc + 180;
             const mid = rot + 15;
@@ -188,8 +219,12 @@ class ChartEngine {
             const pCol = (p.name === 'Fortuna' || active) ? c.accent : c.ink;
 
             html += `<g transform="translate(${pos.x}, ${pos.y})" style="cursor:pointer;" onmouseenter="highlightPlanet('${p.name}')" onmouseleave="highlightPlanet(null)">`;
-            const tPos = this.getPos(r.sign_in - 5, pRot);
-            html += `<line x1="0" y1="0" x2="${tPos.x - pos.x}" y2="${tPos.y - pos.y}" stroke="${active ? c.accent : '#DDD'}" stroke-width="${active ? 1.5 : 0.4}" />`;
+            // Pointer Line (Extends to scale when active)
+            const targetR = active ? r.outer : (r.sign_in - 5);
+            const tPos = this.getPos(targetR, pRot);
+            html += `<line x1="0" y1="0" x2="${tPos.x - pos.x}" y2="${tPos.y - pos.y}" stroke="${active ? c.accent : '#DDD'}" stroke-width="${active ? 1.2 : 0.4}" />`;
+            // Interaction Hit-area (Invisible)
+            html += `<circle cx="0" cy="0" r="26" fill="rgba(0,0,0,0)" stroke="none" />`;
 
             const label = isEdu ? (CHART_CONFIG.planetNames[p.name] || p.name) : (CHART_CONFIG.planetSymbols[p.name] || p.symbol || '•');
             html += this.text({ x: 0, y: 0 }, label, isEdu ? 14 : 28, pCol, "middle", "900", isEdu ? "'Noto Serif KR'" : "'Segoe UI Symbol'");
@@ -197,32 +232,25 @@ class ChartEngine {
             html += `</g>`;
         });
 
-        // 7. Aspects (Central Field only)
-        data.aspects.forEach(asp => {
-            if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type) && asp.orb < 8) {
-                const active = (this.activePlanet === asp.planet1 || this.activePlanet === asp.planet2);
-                if (this.activePlanet && !active) return;
-                const p1 = data.planets.find(p => p.name === asp.planet1);
-                const p2 = data.planets.find(p => p.name === asp.planet2);
-                if (p1 && p2) {
-                    const pos1 = this.getPos(r.inner, p1.position - asc + 180);
-                    const pos2 = this.getPos(r.inner, p2.position - asc + 180);
-                    let aCol = active ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.1)";
-                    if (asp.type === "Square" || asp.type === "Opposition") aCol = active ? c.accent : "rgba(154,33,33,0.1)";
-                    html += this.line(pos1, pos2, aCol, active ? 1.5 : w.aspect, asp.type === "Sextile" ? "6,6" : "");
-                }
-            }
-        });
+
 
         // 8. Angle Plates (Outer Labels)
         const angs = [{ v: 180, l: "ASC", c: c.accent }, { v: mcRot, l: "MC", c: c.accent }, { v: 0, l: "DSC", c: c.grey }, { v: mcRot + 180, l: "IC", c: c.grey }];
         angs.forEach(a => {
             const pO = this.getPos(r.outer, a.v);
-            const pT = this.getPos(r.outer + 35, a.v);
-            html += this.line(pO, pT, a.c, a.v === 180 || a.v === mcRot ? 4 : 1.5);
-            const bP = this.getPos(r.outer + 58, a.v);
-            html += `<rect x="${bP.x - 24}" y="${bP.y - 14}" width="48" height="28" rx="4" fill="${c.paper}" stroke="${a.c}" stroke-width="1.2" />`;
-            html += this.text(bP, a.l, 16, a.c, "middle", "900", "'Inter'");
+            const pT = this.getPos(r.outer + 30, a.v);
+            html += this.line(pO, pT, a.c, a.v === 180 || a.v === mcRot ? 3 : 1.2);
+
+            const bP = this.getPos(r.outer + 52, a.v);
+            // Smaller, cleaner plate for a "drafting" look
+            html += `<rect x="${bP.x - 22}" y="${bP.y - 12}" width="44" height="24" rx="2" fill="${c.paper}" stroke="${a.c}" stroke-width="1.2" />`;
+            html += this.text(bP, a.l, 14, a.c, "middle", "900", "'Inter'");
+
+            // Explicit Label near the Axis inside the chart for immediate clarity
+            if (a.l === "ASC" || a.l === "MC") {
+                const labelPos = this.getPos(r.outer - 45, a.v + 3); // Slightly offset radially and angularly
+                html += this.text(labelPos, a.l, 12, a.c, "start", "900", "'Inter'");
+            }
         });
 
         this.svg.innerHTML = html;
