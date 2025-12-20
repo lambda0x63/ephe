@@ -1,65 +1,75 @@
-<!-- 차트 시각화 데이터 (숨김, JS가 읽어서 그림) -->
+<!-- 차트 시각화 데이터 (숨김) -->
 <div id="chartDataContainer" data-chart-json="{{ chart_data | tojson | forceescape }}" style="display:none;"></div>
 
 <!-- 결과 컨테이너 -->
-<div class="animate-fade-in">
-    <!-- Key Summaries (Summary Cards) -->
+<div class="animate-fade-in" style="font-family: 'Noto Serif KR', serif;">
+
+    <!-- Key Summaries (Classical Cards) -->
     <div class="summary-row">
         <!-- Sun -->
-        <div class="kpi-card" onmouseenter="highlightPlanet('Sun')" onmouseleave="highlightPlanet(null)">
+        <div class="kpi-card" style="border:1px solid #1a1a1a;" onmouseenter="highlightPlanet('Sun')"
+            onmouseleave="highlightPlanet(null)">
             <div class="kpi-icon" style="color:#d97706">☉</div>
             <div class="kpi-value">{{ chart_data.planets | selectattr("name", "equalto", "Sun") |
                 map(attribute="sign_ko") | first }}</div>
-            <div class="kpi-label">Sun Sign</div>
+            <div class="kpi-label">태양 (Sun)</div>
         </div>
         <!-- Moon -->
-        <div class="kpi-card" onmouseenter="highlightPlanet('Moon')" onmouseleave="highlightPlanet(null)">
-            <div class="kpi-icon" style="color:#94a3b8">☽</div>
+        <div class="kpi-card" style="border:1px solid #1a1a1a;" onmouseenter="highlightPlanet('Moon')"
+            onmouseleave="highlightPlanet(null)">
+            <div class="kpi-icon" style="color:#666">☾</div>
             <div class="kpi-value">{{ chart_data.planets | selectattr("name", "equalto", "Moon") |
                 map(attribute="sign_ko") | first }}</div>
-            <div class="kpi-label">Moon Sign</div>
+            <div class="kpi-label">달 (Moon)</div>
         </div>
         <!-- Ascendant -->
-        <div class="kpi-card">
-            <div class="kpi-icon" style="font-family:'Segoe UI Symbol'; color:#2563EB;">Asc</div>
+        <div class="kpi-card" style="border:1px solid #1a1a1a;">
+            <div class="kpi-icon" style="color:#9A2121; font-weight:bold; font-size:20px;">ASC</div>
             <div class="kpi-value">{{ chart_data.ascendant.sign_ko }}</div>
-            <div class="kpi-label">Rising Sign</div>
+            <div class="kpi-label">상승궁 (Rising)</div>
         </div>
     </div>
 
     <!-- 저장 버튼 영역 -->
     <div style="text-align: right; margin-bottom: 24px;">
         <button class="btn-outline" hx-post="/htmx/save" hx-include="#chartForm" hx-target="#historyList"
-            hx-swap="innerHTML">
-            💾 Save to History
+            hx-swap="innerHTML"
+            style="border:1px solid #1a1a1a; color:#1a1a1a; font-family: 'Noto Serif KR', serif; font-weight:600; padding:8px 16px; cursor:pointer;">
+            기록 저장 (Save)
         </button>
     </div>
 
-    <!-- Planet List (Interactive Table) -->
-    <div class="section-label">Planetary Positions</div>
-    <div style="border: 1px solid var(--line-border); border-radius: 8px; background:#fff; overflow:hidden;">
+    <!-- Planet List (Korean Table) -->
+    <div class="section-label"
+        style="font-family:'Noto Serif KR', serif; color:#1a1a1a; border-bottom:2px solid #1a1a1a; padding-bottom:8px; font-weight:600;">
+        천체 상세 위치 (Planetary Positions)
+    </div>
+
+    <div style="border: 1px solid #1a1a1a; border-top:none; background:#fff;">
+        <!-- Header -->
+        <div class="data-table-row"
+            style="background:#f9f9f9; border-bottom:1px solid #1a1a1a; font-weight:600; font-size:12px; color:#555;">
+            <div class="col-planet">천체</div>
+            <div class="col-sign">별자리 (Sign)</div>
+            <div class="col-deg">도수 (Degree)</div>
+            <div class="col-house">하우스</div>
+        </div>
+
         {% for p in chart_data.planets %}
-        <div class="data-table-row" onmouseenter="highlightPlanet('{{ p.name }}')" onmouseleave="highlightPlanet(null)">
-
-            <div class="col-planet">
-                <span class="planet-symbol">{{ p.symbol }}</span> {{ p.name }}
+        <div class="data-table-row" style="border-bottom:1px solid #eee;" onmouseenter="highlightPlanet('{{ p.name }}')"
+            onmouseleave="highlightPlanet(null)">
+            <div class="col-planet" style="font-family:'Noto Serif KR', serif; font-size:15px; color:#1a1a1a;">
+                <span class="planet-symbol" style="color:#1a1a1a; width:24px; text-align:center;">{{ p.symbol }}</span>
+                {{ p.name_ko }}
             </div>
 
-            <div class="col-sign">
-                {% set elem_cls = 'badge' %}
-                {% if p.sign in ['Aries', 'Leo', 'Sagittarius'] %} {% set elem_cls = 'badge badge-fire' %}
-                {% elif p.sign in ['Taurus', 'Virgo', 'Capricorn'] %} {% set elem_cls = 'badge badge-earth' %}
-                {% elif p.sign in ['Gemini', 'Libra', 'Aquarius'] %} {% set elem_cls = 'badge badge-air' %}
-                {% elif p.sign in ['Cancer', 'Scorpio', 'Pisces'] %} {% set elem_cls = 'badge badge-water' %}
-                {% endif %}
-
-                <span class="{{ elem_cls }}">
-                    {{ p.sign }}
-                </span>
+            <div class="col-sign" style="font-family:'Noto Serif KR', serif; font-weight:500; color:#444;">
+                {{ p.sign_ko }}
             </div>
 
-            <div class="col-deg">{{ p.degree_formatted }}</div>
-            <div class="col-house">{{ p.house }}H</div>
+            <div class="col-deg" style="font-family:'Inter', sans-serif; font-weight:600; color:#1a1a1a;">{{
+                p.degree_formatted }}</div>
+            <div class="col-house" style="font-family:'Noto Serif KR', serif; color:#666;">{{ p.house }}실</div>
         </div>
         {% endfor %}
     </div>

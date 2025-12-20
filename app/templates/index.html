@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstroLab | Professional Natal Chart Analysis</title>
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <title>고전 점성술 천궁도 (Classical Natal Chart)</title>
+    <meta name="description" content="헬레니즘 전통에 기반한 정밀 점성술 차트 계산기. Whole Sign House 시스템과 고전적 품위 계산.">
+
+    <!-- Fonts: Playfair Display (영문 제목용) + Noto Serif KR (한글 본문/제목용) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
-            --bg-dark: #000000;
-            --text-light: #ffffff;
-            --accent: #FFD700;
-            --font-main: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            --bg-paper: #F9F7F1;
+            --text-ink: #1a1a1a;
+            --text-grey: #555;
+            --accent-red: #8B0000;
+            --border: #ccc;
+            /* 한글과 영문 세리프의 조화 */
+            --font-main: "Noto Serif KR", "Playfair Display", serif;
         }
 
         * {
@@ -22,171 +32,142 @@
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-paper);
+            color: var(--text-ink);
             font-family: var(--font-main);
-            overflow-x: hidden;
+            line-height: 1.7;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            /* 종이 질감 */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
         }
 
         header {
-            padding: 24px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 60px;
         }
 
-        .logo {
-            font-size: 20px;
+        h1 {
+            font-size: 36px;
             font-weight: 700;
+            margin-bottom: 8px;
             letter-spacing: -0.5px;
-            text-transform: uppercase;
+            word-break: keep-all;
         }
 
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            margin-left: 24px;
-            font-size: 14px;
-            transition: color 0.3s;
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-grey);
+            font-weight: 400;
+            opacity: 0.8;
         }
 
-        .nav-links a:hover {
-            color: #fff;
-        }
-
-        .hero {
+        main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 0 20px;
-            position: relative;
+            justify-content: center;
+            padding: 0 24px;
         }
 
-        .hero-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .hero h1 {
-            font-size: 64px;
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -2px;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            z-index: 1;
-            max-width: 800px;
-        }
-
-        .hero p {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 48px;
-            max-width: 500px;
-            line-height: 1.5;
-            z-index: 1;
-        }
-
-        .cta-btn {
+        .card {
             background: #fff;
-            color: #000;
-            padding: 16px 32px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            z-index: 1;
-        }
-
-        .cta-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            padding: 80px 40px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 1200px;
-            margin: 0 auto;
+            border: 1px solid var(--text-ink);
+            padding: 48px 40px;
+            text-align: center;
+            max-width: 500px;
             width: 100%;
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
         }
 
-        .feature-card h3 {
-            font-size: 18px;
-            margin-bottom: 12px;
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .divider-icon {
+            font-size: 32px;
+            margin-bottom: 24px;
+            color: var(--accent-red);
+            font-family: "Segoe UI Symbol", sans-serif;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--text-ink);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--text-grey);
+            margin-bottom: 32px;
+            word-break: keep-all;
+            /* 한글 줄바꿈 최적화 */
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: var(--text-ink);
             color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: all 0.2s;
+            border: 1px solid var(--text-ink);
         }
 
-        .feature-card p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.5);
-            line-height: 1.6;
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--text-ink);
         }
 
-        /* Mobile */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 42px;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
+        footer {
+            margin-top: 80px;
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid var(--border);
         }
     </style>
 </head>
 
 <body>
+
     <header>
-        <div class="logo">AstroLab</div>
-        <nav class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="#">About</a>
-        </nav>
+        <h1>천체 구조 해석 (Natal Chart)</h1>
+        <div class="subtitle">Hellenistic Tradition Calculator</div>
     </header>
 
-    <section class="hero">
-        <div class="hero-bg"></div>
-        <h1>Discover Your<br>Cosmic Blueprint</h1>
-        <p>Advanced astrology engine. Precise natal chart calculations. Interactive vizualizations.</p>
-        <a href="/dashboard" class="cta-btn">Create Your Chart</a>
-    </section>
+    <main>
+        <div class="card">
+            <!-- Decorative Symbol -->
+            <div class="divider-icon">☉ ☾ ASC</div>
 
-    <section class="features">
-        <div class="feature-card">
-            <h3>Precise Calculations</h3>
-            <p>Utilizing NASA's JPL ephemeris for the most accurate planetary positions.</p>
+            <h2>당신의 별을 탐구하세요</h2>
+            <p>
+                헬레니즘 전통에 기반한 정밀 천궁도를 작성합니다.<br>
+                Whole Sign 하우스 시스템과 고전적 품위를<br>
+                현대적인 기술로 정확하게 계산해 드립니다.
+            </p>
+
+            <a href="/dashboard" class="btn-primary">차트 작성하기</a>
         </div>
-        <div class="feature-card">
-            <h3>Interactive Design</h3>
-            <p>Beautiful SVG charts that bring your astrological data to life.</p>
-        </div>
-        <div class="feature-card">
-            <h3>AI Interpretation</h3>
-            <p>Get instant insights into your chart with our advanced AI analysis prompts.</p>
-        </div>
-    </section>
+    </main>
+
+    <footer>
+        <p>Ad Astra Per Aspera</p>
+    </footer>
+
 </body>
 
 </html>

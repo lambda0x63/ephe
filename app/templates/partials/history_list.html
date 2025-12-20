@@ -1,12 +1,26 @@
-{% if charts %}
-{% for item in charts %}
-<div class="chart-item" hx-get="/htmx/load/{{ item.id }}" hx-target="#resultView" hx-swap="innerHTML">
-    <div class="item-name">{{ item.name }}</div>
-    <div class="item-date">{{ item.birth_date }}</div>
+{% if history_list %}
+{% for item in history_list %}
+<div class="chart-item" hx-get="/htmx/load/{{ item.id }}" hx-target="#resultViewContent" hx-swap="innerHTML"
+    style="border-bottom:1px solid #ddd; padding:12px 16px; transition:background 0.2s;">
+
+    <div class="item-name"
+        style="font-family: var(--font-serif); font-weight:600; color:#1a1a1a; font-size:15px; margin-bottom:4px;">
+        {{ item.name }}
+    </div>
+
+    <div class="item-date" style="font-family: var(--font-sans); font-size:12px; color:#666;">
+        {{ item.birth_date }} · {{ item.place_name }}
+    </div>
+
     <button class="btn-delete" hx-delete="/htmx/delete/{{ item.id }}" hx-target="#historyList" hx-swap="innerHTML"
-        onclick="event.stopPropagation()">×</button>
+        onclick="event.stopPropagation()" style="top:12px; right:12px; color:#999;">
+        ×
+    </button>
 </div>
 {% endfor %}
 {% else %}
-<div style="padding:12px; color:#aaa; font-size:12px; text-align:center;">No saved charts.</div>
+<div
+    style="padding:24px; color:#999; font-size:13px; text-align:center; font-family:var(--font-sans); font-style:italic;">
+    No saved charts in the archives.
+</div>
 {% endif %}

@@ -52,6 +52,9 @@ async def htmx_save(
         birth_date=birth_date,
         birth_time=birth_time,
         place_name=place_name,
+        latitude=input_data.lat,
+        longitude=input_data.lon,
+        timezone=input_data.tz,
         gender=gender,
         chart_data=json.dumps(chart_data)
     )

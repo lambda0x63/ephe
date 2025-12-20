@@ -1,151 +1,209 @@
 /**
- * ChartEngine for drawing Natal Chart SVG
- * Classic Paper Theme
+ * ChartEngine v3.1 - Enhanced Readability High-Fidelity
+ * - Slightly Larger Glyphs for clarity
+ * - Distinct Typography hierarchy
  */
 
 const CHART_CONFIG = {
-    signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
-    signSymbols: ['♈\uFE0E', '♉\uFE0E', '♊\uFE0E', '♋\uFE0E', '♌\uFE0E', '♍\uFE0E', '♎\uFE0E', '♏\uFE0E', '♐\uFE0E', '♑\uFE0E', '♒\uFE0E', '♓\uFE0E'],
-    elements: ['fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water', 'fire', 'earth', 'air', 'water'],
-    radius: { outer: 360, sign: 300, planet_base: 250, planet_step: 24, house: 200, inner: 140 }
+    // VS-15 applied text symbols
+    signSymbols: ['♈︎', '♉︎', '♊︎', '♋︎', '♌︎', '♍︎', '♎︎', '♏︎', '♐︎', '♑︎', '♒︎', '♓︎'],
+    planetSymbols: {
+        'Sun': '☉', 'Moon': '☾', 'Mercury': '☿', 'Venus': '♀', 'Mars': '♂',
+        'Jupiter': '♃', 'Saturn': '♄',
+        'Uranus': '♅', 'Neptune': '♆', 'Pluto': '♇',
+        'North Node': '☊', 'South Node': '☋', 'Chiron': '⚷'
+    },
+
+    r: {
+        outer: 380,
+        sign_out: 380,
+        sign_in: 330,  // Slightly wider ring for bigger zodiac symbols
+        tick_high: 330,
+        tick_low: 320,
+        house_num: 305,
+        planet_base: 255,
+        inner: 210
+    },
+
+    center: { x: 400, y: 400 },
+
+    colors: {
+        ink: '#1a1a1a',      // Very Dark Grey (softer than #000)
+        grey: '#666666',
+        accent: '#9A2121',   // Deep Red (Venetian Red) for emphasis
+        paper: '#F9F7F1'
+    }
 };
 
 class ChartEngine {
     constructor(svgId) {
         this.svg = document.getElementById(svgId);
-        this.center = { x: 400, y: 400 };
     }
 
     clear() { if (this.svg) this.svg.innerHTML = ''; }
 
-    getSvgPos(radius, zodiacDegree, ascDegree) {
-        const angleDeg = 180 - (zodiacDegree - ascDegree);
-        const rad = angleDeg * (Math.PI / 180);
-        return { x: this.center.x + radius * Math.cos(rad), y: this.center.y + radius * Math.sin(rad) };
+    // Anti-Clockwise
+    getPos(radius, deg) {
+        const rad = deg * (Math.PI / 180);
+        return {
+            x: CHART_CONFIG.center.x + radius * Math.cos(rad),
+            y: CHART_CONFIG.center.y - radius * Math.sin(rad)
+        };
     }
 
-    createLine(x1, y1, x2, y2, color, width, dash = '', className = '') {
-        return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" class="${className}" stroke-linecap="round" />`;
+    line(p1, p2, color, width, dash = "") {
+        return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" stroke-linecap="round" />`;
     }
 
-    createText(x, y, text, size, color, anchor = "middle", weight = "normal", className = "") {
-        return `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}" dominant-baseline="central" font-weight="${weight}" class="${className}">${text}</text>`;
-    }
-
-    createArcPath(r1, r2, startDeg, endDeg, ascDeg) {
-        const startAngle = (180 - (startDeg - ascDeg)) * (Math.PI / 180);
-        const endAngle = (180 - (endDeg - ascDeg)) * (Math.PI / 180);
-        const x1_o = this.center.x + r1 * Math.cos(startAngle); const y1_o = this.center.y + r1 * Math.sin(startAngle);
-        const x2_o = this.center.x + r1 * Math.cos(endAngle); const y2_o = this.center.y + r1 * Math.sin(endAngle);
-        const x1_i = this.center.x + r2 * Math.cos(startAngle); const y1_i = this.center.y + r2 * Math.sin(startAngle);
-        const x2_i = this.center.x + r2 * Math.cos(endAngle); const y2_i = this.center.y + r2 * Math.sin(endAngle);
-        return `M ${x1_o} ${y1_o} A ${r1} ${r1} 0 0 0 ${x2_o} ${y2_o} L ${x2_i} ${y2_i} A ${r2} ${r2} 0 0 1 ${x1_i} ${y1_i} Z`;
+    text(pos, content, size, color, align = "middle", weight = "normal", family = "'Playfair Display', serif") {
+        return `<text x="${pos.x}" y="${pos.y}" text-anchor="${align}" dominant-baseline="central" 
+                font-size="${size}" font-weight="${weight}" fill="${color}" style="font-family: ${family};">${content}</text>`;
     }
 
     resolveCollisions(planets) {
-        const sorted = [...planets].filter(p => p.name !== 'Ascendant').sort((a, b) => a.position - b.position);
-        sorted.forEach((p, i) => {
-            p.track = 0; if (i > 0) {
-                const prev = sorted[i - 1]; if (Math.abs(p.position - prev.position) < 10) {
-                    if (prev.track === 0) p.track = 1; else if (prev.track === 1) p.track = 2; else p.track = 0;
-                }
-            }
-        });
-        return sorted;
-    }
+        let sorted = [...planets].sort((a, b) => a.position - b.position);
+        for (let pass = 0; pass < 5; pass++) {
+            sorted.forEach((p, i) => {
+                p.level = 0;
+                if (i > 0) {
+                    let prev = sorted[i - 1];
+                    let diff = p.position - prev.position;
+                    if (diff < 0) diff += 360;
 
-    highlight(planetName) {
-        const all = this.svg.querySelectorAll('.planet-group');
-        all.forEach(el => el.classList.remove('active'));
-        if (planetName) {
-            const target = this.svg.querySelector(`.planet-group[data-name="${planetName}"]`);
-            if (target) target.classList.add('active');
+                    if (diff < 12) { // Increased distance threshold for better readability
+                        p.level = (prev.level + 1) % 3;
+                    }
+                }
+            });
         }
+        return sorted;
     }
 
     render(data) {
         if (!data) return;
         this.clear();
-        let svgContent = '';
-        const ascAbs = data.ascendant.position;
 
-        // Frame
-        svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CHART_CONFIG.radius.outer}" fill="#fff" stroke="#111" stroke-width="2" />`;
-        svgContent += `<circle cx="${this.center.x}" cy="${this.center.y}" r="${CHART_CONFIG.radius.inner}" fill="none" stroke="#ccc" stroke-width="0.5" />`;
+        const asc = data.ascendant.position;
+        let html = '';
 
-        // Zodiac
-        for (let i = 0; i < 12; i++) {
-            const startZ = i * 30; const endZ = (i + 1) * 30;
-            svgContent += `<path d="${this.createArcPath(CHART_CONFIG.radius.outer, CHART_CONFIG.radius.sign, startZ, endZ, ascAbs)}" fill="none" stroke="#111" stroke-width="1" />`;
-            const elemClass = `elem-${CHART_CONFIG.elements[i]}`;
-            const pos = this.getSvgPos((CHART_CONFIG.radius.outer + CHART_CONFIG.radius.sign) / 2, startZ + 15, ascAbs);
-            svgContent += this.createText(pos.x, pos.y, CHART_CONFIG.signSymbols[i], 28, "", "middle", "normal", `sign-glyph ${elemClass}`);
-            for (let d = 5; d < 30; d += 5) {
-                let len = 6; let width = 0.5; let color = "#999";
-                if (d % 10 === 0) { len = 10; width = 1; color = "#666"; }
-                const t1 = this.getSvgPos(CHART_CONFIG.radius.sign, startZ + d, ascAbs);
-                const t2 = this.getSvgPos(CHART_CONFIG.radius.sign - len, startZ + d, ascAbs);
-                svgContent += this.createLine(t1.x, t1.y, t2.x, t2.y, color, width);
-            }
-        }
+        // 1. Background
+        html += `<rect x="0" y="0" width="800" height="800" fill="${CHART_CONFIG.colors.paper}" />`;
 
-        // Dividers
-        for (let i = 0; i < 12; i++) {
-            const deg = i * 30;
-            const p1 = this.getSvgPos(CHART_CONFIG.radius.inner, deg, ascAbs);
-            const p2 = this.getSvgPos(CHART_CONFIG.radius.sign, deg, ascAbs);
-            svgContent += this.createLine(p1.x, p1.y, p2.x, p2.y, "#ddd", 1);
-        }
-
-        // Angles
-        const angles = [
-            { deg: data.ascendant.position, color: "var(--angle-color)", label: "ASC" },
-            { deg: (data.ascendant.position + 180) % 360, color: "var(--angle-color)", label: "DSC" },
-            { deg: data.midheaven.position, color: "var(--angle-color)", label: "MC" },
-            { deg: (data.midheaven.position + 180) % 360, color: "var(--angle-color)", label: "IC" }
-        ];
-        angles.forEach(ang => {
-            const p2 = this.getSvgPos(CHART_CONFIG.radius.inner, ang.deg, ascAbs);
-            svgContent += this.createLine(this.center.x, this.center.y, p2.x, p2.y, ang.color, 1.5, "4,2");
-            const labelPos = this.getSvgPos(CHART_CONFIG.radius.inner - 15, ang.deg, ascAbs);
-            svgContent += this.createText(labelPos.x, labelPos.y, ang.label, 10, ang.color, "middle", "bold");
+        // 2. Rings
+        [CHART_CONFIG.r.outer, CHART_CONFIG.r.sign_in, CHART_CONFIG.r.tick_low, CHART_CONFIG.r.inner].forEach(r => {
+            html += `<circle cx="${CHART_CONFIG.center.x}" cy="${CHART_CONFIG.center.y}" r="${r}" fill="none" stroke="${CHART_CONFIG.colors.ink}" stroke-width="1.5" />`;
         });
 
-        // Aspects (Optimization: use fragment or string builder if too heavy, but here fine)
+        // 3. Zodiac & House Divisions
+        for (let h = 0; h < 12; h++) {
+            const deg = h * 30;
+            const rotDeg = deg - asc + 180;
+
+            // House Divider (Outer to Inner)
+            const pIn = this.getPos(CHART_CONFIG.r.inner, rotDeg);
+            const pOut = this.getPos(CHART_CONFIG.r.outer, rotDeg);
+            html += this.line(pIn, pOut, CHART_CONFIG.colors.ink, 1);
+
+            // Symbol (Larger for readability)
+            const midDeg = rotDeg + 15;
+            const symPos = this.getPos((CHART_CONFIG.r.sign_in + CHART_CONFIG.r.outer) / 2, midDeg);
+            html += this.text(symPos, CHART_CONFIG.signSymbols[h], 32, CHART_CONFIG.colors.ink, "middle", "normal", "'Segoe UI Symbol', sans-serif");
+
+            // House Number (Roman)
+            const romanHouses = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+            const ascIndex = Math.floor(data.ascendant.position / 30);
+            const houseIdx = (h - ascIndex + 12) % 12;
+            const numPos = this.getPos(CHART_CONFIG.r.house_num, midDeg);
+            html += this.text(numPos, romanHouses[houseIdx], 14, CHART_CONFIG.colors.grey, "middle", "bold");
+        }
+
+        // 4. Precision Ticks
+        for (let d = 0; d < 360; d++) {
+            let rStart = CHART_CONFIG.r.tick_low;
+            let rEnd = CHART_CONFIG.r.sign_in;
+            let width = 0.5;
+            let color = CHART_CONFIG.colors.grey;
+            const rotDeg = d - asc + 180;
+
+            if (d % 10 === 0) {
+                width = 1.5; color = CHART_CONFIG.colors.ink;
+            } else if (d % 5 === 0) {
+                rEnd -= 3; color = CHART_CONFIG.colors.ink; width = 1;
+            } else {
+                rEnd -= 6;
+            }
+            const p1 = this.getPos(rStart, rotDeg);
+            const p2 = this.getPos(rEnd, rotDeg);
+            html += this.line(p1, p2, color, width);
+        }
+
+        // 5. Aspects
         data.aspects.forEach(asp => {
-            if (asp.orb < 8) {
-                const p1 = data.planets.find(p => p.name === asp.planet1);
-                const p2 = data.planets.find(p => p.name === asp.planet2);
-                if (p1 && p2) {
-                    const xy1 = this.getSvgPos(CHART_CONFIG.radius.inner, p1.position, ascAbs);
-                    const xy2 = this.getSvgPos(CHART_CONFIG.radius.inner, p2.position, ascAbs);
-                    let color = "rgba(0,0,0,0.1)"; let width = 0.5;
-                    if (["Square", "Opposition"].includes(asp.type)) { color = "rgba(200, 50, 50, 0.3)"; width = 1; }
-                    else if (["Trine", "Sextile"].includes(asp.type)) { color = "rgba(50, 100, 200, 0.3)"; width = 1; }
-                    if (asp.orb < 3) { width += 0.5; color = color.replace("0.3", "0.6"); }
-                    svgContent += this.createLine(xy1.x, xy1.y, xy2.x, xy2.y, color, width, "", "aspect-line");
+            if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type)) {
+                if (asp.orb < 8) {
+                    const p1 = data.planets.find(p => p.name === asp.planet1);
+                    const p2 = data.planets.find(p => p.name === asp.planet2);
+                    if (p1 && p2) {
+                        const pos1 = this.getPos(CHART_CONFIG.r.inner, p1.position - asc + 180);
+                        const pos2 = this.getPos(CHART_CONFIG.r.inner, p2.position - asc + 180);
+
+                        let stroke = "#bbb";
+                        let width = 0.8;
+                        let dash = "";
+
+                        if (asp.type === "Square" || asp.type === "Opposition") { stroke = CHART_CONFIG.colors.accent; width = 1.2; }
+                        if (asp.type === "Trine") { stroke = CHART_CONFIG.colors.ink; width = 1.0; }
+                        if (asp.type === "Sextile") { stroke = CHART_CONFIG.colors.ink; width = 0.6; dash = "4,4"; }
+
+                        html += this.line(pos1, pos2, stroke, width, dash);
+                    }
                 }
             }
         });
 
-        this.svg.innerHTML = svgContent;
+        // 6. Planets (Bigger & Clearer)
+        const planets = this.resolveCollisions(data.planets);
+        planets.forEach(p => {
+            // Spacing factor: 32px between levels
+            const r = CHART_CONFIG.r.planet_base - (p.level * 32);
+            const deg = p.position - asc + 180;
+            const pos = this.getPos(r, deg);
 
-        // Planets
-        const visiblePlanets = this.resolveCollisions(data.planets);
-        visiblePlanets.forEach(p => {
-            let r = CHART_CONFIG.radius.planet_base;
-            if (p.track === 1) r -= CHART_CONFIG.radius.planet_step; else if (p.track === 2) r += CHART_CONFIG.radius.planet_step;
-            const xy = this.getSvgPos(r, p.position, ascAbs);
+            // Leader Line
+            const pTick = this.getPos(CHART_CONFIG.r.tick_low, deg);
+            html += this.line(pos, pTick, "#d1d5db", 0.5);
 
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            g.setAttribute("class", "planet-group");
-            g.setAttribute("data-name", p.name);
+            // White Backdrop for Text
+            html += `<circle cx="${pos.x}" cy="${pos.y}" r="14" fill="${CHART_CONFIG.colors.paper}" stroke="none" />`;
 
-            const guideEnd = this.getSvgPos(CHART_CONFIG.radius.sign - 5, p.position, ascAbs);
-            g.innerHTML += this.createLine(xy.x, xy.y, guideEnd.x, guideEnd.y, "#ccc", 0.5, "2,2");
-            g.innerHTML += `<circle cx="${xy.x}" cy="${xy.y}" r="16" fill="#fff" stroke="#111" stroke-width="1" />`;
-            g.innerHTML += this.createText(xy.x, xy.y, p.symbol, 22, "#000", "middle", "normal", "planet-glyph");
-            this.svg.appendChild(g);
+            const symbol = CHART_CONFIG.planetSymbols[p.name] || p.symbol;
+            // Glyph - Size 24
+            html += this.text(pos, symbol, 24, CHART_CONFIG.colors.ink, "middle", "normal", "'Segoe UI Symbol', sans-serif");
+
+            // Degree - Size 11, Bold, Sans-Serif for readability
+            const degPos = { x: pos.x, y: pos.y + 18 };
+            html += this.text(degPos, p.degree_formatted, 11, "#333", "middle", "600", "'Inter', sans-serif");
         });
+
+        // 7. Angles (Arrows)
+        const angles = [
+            { deg: asc, label: "ASC", color: CHART_CONFIG.colors.accent },
+            { deg: data.midheaven.position, label: "MC", color: CHART_CONFIG.colors.accent },
+            { deg: asc + 180, label: "DSC", color: CHART_CONFIG.colors.ink },
+            { deg: data.midheaven.position + 180, label: "IC", color: CHART_CONFIG.colors.ink }
+        ];
+
+        angles.forEach(ang => {
+            const rotDeg = ang.deg - asc + 180;
+            const pOut = this.getPos(CHART_CONFIG.r.outer, rotDeg);
+            const pExt = this.getPos(CHART_CONFIG.r.outer + 30, rotDeg);
+            html += this.line(pOut, pExt, ang.color, 2.5);
+
+            const pLbl = this.getPos(CHART_CONFIG.r.outer + 42, rotDeg);
+            html += this.text(pLbl, ang.label, 16, ang.color, "middle", "bold");
+        });
+
+        this.svg.innerHTML = html;
+        this.svg.style.background = CHART_CONFIG.colors.paper;
     }
 }

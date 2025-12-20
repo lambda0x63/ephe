@@ -7,14 +7,12 @@
     <title>{{ seo_data.title }}</title>
     <meta name="description" content="{{ seo_data.description }}">
 
-    <!-- Fonts -->
+    <!-- Fonts: Noto Serif KR (Korean Serif) & Playfair Display (English Serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
     <!-- Libraries -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -25,15 +23,17 @@
 
     <style>
         :root {
-            --bg-body: #F3F4F6;
+            --bg-body: #F9F7F1;
             --bg-panel: #FFFFFF;
-            --line-border: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-            --accent-blue: #2563EB;
+            --line-border: #ccc;
+            --text-main: #1a1a1a;
+            --text-muted: #555;
+            --accent-blue: #8B0000;
+            /* Redefined as Classical Red */
 
-            --font-serif: "Playfair Display", "Times New Roman", serif;
-            --font-sans: "Inter", "Pretendard", sans-serif;
+            --font-serif: "Noto Serif KR", "Playfair Display", serif;
+            --font-sans: "Inter", "Noto Serif KR", sans-serif;
+            /* Fallback to serif for consistency */
 
             --paper-bg: #F9F7F1;
             --angle-color: #8B0000;
@@ -502,15 +502,15 @@
             <div class="data-content">
                 <div class="pane-header">
                     <div>
-                        <h1 class="chart-title">Natal Chart</h1>
+                        <h1 class="chart-title">천궁도 (Natal Chart)</h1>
                         <div class="chart-subtitle" id="headerSub">
                             {% if chart_data %} <span style="font-weight:600; color:#000;">{{ chart_data.name }}</span>
-                            • {{ input_data.birth_date }} {% else %} Enter birth details to generate {% endif %}
+                            • {{ input_data.birth_date }} {% else %} 생년월일을 입력하여 차트를 생성하세요. {% endif %}
                         </div>
                     </div>
                     <div>
                         <button class="edit-toggle-btn" @click="drawerOpen = !drawerOpen"
-                            x-text="drawerOpen ? 'Hide Input' : 'Edit Input'"></button>
+                            x-text="drawerOpen ? '입력창 닫기' : '입력 정보 수정'"></button>
                     </div>
                 </div>
 
@@ -521,16 +521,18 @@
 
                         <div class="input-grid">
                             <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">Name</label>
+                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">이름
+                                    (Name)</label>
                                 <input type="text" name="name" class="form-input" required
                                     value="{{ input_data.name }}">
                             </div>
                             <!-- Autocomplete -->
                             <div style="display:flex; flex-direction:column; gap:4px; position:relative;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">City</label>
+                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">출생 도시
+                                    (City)</label>
                                 <input type="text" name="place_name" class="form-input" x-model="searchQuery"
                                     @input.debounce.300ms="fetchPlaces" @click.outside="places = []" autocomplete="off"
-                                    required>
+                                    required placeholder="예: Seoul, New York">
 
                                 <!-- Suggestions -->
                                 <div x-show="places.length > 0"
@@ -543,12 +545,14 @@
                                 </div>
                             </div>
                             <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">Date</label>
+                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">생년월일
+                                    (Date)</label>
                                 <input type="date" name="birth_date" class="form-input" required
                                     value="{{ input_data.birth_date }}">
                             </div>
                             <div style="display:flex; flex-direction:column; gap:4px;">
-                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">Time</label>
+                                <label style="font-size:11px; font-weight:600; text-transform:uppercase;">태어난 시간
+                                    (Time)</label>
                                 <input type="time" name="birth_time" class="form-input" required
                                     value="{{ input_data.birth_time }}">
                             </div>
@@ -556,13 +560,13 @@
 
                         <div style="margin-top:16px; display:flex; gap:20px; align-items:center; font-size:13px;">
                             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                                <input type="radio" name="gender" value="male" checked> Male
+                                <input type="radio" name="gender" value="male" checked> 남성 (Male)
                             </label>
                             <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                                <input type="radio" name="gender" value="female"> Female
+                                <input type="radio" name="gender" value="female"> 여성 (Female)
                             </label>
                         </div>
-                        <button type="submit" class="form-btn">Analyze Chart <span id="loadingIndicator"
+                        <button type="submit" class="form-btn">차트 분석하기 (Analyze) <span id="loadingIndicator"
                                 class="htmx-indicator">...</span></button>
                     </form>
                 </div>
@@ -576,7 +580,7 @@
                         <div style="font-size:32px; margin-bottom:16px; opacity:0.2;">✵</div>
                         <div style="font-size:14px; font-family: var(--font-serif); font-style: italic;">"Astra
                             inclinant, sed non obligant."</div>
-                        <div style="font-size:11px; margin-top:8px;">(The stars incline us, they do not bind us.)</div>
+                        <div style="font-size:11px; margin-top:8px;">(별들은 기울기를 줄 뿐, 강요하지 않는다.)</div>
                     </div>
                     {% endif %}
                 </div>
