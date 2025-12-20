@@ -151,74 +151,75 @@
             display: block;
         }
 
-        .chart-controls {
+        /* Instrument Rack (Right side controls) */
+        .instrument-rack {
             position: absolute;
-            top: 24px;
-            right: 24px;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             z-index: 100;
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px 8px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
         }
 
-        .control-btn {
+        .instrument-rack::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 50%;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.05);
+            z-index: -1;
+        }
+
+        .rack-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rack-label {
+            font-size: 8px;
+            font-weight: 900;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rack-btn {
+            width: 42px;
+            height: 42px;
             background: #fff;
             border: 1px solid #1a1a1a;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
             cursor: pointer;
-            box-shadow: 3px 3px 0px #1a1a1a;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
             transition: all 0.1s;
-        }
-
-        .control-btn:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0px #1a1a1a;
-        }
-
-        .options-wrapper {
             position: relative;
         }
 
-        .options-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: #fff;
-            border: 1px solid #1a1a1a;
-            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            width: 140px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .rack-btn:hover {
+            background: #fdfaf5;
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15);
         }
 
-        .option-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .option-item input {
-            cursor: pointer;
-            accent-color: var(--accent);
-        }
-
-        .option-group-label {
-            font-size: 8px;
-            font-weight: 900;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-            margin-bottom: 2px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 3px;
+        .rack-btn.active {
+            background: #1a1a1a;
+            color: #fff;
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #1a1a1a;
         }
 
         /* Sidebar Bottom Space */
@@ -380,42 +381,44 @@
         </aside>
 
         <!-- Main Display -->
-        <main class="main-display" x-data="{ showOptions: false }">
-            <div class="chart-controls">
-                <div class="options-wrapper" x-data="{ mode: 'symbol' }">
-                    <button class="control-btn" @click="showOptions = !showOptions">VIEW OPTIONS ▾</button>
-                    <div class="options-menu" x-show="showOptions" @click.away="showOptions = false"
-                        style="display:none; width: 180px; padding: 15px;" x-cloak>
-
-                        <div class="option-group-label">Chart Display</div>
-                        <label class="option-item">
-                            <input type="radio" name="chartMode" checked
-                                @change="mode = window.chartEngine.toggleMode()"> 심볼 모드 (Original)
-                        </label>
-                        <label class="option-item" style="margin-bottom: 10px;">
-                            <input type="radio" name="chartMode" @change="mode = window.chartEngine.toggleMode()"> 텍스트
-                            모드 (Education)
-                        </label>
-
-                        <div class="option-group-label">Celestial Points</div>
-                        <label class="option-item">
-                            <input type="checkbox"
-                                @change="window.chartEngine.setOption('showFortune', $event.target.checked)"> ⊗ Part of
-                            Fortune
-                        </label>
-                        <label class="option-item" style="margin-bottom: 10px;">
-                            <input type="checkbox"
-                                @change="window.chartEngine.setOption('showSpirit', $event.target.checked)"> ◈ Part of
-                            Spirit
-                        </label>
-
-                        <div class="option-group-label">Technical Analysis</div>
-                        <label class="option-item">
-                            <input type="checkbox"
-                                @change="window.chartEngine.setOption('alwaysShowAspects', $event.target.checked)"> ✶
-                            Always Show All Aspects
-                        </label>
-                    </div>
+        <main class="main-display" x-data="{ 
+            isTextMode: false,
+            showSpirit: false,
+            showTerms: false,
+            alwaysShowAspects: false,
+            toggle(key) {
+                this[key] = !this[key];
+                if (key === 'isTextMode') {
+                    window.chartEngine.toggleMode();
+                } else {
+                    window.chartEngine.setOption(key, this[key]);
+                }
+            }
+        }">
+            <div class="instrument-rack">
+                <div class="rack-item" title="심볼/텍스트 전환">
+                    <span class="rack-label">Mode</span>
+                    <button class="rack-btn" :class="{ 'active': isTextMode }" @click="toggle('isTextMode')">
+                        <span x-text="isTextMode ? 'A' : 'Ω'"></span>
+                    </button>
+                </div>
+                <div class="rack-item" title="포르투나 표시">
+                    <span class="rack-label">Fortune</span>
+                    <button class="rack-btn" :class="{ 'active': showFortune }"
+                        @click="toggle('showFortune')">⊗</button>
+                </div>
+                <div class="rack-item" title="스피릿 표시">
+                    <span class="rack-label">Spirit</span>
+                    <button class="rack-btn" :class="{ 'active': showSpirit }" @click="toggle('showSpirit')">◈</button>
+                </div>
+                <div class="rack-item" title="이집션 텀(Bounds) 표시">
+                    <span class="rack-label">Terms</span>
+                    <button class="rack-btn" :class="{ 'active': showTerms }" @click="toggle('showTerms')">🏛️</button>
+                </div>
+                <div class="rack-item" title="모든 애스펙트 표시">
+                    <span class="rack-label">Aspects</span>
+                    <button class="rack-btn" :class="{ 'active': alwaysShowAspects }"
+                        @click="toggle('alwaysShowAspects')">✶</button>
                 </div>
             </div>
 
@@ -508,8 +511,11 @@
             const sunRot = (sun.position - asc + 360) % 360;
             const isDay = (sunRot > 180);
             const signRulers = { 'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon', 'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars', 'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter' };
+            const zodiacOrder = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
             const chartRuler = signRulers[data.ascendant.sign] || "Unknown";
-            const rulerKo = { 'Sun': '태양', 'Moon': '달', 'Mercury': '수성', 'Venus': '금성', 'Mars': '화성', 'Jupiter': '목성', 'Saturn': '토성' }[chartRuler] || chartRuler;
+            const rulerKoMap = { 'Sun': '태양', 'Moon': '달', 'Mercury': '수성', 'Venus': '금성', 'Mars': '화성', 'Jupiter': '목성', 'Saturn': '토성' };
+            const rulerKo = rulerKoMap[chartRuler] || chartRuler;
 
             const sectEl = document.getElementById('sectRulerSummary');
             if (sectEl) sectEl.innerText = `${isDay ? '낮(Day)' : '밤(Night)'} • 지배성: ${rulerKo}`;
@@ -519,8 +525,16 @@
                 const bDate = new Date(birthDate);
                 const age = new Date().getFullYear() - bDate.getFullYear();
                 const profHouse = (age % 12) + 1;
+
+                // Calculate Profection Sign Ruler
+                const ascSignIndex = zodiacOrder.indexOf(data.ascendant.sign);
+                const profSignIndex = (ascSignIndex + (profHouse - 1)) % 12;
+                const profSign = zodiacOrder[profSignIndex];
+                const profRuler = signRulers[profSign];
+                const profRulerKo = rulerKoMap[profRuler] || profRuler;
+
                 const houseKeywords = ["자아/신체/성격", "돈/소유물/가치관", "형제/소통/여행", "가정/부모/뿌리", "자녀/연애/창조성", "건강/업무/봉사", "결혼/파트너/계약", "죽음/유산/변화", "철학/교육/여행", "경력/명성/지위", "친구/희망/공동체", "은둔/비밀/무의식"];
-                profEl.innerText = `만 ${age}세 • ${profHouse}하우스 (${houseKeywords[profHouse - 1]})`;
+                profEl.innerText = `만 ${age}세 • ${profHouse}하우스 (${houseKeywords[profHouse - 1]}) • 연주: ${profRulerKo}`;
             }
         }
 

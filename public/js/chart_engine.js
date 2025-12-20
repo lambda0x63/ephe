@@ -61,6 +61,7 @@ class ChartEngine {
         this.data = null;
         this.showFortune = false;
         this.showSpirit = false;
+        this.showTerms = false;
         this.alwaysShowAspects = false;
     }
 
@@ -192,6 +193,17 @@ class ChartEngine {
 
             // House Lines - Confined to Planet + House + Scale range
             html += this.line(this.getPos(r.inner, rot), this.getPos(r.outer, rot), c.ink, w.house);
+
+            // Egyptian Terms (Bounds) - Optional Layer
+            // [Term Data: Simple mapping for visualization, not calculation]
+            if (this.showTerms) {
+                // Render Term ticks logic would go here, simplified as a visual marker for now
+                // Drawing subtle ticks at standard term bounds (just generic markers for visual feel)
+                [6, 12, 18, 24].forEach(deg => {
+                    const tRot = rot + deg;
+                    html += this.line(this.getPos(r.outer - 5, tRot), this.getPos(r.outer, tRot), c.ink, 0.5);
+                });
+            }
 
             // Zodiac Symbols (Outer Band: 332-382)
             const sPos = this.getPos((r.outer + r.sign_in) / 2, mid);
