@@ -134,13 +134,18 @@ class ChartEngine {
             html += this.line(this.getPos(r.outer, rot), this.getPos(r.outer - len, rot), c.ink, weight);
         }
 
-        // 3. Primary Axes
+        // 3. Primary Axes (Enhanced Symmetry)
         const horizRot = 180;
         const mcRot = (mc - asc + 180 + 360) % 360;
-        html += this.line(this.getPos(r.inner, horizRot), this.getPos(r.outer, horizRot), c.accent, w.asc);
-        html += this.line(this.getPos(r.inner, 0), this.getPos(r.outer, 0), c.ink, w.ring);
-        html += this.line(this.getPos(r.inner, mcRot), this.getPos(r.outer, mcRot), c.accent, w.asc * 0.8);
-        html += this.line(this.getPos(r.inner, mcRot + 180), this.getPos(r.outer, mcRot + 180), c.grey, w.ring);
+
+        // Draw the Cross of Matter (All 4 arms equal weight or balanced)
+        // Horizontal Axis (ASC-DSC)
+        html += this.line(this.getPos(r.inner, horizRot), this.getPos(r.outer, horizRot), c.accent, w.asc); // ASC
+        html += this.line(this.getPos(r.inner, 0), this.getPos(r.outer, 0), c.accent, w.asc);         // DSC (promoted)
+
+        // Vertical Axis (MC-IC)
+        html += this.line(this.getPos(r.inner, mcRot), this.getPos(r.outer, mcRot), c.accent, w.asc * 0.8);      // MC
+        html += this.line(this.getPos(r.inner, mcRot + 180), this.getPos(r.outer, mcRot + 180), c.accent, w.asc * 0.8); // IC (promoted)
 
         // 4. Central Metadata Anchor
         const mX = 400; const mY = 400;
@@ -154,7 +159,6 @@ class ChartEngine {
             html += this.text({ x: mX, y: mY + 50 }, coordStr, 9, "rgba(0,0,0,0.35)", "middle", "600", "'Inter'");
         }
 
-        // 5. Aspects (Drawn behind planets to avoid text overlap)
         // 5. Aspects (Drawn behind planets to avoid text overlap)
         data.aspects.forEach(asp => {
             if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type) && asp.orb < 8) {
@@ -259,14 +263,19 @@ class ChartEngine {
             html += `</g>`;
         });
 
+        // 8. Angle Plates (Outer Labels) - Unified Style
+        const angs = [
+            { v: 180, l: "ASC", c: c.accent },
+            { v: mcRot, l: "MC", c: c.accent },
+            { v: 0, l: "DSC", c: c.accent },    // DSC promoted to accent
+            { v: mcRot + 180, l: "IC", c: c.accent } // IC promoted to accent
+        ];
 
-
-        // 8. Angle Plates (Outer Labels)
-        const angs = [{ v: 180, l: "ASC", c: c.accent }, { v: mcRot, l: "MC", c: c.accent }, { v: 0, l: "DSC", c: c.grey }, { v: mcRot + 180, l: "IC", c: c.grey }];
         angs.forEach(a => {
             const pO = this.getPos(r.outer, a.v);
             const pT = this.getPos(r.outer + 30, a.v);
-            html += this.line(pO, pT, a.c, a.v === 180 || a.v === mcRot ? 3 : 1.2);
+            // Unified thickness for outer markers
+            html += this.line(pO, pT, a.c, 3);
 
             const bP = this.getPos(r.outer + 52, a.v);
             // Smaller, cleaner plate for a "drafting" look
@@ -274,7 +283,8 @@ class ChartEngine {
             html += this.text(bP, a.l, 14, a.c, "middle", "900", "'Inter'");
 
             // Explicit Label near the Axis inside the chart for immediate clarity
-            if (a.l === "ASC" || a.l === "MC") {
+            // Added DSC and IC to internal labels
+            if (["ASC", "MC", "DSC", "IC"].includes(a.l)) {
                 const labelPos = this.getPos(r.outer - 45, a.v + 3); // Slightly offset radially and angularly
                 html += this.text(labelPos, a.l, 12, a.c, "start", "900", "'Inter'");
             }
