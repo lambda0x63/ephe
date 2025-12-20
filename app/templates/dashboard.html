@@ -15,7 +15,7 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    <script src="/static/js/chart_engine.js"></script>
+    <script src="/static/js/chart_engine.js?v=4.8.1"></script>
 
     <style>
         :root {
@@ -381,44 +381,35 @@
         </aside>
 
         <!-- Main Display -->
+        <!-- Main Display -->
         <main class="main-display" x-data="{ 
             isTextMode: false,
+            showFortune: false,
             showSpirit: false,
-            showTerms: false,
-            alwaysShowAspects: false,
-            toggle(key) {
-                this[key] = !this[key];
-                if (key === 'isTextMode') {
-                    window.chartEngine.toggleMode();
-                } else {
-                    window.chartEngine.setOption(key, this[key]);
-                }
-            }
+            alwaysShowAspects: false
         }">
             <div class="instrument-rack">
                 <div class="rack-item" title="심볼/텍스트 전환">
                     <span class="rack-label">Mode</span>
-                    <button class="rack-btn" :class="{ 'active': isTextMode }" @click="toggle('isTextMode')">
+                    <button class="rack-btn" :class="{ 'active': isTextMode }"
+                        @click="isTextMode = !isTextMode; window.chartEngine.toggleMode()">
                         <span x-text="isTextMode ? 'A' : 'Ω'"></span>
                     </button>
                 </div>
                 <div class="rack-item" title="포르투나 표시">
                     <span class="rack-label">Fortune</span>
                     <button class="rack-btn" :class="{ 'active': showFortune }"
-                        @click="toggle('showFortune')">⊗</button>
+                        @click="showFortune = !showFortune; window.chartEngine.setOption('showFortune', showFortune)">⊗</button>
                 </div>
                 <div class="rack-item" title="스피릿 표시">
                     <span class="rack-label">Spirit</span>
-                    <button class="rack-btn" :class="{ 'active': showSpirit }" @click="toggle('showSpirit')">◈</button>
-                </div>
-                <div class="rack-item" title="이집션 텀(Bounds) 표시">
-                    <span class="rack-label">Terms</span>
-                    <button class="rack-btn" :class="{ 'active': showTerms }" @click="toggle('showTerms')">🏛️</button>
+                    <button class="rack-btn" :class="{ 'active': showSpirit }"
+                        @click="showSpirit = !showSpirit; window.chartEngine.setOption('showSpirit', showSpirit)">◈</button>
                 </div>
                 <div class="rack-item" title="모든 애스펙트 표시">
                     <span class="rack-label">Aspects</span>
                     <button class="rack-btn" :class="{ 'active': alwaysShowAspects }"
-                        @click="toggle('alwaysShowAspects')">✶</button>
+                        @click="alwaysShowAspects = !alwaysShowAspects; window.chartEngine.setOption('alwaysShowAspects', alwaysShowAspects)">✶</button>
                 </div>
             </div>
 

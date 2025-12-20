@@ -155,11 +155,13 @@ class ChartEngine {
         }
 
         // 5. Aspects (Drawn behind planets to avoid text overlap)
+        // 5. Aspects (Drawn behind planets to avoid text overlap)
         data.aspects.forEach(asp => {
             if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type) && asp.orb < 8) {
                 const isHovered = (this.activePlanet === asp.planet1 || this.activePlanet === asp.planet2);
-                if (this.activePlanet && !isHovered && !this.alwaysShowAspects) return;
-                if (!this.activePlanet && !this.alwaysShowAspects) return;
+                const shouldDraw = this.alwaysShowAspects || (this.activePlanet && isHovered);
+
+                if (!shouldDraw) return;
 
                 const p1 = data.planets.find(p => p.name === asp.planet1);
                 const p2 = data.planets.find(p => p.name === asp.planet2);
@@ -169,13 +171,15 @@ class ChartEngine {
                     const pos1 = this.getPos(r.inner, rot1);
                     const pos2 = this.getPos(r.inner, rot2);
 
-                    let aCol = isHovered ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.1)";
+                    // Adjusted visibility for Always Show mode
+                    let aCol = isHovered ? "rgba(0,0,0,0.8)" : (this.alwaysShowAspects ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.1)");
                     if (asp.type === "Square" || asp.type === "Opposition") {
-                        aCol = isHovered ? c.accent : "rgba(107,27,27,0.1)";
+                        if (isHovered) aCol = c.accent;
+                        else if (this.alwaysShowAspects) aCol = "rgba(107,27,27,0.6)";
                     }
 
                     // Main Connection Line
-                    html += this.line(pos1, pos2, aCol, isHovered ? 1.5 : w.aspect, asp.type === "Sextile" ? "6,6" : "");
+                    html += this.line(pos1, pos2, aCol, isHovered ? 1.5 : (this.alwaysShowAspects ? 0.8 : w.aspect), asp.type === "Sextile" ? "6,6" : "");
 
                     // Radial Rays to Protractor
                     if (isHovered) {
@@ -193,17 +197,6 @@ class ChartEngine {
 
             // House Lines - Confined to Planet + House + Scale range
             html += this.line(this.getPos(r.inner, rot), this.getPos(r.outer, rot), c.ink, w.house);
-
-            // Egyptian Terms (Bounds) - Optional Layer
-            // [Term Data: Simple mapping for visualization, not calculation]
-            if (this.showTerms) {
-                // Render Term ticks logic would go here, simplified as a visual marker for now
-                // Drawing subtle ticks at standard term bounds (just generic markers for visual feel)
-                [6, 12, 18, 24].forEach(deg => {
-                    const tRot = rot + deg;
-                    html += this.line(this.getPos(r.outer - 5, tRot), this.getPos(r.outer, tRot), c.ink, 0.5);
-                });
-            }
 
             // Zodiac Symbols (Outer Band: 332-382)
             const sPos = this.getPos((r.outer + r.sign_in) / 2, mid);
