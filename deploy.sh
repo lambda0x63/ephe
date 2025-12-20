@@ -29,6 +29,11 @@ if [ -f "requirements.txt" ]; then
 fi
 python3 -m pip install uvicorn
 
+# 3.5 Cache Busting (JS 버전 자동 갱신)
+echo ">>> Cache Busting: chart_engine.js..."
+TIMESTAMP=$(date +%s)
+# Linux(Ubuntu/CentOS) 기준 sed 문법
+sed -i "s/chart_engine.js?v=[^\"]*/chart_engine.js?v=$TIMESTAMP/g" app/templates/dashboard.html
 
 # 4. PM2를 통한 프로세스 재시작
 echo ">>> PM2 Reload..."
