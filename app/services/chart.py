@@ -35,8 +35,8 @@ def calculate_chart(
     angles = calculate_angles(
         birth_date, birth_time, latitude, longitude, timezone_str
     )
-    asc_longitude, asc_sign, asc_sign_ko, asc_degree = angles["asc"]
-    mc_longitude, mc_sign, mc_sign_ko, mc_degree = angles["mc"]
+    asc_longitude, asc_sign, asc_sign_ko, asc_element, asc_degree = angles["asc"]
+    mc_longitude, mc_sign, mc_sign_ko, mc_element, mc_degree = angles["mc"]
     
     # 2. 천체 위치 계산
     planets = calculate_planets(birth_date, birth_time, timezone_str)
@@ -58,7 +58,7 @@ def calculate_chart(
     is_day = is_day_chart(sun_pos, asc_longitude)
     fortuna_longitude = calculate_fortuna(sun_pos, moon_pos, asc_longitude, is_day)
     
-    fortuna_sign_en, _, fortuna_sign_ko, fortuna_degree = get_sign(fortuna_longitude)
+    fortuna_sign_en, _, fortuna_sign_ko, fortuna_element, fortuna_degree = get_sign(fortuna_longitude)
     fortuna_house = get_planet_house(fortuna_longitude, asc_longitude)
     
     return {
@@ -69,6 +69,7 @@ def calculate_chart(
         "ascendant": {
             "sign": asc_sign,
             "sign_ko": asc_sign_ko,
+            "element": asc_element,
             "degree": round(asc_degree, 2),
             "degree_formatted": format_degree(asc_degree),
             "position": round(asc_longitude, 4)
@@ -76,6 +77,7 @@ def calculate_chart(
         "midheaven": {
             "sign": mc_sign,
             "sign_ko": mc_sign_ko,
+            "element": mc_element,
             "degree": round(mc_degree, 2),
             "degree_formatted": format_degree(mc_degree),
             "position": round(mc_longitude, 4)

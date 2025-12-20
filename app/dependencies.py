@@ -30,8 +30,19 @@ class ChartInputData:
                  place_name: str, 
                  gender: str = "unknown"):
         self.name = name
-        self.birth_date = birth_date
-        self.birth_time = birth_time
+        
+        # Parse 8-digit date (YYYYMMDD -> YYYY-MM-DD)
+        if len(birth_date) == 8 and birth_date.isdigit():
+            self.birth_date = f"{birth_date[:4]}-{birth_date[4:6]}-{birth_date[6:]}"
+        else:
+            self.birth_date = birth_date
+            
+        # Parse 4-digit time (HHMM -> HH:MM)
+        if len(birth_time) == 4 and birth_time.isdigit():
+            self.birth_time = f"{birth_time[:2]}:{birth_time[2:]}"
+        else:
+            self.birth_time = birth_time
+            
         self.place_name = place_name
         self.gender = gender
         self.lat = None

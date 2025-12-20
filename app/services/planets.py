@@ -19,12 +19,12 @@ PLANETS = {
 # 12 사인
 # (영문, 심볼, 한국어)
 SIGNS = [
-    ("Aries", "♈︎", "양자리"), ("Taurus", "♉︎", "황소자리"),
-    ("Gemini", "♊︎", "쌍둥이자리"), ("Cancer", "♋︎", "게자리"),
-    ("Leo", "♌︎", "사자자리"), ("Virgo", "♍︎", "처녀자리"),
-    ("Libra", "♎︎", "천칭자리"), ("Scorpio", "♏︎", "전갈자리"),
-    ("Sagittarius", "♐︎", "사수자리"), ("Capricorn", "♑︎", "염소자리"),
-    ("Aquarius", "♒︎", "물병자리"), ("Pisces", "♓︎", "물고기자리")
+    ("Aries", "♈︎", "양자리", "fire"), ("Taurus", "♉︎", "황소자리", "earth"),
+    ("Gemini", "♊︎", "쌍둥이자리", "air"), ("Cancer", "♋︎", "게자리", "water"),
+    ("Leo", "♌︎", "사자자리", "fire"), ("Virgo", "♍︎", "처녀자리", "earth"),
+    ("Libra", "♎︎", "천칭자리", "air"), ("Scorpio", "♏︎", "전갈자리", "water"),
+    ("Sagittarius", "♐︎", "사수자리", "fire"), ("Capricorn", "♑︎", "염소자리", "earth"),
+    ("Aquarius", "♒︎", "물병자리", "air"), ("Pisces", "♓︎", "물고기자리", "water")
 ]
 
 
@@ -141,17 +141,17 @@ def get_dignity_description(dignity: str) -> str:
     return descriptions.get(dignity, dignity)
 
 
-def get_sign(longitude: float) -> tuple[str, str, str, float]:
+def get_sign(longitude: float) -> tuple[str, str, str, str, float]:
     """
     황도 경도(0-360)를 사인과 사인 내 도수로 변환
     
     Returns:
-        (sign_name, sign_symbol, sign_name_ko, degree_in_sign)
+        (sign_name, sign_symbol, sign_name_ko, element, degree_in_sign)
     """
     sign_index = int(longitude / 30)
     degree_in_sign = longitude % 30
-    sign_en, sign_symbol, sign_ko = SIGNS[sign_index]
-    return (sign_en, sign_symbol, sign_ko, degree_in_sign)
+    sign_en, sign_symbol, sign_ko, element = SIGNS[sign_index]
+    return (sign_en, sign_symbol, sign_ko, element, degree_in_sign)
 
 
 def format_degree(decimal_degree: float) -> str:
@@ -211,7 +211,7 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
         longitude = result[0]  # 황도 경도 (0-360)
         speed = result[3]      # 일간 이동 속도
         
-        sign_en, sign_symbol, sign_ko, degree = get_sign(longitude)
+        sign_en, sign_symbol, sign_ko, element, degree = get_sign(longitude)
         retrograde = speed < 0
         
         planets.append({
@@ -220,6 +220,7 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
             "symbol": symbol,
             "sign": sign_en,
             "sign_ko": sign_ko,
+            "element": element,
             "degree": round(degree, 2),
             "degree_formatted": format_degree(degree),
             "retrograde": retrograde,
@@ -251,12 +252,12 @@ def calculate_angles(birth_date: str, birth_time: str, latitude: float, longitud
     asc_longitude = ascmc[0]
     mc_longitude = ascmc[1]
     
-    asc_sign_en, _, asc_sign_ko, asc_degree = get_sign(asc_longitude)
-    mc_sign_en, _, mc_sign_ko, mc_degree = get_sign(mc_longitude)
+    asc_sign_en, _, asc_sign_ko, asc_element, asc_degree = get_sign(asc_longitude)
+    mc_sign_en, _, mc_sign_ko, mc_element, mc_degree = get_sign(mc_longitude)
     
     return {
-        "asc": (asc_longitude, asc_sign_en, asc_sign_ko, asc_degree),
-        "mc": (mc_longitude, mc_sign_en, mc_sign_ko, mc_degree)
+        "asc": (asc_longitude, asc_sign_en, asc_sign_ko, asc_element, asc_degree),
+        "mc": (mc_longitude, mc_sign_en, mc_sign_ko, mc_element, mc_degree)
     }
 
 

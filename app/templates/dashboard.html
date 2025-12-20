@@ -20,10 +20,10 @@
     <style>
         :root {
             --bg-body: #F9F7F1;
-            --bg-panel: #FFFFFF;
-            --line-border: #1a1a1a;
-            --text-main: #1a1a1a;
-            --text-muted: #666;
+            --bg-sidebar: #FCFAF5;
+            --line-border: #3D3D3D;
+            --text-main: #2D2D2D;
+            --text-muted: #777;
             --accent: #9A2121;
             --sidebar-width: 400px;
         }
@@ -50,33 +50,72 @@
             height: 100%;
         }
 
-        /* Left Side: Information & Control */
+        /* Sidebar Section */
         .sidebar {
             width: var(--sidebar-width);
-            background: #fff;
+            background: var(--bg-sidebar);
             border-right: 2px solid var(--line-border);
             display: flex;
             flex-direction: column;
             z-index: 20;
+        }
+
+        .sidebar-header {
+            background: var(--bg-sidebar);
+            color: var(--text-main);
+            padding: 24px;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 2px solid var(--line-border);
+            text-transform: uppercase;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid var(--line-border);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            color: #888;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            border-right: 1px solid #ddd;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-sidebar);
+            color: var(--accent);
+            font-weight: 900;
+            border-bottom: 2px solid var(--bg-sidebar);
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .tab-content-area {
+            flex: 1;
             overflow-y: auto;
             scrollbar-width: thin;
         }
 
-        .sidebar-section {
+        .tab-section {
             padding: 24px;
-            border-bottom: 1px solid #eee;
         }
 
-        .sidebar-header {
-            background: #1a1a1a;
-            color: #fff;
-            padding: 20px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Right Side: The Instrument (Chart) */
+        /* Main Display Section */
         .main-display {
             flex: 1;
             position: relative;
@@ -98,51 +137,8 @@
         .chart-svg {
             max-width: 100%;
             max-height: 100%;
-            width: auto;
-            height: auto;
         }
 
-        /* Input Controls */
-        .input-drawer {
-            background: #fdfcf8;
-            border: 1px solid #1a1a1a;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #555;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .form-input {
-            width: 100%;
-            height: 34px;
-            padding: 0 8px;
-            border: 1px solid #ccc;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-        }
-
-        .form-btn {
-            width: 100%;
-            padding: 10px;
-            background: #1a1a1a;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        /* Mode Toggle Styled for Top Right of Chart */
         .mode-toggle-btn {
             position: absolute;
             top: 24px;
@@ -151,7 +147,6 @@
             background: #fff;
             border: 2px solid #1a1a1a;
             padding: 8px 16px;
-            font-family: inherit;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 4px 4px 0px #1a1a1a;
@@ -163,14 +158,55 @@
             box-shadow: 2px 2px 0px #1a1a1a;
         }
 
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            border-bottom: 2px solid #1a1a1a;
-            padding-bottom: 5px;
+        /* Form Styling */
+        .form-group {
             margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
+        }
+
+        .form-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            border-radius: 0;
+        }
+
+        .form-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
+        }
+
+        .form-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            font-size: 14px;
+            font-weight: 800;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 6px;
+            margin-bottom: 18px;
         }
 
         @media (max-width: 1024px) {
@@ -184,102 +220,103 @@
                 border-right: none;
                 border-top: 2px solid #1a1a1a;
             }
-
-            .main-display {
-                height: 50%;
-            }
         }
     </style>
 </head>
 
 <body x-data="natalApp()">
     <div class="app-container">
-        <!-- Unified Sidebar (Left) -->
+        <!-- Sidebar with Tabs (Left) -->
         <aside class="sidebar">
-            <header class="sidebar-header">
-                <span style="font-size:18px; font-weight:800; letter-spacing: -0.5px;">NATALIS ARCHIVE</span>
-                <button @click="drawerOpen = !drawerOpen"
-                    style="background: #fff; border:none; padding:4px 10px; font-size:11px; font-weight:800; cursor:pointer;">
-                    <span x-text="drawerOpen ? 'CLOSE' : 'NEW CHART'"></span>
-                </button>
-            </header>
+            <header class="sidebar-header">점성술 데이터베이스</header>
 
-            <!-- 1. Input Section -->
-            <section class="sidebar-section" x-show="drawerOpen" x-transition>
-                <div class="section-title">CHART CONFIGURATION</div>
-                <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML"
-                    @submit="drawerOpen = false">
-                    <div class="form-group">
-                        <label class="form-label">NAME</label>
-                        <input type="text" name="name" class="form-input" required value="{{ input_data.name }}">
-                    </div>
-                    <div class="form-group" style="position:relative;">
-                        <label class="form-label">BIRTH CITY</label>
-                        <input type="text" name="place_name" class="form-input" x-model="searchQuery"
-                            @input.debounce.300ms="fetchPlaces" placeholder="e.g. Seoul">
-                        <div x-show="places.length > 0"
-                            style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #1a1a1a; z-index:100; max-height:150px; overflow-y:auto;">
-                            <template x-for="p in places">
-                                <div @click="searchQuery = p.display_name; places = [];"
-                                    style="padding:8px; cursor:pointer; font-size:12px; border-bottom:1px solid #eee;"
-                                    x-html="p.display_name"></div>
-                            </template>
-                        </div>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <nav class="tab-nav">
+                <button class="tab-btn" :class="{ 'active': activeTab === 'config' }"
+                    @click="activeTab = 'config'">설정</button>
+                <button class="tab-btn" :class="{ 'active': activeTab === 'report' }"
+                    @click="activeTab = 'report'">결과</button>
+                <button class="tab-btn" :class="{ 'active': activeTab === 'archive' }"
+                    @click="activeTab = 'archive'">기록</button>
+            </nav>
+
+            <div class="tab-content-area">
+                <!-- Tab 1: Config (Input) -->
+                <div x-show="activeTab === 'config'" class="tab-section">
+                    <div class="section-header">새 차트 생성</div>
+                    <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML"
+                        @submit="if(!validateForm()) { $event.preventDefault(); return; } activeTab = 'report'">
                         <div class="form-group">
-                            <label class="form-label">DATE</label>
-                            <input type="date" name="birth_date" class="form-input" required
-                                value="{{ input_data.birth_date }}">
+                            <label class="form-label">이름</label>
+                            <input type="text" name="name" class="form-input" required value="{{ input_data.name }}">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">TIME</label>
-                            <input type="time" name="birth_time" class="form-input" required
-                                value="{{ input_data.birth_time }}">
+                        <div class="form-group" style="position:relative;">
+                            <label class="form-label">출생 도시 (검색 후 선택 필순)</label>
+                            <input type="text" name="place_name" class="form-input" x-model="searchQuery"
+                                @input.debounce.300ms="fetchPlaces" placeholder="도시명 검색..." required autocomplete="off">
+                            <div x-show="places.length > 0"
+                                style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #1a1a1a; z-index:100; max-height:200px; overflow-y:auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                <template x-for="p in places">
+                                    <div @click="selectPlace(p)"
+                                        style="padding:10px; cursor:pointer; font-size:12px; border-bottom:1px solid #eee;"
+                                        x-html="p.display_name"></div>
+                                </template>
+                            </div>
                         </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div class="form-group">
+                                <label class="form-label">생년월일 (8자리: YYYYMMDD)</label>
+                                <input type="text" name="birth_date" class="form-input" required maxlength="8"
+                                    placeholder="19901025"
+                                    value="{{ input_data.birth_date|replace('-','') if input_data.birth_date else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">출생 시간 (4자리: HHMM)</label>
+                                <input type="text" name="birth_time" class="form-input" required maxlength="4"
+                                    placeholder="1430"
+                                    value="{{ input_data.birth_time|replace(':','') if input_data.birth_time else '' }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="form-btn">차트 생성 및 분석</button>
+                    </form>
+                </div>
+
+                <!-- Tab 2: Report (Results) -->
+                <div x-show="activeTab === 'report'" class="tab-section" id="resultViewContent">
+                    {% if chart_data %}
+                    {% include "partials/chart_result.html" %}
+                    {% else %}
+                    <div style="text-align:center; padding:100px 0; color:#aaa;">
+                        <div style="font-size:40px; margin-bottom:15px; opacity:0.3;">✧</div>
+                        <p style="font-size:13px; font-style:italic;">데이터를 입력하거나<br>아카이브에서 기록을 불러오세요.</p>
                     </div>
-                    <button type="submit" class="form-btn" style="margin-top:10px;">GENERATE CHART</button>
-                </form>
-            </section>
-
-            <!-- 2. Active Analysis Results -->
-            <section class="sidebar-section" id="resultViewContent">
-                {% if chart_data %}
-                {% include "partials/chart_result.html" %}
-                {% else %}
-                <div style="text-align:center; padding:40px 0; color:#aaa; font-style:italic; font-size:13px;">
-                    <div style="font-size:32px; margin-bottom:10px; opacity:0.3;">✧</div>
-                    분석할 데이터를 입력하거나<br>기록을 선택하세요.
+                    {% endif %}
                 </div>
-                {% endif %}
-            </section>
 
-            <!-- 3. Saved Records List -->
-            <section class="sidebar-section">
-                <div class="section-title">SAVED ARCHIVES</div>
-                <div id="historyList">
-                    {% include "partials/history_list.html" %}
+                <!-- Tab 3: Archive (History) -->
+                <div x-show="activeTab === 'archive'" class="tab-section">
+                    <div class="section-header">저장된 기록 아카이브</div>
+                    <div id="historyList">
+                        {% include "partials/history_list.html" %}
+                    </div>
                 </div>
-            </section>
+            </div>
         </aside>
 
-        <!-- Main Display (Right) -->
+        <!-- Main Display -->
         <main class="main-display">
-            <button id="modeBtn" class="mode-toggle-btn" onclick="toggleChartMode()">
-                학습 모드 (켜기)
-            </button>
+            <button id="modeBtn" class="mode-toggle-btn" onclick="toggleChartMode()">학습 모드 (켜기)</button>
             <div class="chart-paper">
                 <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
             </div>
             <div
-                style="position: absolute; bottom: 20px; right: 24px; font-size: 11px; font-weight:700; color: #1a1a1a; letter-spacing: 1px;">
+                style="position: absolute; bottom: 20px; right: 24px; font-size: 11px; font-weight:700; color: #1a1a1a; letter-spacing: 1.5px; opacity: 0.6;">
                 TRADITIONAL ASTROLOGY INSTRUMENT v4.7
             </div>
         </main>
     </div>
 
     <!-- Hidden State -->
-    <div id="server-state" data-drawer-open="{{ 'false' if chart_data else 'true' }}"
+    <div id="server-state" data-active-tab="{{ 'report' if chart_data else 'config' }}"
         data-place-name="{{ input_data.place_name }}" data-birth-date="{{ input_data.birth_date }}"
         style="display:none;"></div>
 
@@ -289,9 +326,9 @@
         function natalApp() {
             const stateEl = document.getElementById('server-state');
             return {
-                mobileMenuOpen: false,
-                drawerOpen: stateEl ? stateEl.dataset.drawerOpen === 'true' : true,
+                activeTab: stateEl ? stateEl.dataset.activeTab : 'config',
                 searchQuery: stateEl ? stateEl.dataset.placeName : '',
+                lastSelectedPlace: stateEl ? stateEl.dataset.placeName : '',
                 places: [],
                 async fetchPlaces() {
                     if (this.searchQuery.length < 2) { this.places = []; return; }
@@ -300,6 +337,43 @@
                         const data = await res.json();
                         this.places = data.results || [];
                     } catch (e) { this.places = []; }
+                },
+                selectPlace(p) {
+                    this.searchQuery = p.display_name;
+                    this.lastSelectedPlace = p.display_name;
+                    this.places = [];
+                },
+                validateForm() {
+                    if (!this.lastSelectedPlace || this.searchQuery !== this.lastSelectedPlace) {
+                        alert("도시 목록에서 유효한 장소를 선택해주세요.");
+                        return false;
+                    }
+                    const dateStr = document.getElementsByName('birth_date')[0].value;
+                    const timeStr = document.getElementsByName('birth_time')[0].value;
+
+                    // Date Validation
+                    if (dateStr.length !== 8 || isNaN(dateStr)) {
+                        alert("날짜는 8자리 숫자로 입력해주세요 (YYYYMMDD).");
+                        return false;
+                    }
+                    const y = parseInt(dateStr.substring(0, 4));
+                    const m = parseInt(dateStr.substring(4, 6));
+                    const d = parseInt(dateStr.substring(6, 8));
+                    if (y < 1000 || y > 2100) { alert("연도가 범위를 벗어났습니다 (1000-2100)."); return false; }
+                    if (m < 1 || m > 12) { alert("월이 잘못되었습니다 (01-12)."); return false; }
+                    if (d < 1 || d > 31) { alert("일이 잘못되었습니다 (01-31)."); return false; }
+
+                    // Time Validation
+                    if (timeStr.length !== 4 || isNaN(timeStr)) {
+                        alert("시간은 4자리 숫자로 입력해주세요 (HHMM).");
+                        return false;
+                    }
+                    const hh = parseInt(timeStr.substring(0, 2));
+                    const mm = parseInt(timeStr.substring(2, 4));
+                    if (hh < 0 || hh > 23) { alert("시간(시)이 잘못되었습니다 (00-23)."); return false; }
+                    if (mm < 0 || mm > 59) { alert("시간(분)이 잘못되었습니다 (00-59)."); return false; }
+
+                    return true;
                 }
             }
         }

@@ -30,7 +30,15 @@ const CHART_CONFIG = {
         house_num: 175
     },
     center: { x: 400, y: 400 },
-    colors: { ink: '#1a1a1a', grey: '#666', accent: '#9A2121', paper: '#F9F7F1', muted_accent: 'rgba(154, 33, 33, 0.1)' }
+    colors: { ink: '#2D2D2D', grey: '#777', accent: '#9A2121', paper: '#F9F7F1', muted_accent: 'rgba(154, 33, 33, 0.1)' },
+    elementColors: {
+        fire: '#e44b4b',   // Fire: Passionate Red
+        earth: '#3a7d44',  // Earth: Rich Green
+        air: '#d9a106',    // Air: Golden Yellow
+        water: '#366dbb'   // Water: Fluid Blue
+    },
+    signElements: [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3], // Aries=0(Fire), Taurus=1(Earth), etc.
+    elementNames: ['fire', 'earth', 'air', 'water']
 };
 
 class ChartEngine {
@@ -136,11 +144,14 @@ class ChartEngine {
             html += this.line(this.getPos(CHART_CONFIG.r.inner, rotDeg), this.getPos(CHART_CONFIG.r.outer, rotDeg), CHART_CONFIG.colors.ink, 1.2, "", "inkBleed");
 
             const symPos = this.getPos((CHART_CONFIG.r.sign_in + CHART_CONFIG.r.outer) / 2, midDeg);
+            const elementType = CHART_CONFIG.elementNames[CHART_CONFIG.signElements[h]];
+            const elementColor = CHART_CONFIG.elementColors[elementType];
+
             if (isEdu) {
-                html += this.text(symPos, CHART_CONFIG.signNames[h], 14, CHART_CONFIG.colors.ink, "middle", "700");
+                html += this.text(symPos, CHART_CONFIG.signNames[h], 14, elementColor, "middle", "700");
             } else {
-                // Optical centering for symbols
-                html += this.text(symPos, CHART_CONFIG.signSymbols[h], 30, CHART_CONFIG.colors.ink, "middle", "normal", "'Segoe UI Symbol'", "0.05em");
+                // Optical centering for symbols with element colors
+                html += this.text(symPos, CHART_CONFIG.signSymbols[h], 30, elementColor, "middle", "normal", "'Segoe UI Symbol'", "0.05em");
             }
 
             const houseIdx = (h - Math.floor(asc / 30) + 12) % 12;
@@ -202,18 +213,24 @@ class ChartEngine {
         });
 
         // 7. Angles
-        const angs = [{ v: asc, l: "ASC", c: CHART_CONFIG.colors.accent, m: true }, { v: data.midheaven.position, l: "MC", c: CHART_CONFIG.colors.accent, m: true }, { v: asc + 180, l: "DSC", c: "#444", m: false }, { v: data.midheaven.position + 180, l: "IC", c: "#444", m: false }];
+        const angs = [
+            { v: asc, l: "ASC", c: CHART_CONFIG.colors.accent, m: true, desc: "Ascendant (Rising)" },
+            { v: data.midheaven.position, l: "MC", c: CHART_CONFIG.colors.accent, m: true, desc: "Midheaven" },
+            { v: asc + 180, l: "DSC", c: "#444", m: false, desc: "Descendant" },
+            { v: data.midheaven.position + 180, l: "IC", c: "#444", m: false, desc: "Imum Coeli" }
+        ];
         angs.forEach(a => {
             const rot = a.v - asc + 180;
             const pOuter = this.getPos(CHART_CONFIG.r.outer, rot);
-            const pTip = this.getPos(CHART_CONFIG.r.outer + 45, rot);
-            html += this.line(pOuter, pTip, a.c, a.m ? 4 : 1.5);
+            const pTip = this.getPos(CHART_CONFIG.r.outer + 48, rot); // Slightly longer
+            html += this.line(pOuter, pTip, a.c, a.m ? 5 : 2); // Thicker lines
             if (a.m) {
-                const s1 = this.getPos(CHART_CONFIG.r.outer + 10, rot + 1.5);
-                const s2 = this.getPos(CHART_CONFIG.r.outer + 10, rot - 1.5);
+                const s1 = this.getPos(CHART_CONFIG.r.outer + 12, rot + 1.8);
+                const s2 = this.getPos(CHART_CONFIG.r.outer + 12, rot - 1.8);
                 html += `<polygon points="${pTip.x},${pTip.y} ${s1.x},${s1.y} ${s2.x},${s2.y}" fill="${a.c}" />`;
             }
-            html += this.text(this.getPos(CHART_CONFIG.r.outer + 62, rot), a.l, 14, a.c, "middle", "900", "'Playfair Display'");
+            // Larger, bolder labels for critical points
+            html += this.text(this.getPos(CHART_CONFIG.r.outer + 68, rot), a.l, a.m ? 18 : 14, a.c, "middle", "900", "'Playfair Display'");
         });
 
         this.svg.innerHTML = html;
