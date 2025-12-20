@@ -23,12 +23,13 @@ def calculate_houses(asc_longitude: float) -> list[dict]:
     
     for i in range(12):
         sign_index = (first_house_sign_index + i) % 12
-        sign_en, sign_symbol, sign_ko = SIGNS[sign_index]
+        sign_en, sign_symbol, sign_ko, element = SIGNS[sign_index]
         
         houses.append({
             "number": i + 1,
             "sign": sign_en,
             "sign_ko": sign_ko,
+            "element": element,
             "degree": 0.0  # Whole Sign에서는 각 하우스가 사인 0°에서 시작
         })
     

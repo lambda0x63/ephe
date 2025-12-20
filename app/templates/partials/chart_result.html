@@ -1,157 +1,234 @@
-<!-- 차트 시각화 데이터 (숨김) -->
+<!-- 차트 데이터 (숨김) -->
 <div id="chartDataContainer" data-chart-json="{{ chart_data | tojson | forceescape }}"
     data-birth-date="{{ chart_data.birth_date }}" style="display:none;"></div>
 
-<!-- 결과 컨테이너 -->
-<div class="animate-fade-in" style="font-family: 'Noto Serif KR', serif;">
+<style>
+    .report-container {
+        font-family: 'Inter', 'Noto Serif KR', serif;
+        color: #2D2D2D;
+        line-height: 1.5;
+    }
 
-    <!-- Professional Analysis Summary (Sect & Profection) -->
-    <div class="analysis-summary" style="margin-bottom:24px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div
-            style="background:#f0f4f8; padding:12px; border-radius:4px; border-left:4px solid #2563eb; border:1px solid #1a1a1a;">
-            <div style="font-size:10px; font-weight:700; color:#555; text-transform:uppercase; margin-bottom:5px;">Sect
-                & Ruler</div>
-            <div style="font-size:14px; font-weight:600;" id="sectRulerSummary">분석중...</div>
+    /* Summary Row */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: #3D3D3D;
+        /* Border color */
+        border: 1px solid #3D3D3D;
+        margin-bottom: 20px;
+    }
+
+    .summary-item {
+        background: #fff;
+        padding: 12px;
+    }
+
+    .sm-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .sm-value {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    /* Element Bar */
+    .el-bar-wrap {
+        margin-bottom: 25px;
+    }
+
+    .el-bar {
+        display: flex;
+        height: 8px;
+        background: #eee;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .el-segment {
+        height: 100%;
+        transition: width 0.3s;
+    }
+
+    .bg-fire {
+        background: #D14124;
+    }
+
+    .bg-earth {
+        background: #4E6E58;
+    }
+
+    .bg-air {
+        background: #B29412;
+    }
+
+    .bg-water {
+        background: #2B5A82;
+    }
+
+    /* Data Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .data-table th {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 2px solid #3D3D3D;
+        font-size: 11px;
+        color: #777;
+        text-transform: uppercase;
+    }
+
+    .data-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+
+    .data-table tr:hover {
+        background: #fbfbfb;
+    }
+
+    .tag-el {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 9px;
+        font-weight: 900;
+        color: #fff;
+        margin-left: 5px;
+        text-transform: uppercase;
+    }
+
+    .deg-mono {
+        font-family: 'Inter', monospace;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+    }
+
+    .save-btn-wrap {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="report-container">
+    <!-- 1. Quick Info Header -->
+    <div class="summary-grid">
+        <div class="summary-item">
+            <div class="sm-label">Sect / Ruler</div>
+            <div class="sm-value" id="sectRulerSummary">분석중...</div>
         </div>
-        <div
-            style="background:#fffcf0; padding:12px; border-radius:4px; border-left:4px solid #eab308; border:1px solid #1a1a1a;">
-            <div style="font-size:10px; font-weight:700; color:#555; text-transform:uppercase; margin-bottom:5px;">
-                Annual Profection</div>
-            <div style="font-size:14px; font-weight:600;" id="profectionSummary">올해의 테마 확인중</div>
+        <div class="summary-item">
+            <div class="sm-label">Profection</div>
+            <div class="sm-value" id="profectionSummary">확인중...</div>
+        </div>
+        <div class="summary-item">
+            <div class="sm-label">Database</div>
+            <div class="sm-value" style="font-size:11px;">
+                <button hx-post="/htmx/save" hx-include="#chartForm" hx-target="#historyList" hx-swap="innerHTML"
+                    style="border:1px solid #3D3D3D; background:none; cursor:pointer; padding:2px 8px; font-weight:700;">기록
+                    저장</button>
+            </div>
         </div>
     </div>
 
-    <!-- Key Summaries (Classical Cards) -->
-    <div class="summary-row">
-        <!-- Sun -->
-        <div class="kpi-card" style="border:1px solid #1a1a1a;" onmouseenter="highlightPlanet('Sun')"
-            onmouseleave="highlightPlanet(null)">
-            <div class="kpi-icon" style="color:#d97706">☉</div>
-            <div class="kpi-value">{{ chart_data.planets | selectattr("name", "equalto", "Sun") |
-                map(attribute="sign_ko") | first }}</div>
-            <div class="kpi-label">태양 (Sun)</div>
-        </div>
-        <!-- Moon -->
-        <div class="kpi-card" style="border:1px solid #1a1a1a;" onmouseenter="highlightPlanet('Moon')"
-            onmouseleave="highlightPlanet(null)">
-            <div class="kpi-icon" style="color:#666">☾</div>
-            <div class="kpi-value">{{ chart_data.planets | selectattr("name", "equalto", "Moon") |
-                map(attribute="sign_ko") | first }}</div>
-            <div class="kpi-label">달 (Moon)</div>
-        </div>
-        <!-- Ascendant -->
-        <div class="kpi-card" style="border:1px solid #1a1a1a;">
-            <div class="kpi-icon" style="color:#9A2121; font-weight:bold; font-size:20px;">ASC</div>
-            <div class="kpi-value">{{ chart_data.ascendant.sign_ko }}</div>
-            <div class="kpi-label">상승궁 (Rising)</div>
-        </div>
+    <!-- 2. Elemental Balance -->
+    <div class="el-bar-wrap">
+        <div class="sm-label" style="margin-bottom:8px;">Elemental Distribution</div>
+        <div class="el-bar" id="elementDistBar"></div>
     </div>
 
-    <!-- 저장 버튼 영역 -->
-    <div style="text-align: right; margin-bottom: 24px;">
-        <button class="btn-outline" hx-post="/htmx/save" hx-include="#chartForm" hx-target="#historyList"
-            hx-swap="innerHTML"
-            style="border:1px solid #1a1a1a; color:#1a1a1a; font-family: 'Noto Serif KR', serif; font-weight:600; padding:8px 16px; cursor:pointer;">
-            기록 저장 (Save)
-        </button>
-    </div>
-
-    <style>
-        .element-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-
-        .el-fire {
-            background: #e44b4b;
-            box-shadow: 0 0 4px rgba(228, 75, 75, 0.4);
-        }
-
-        .el-earth {
-            background: #3a7d44;
-            box-shadow: 0 0 4px rgba(58, 125, 68, 0.4);
-        }
-
-        .el-air {
-            background: #d9a106;
-            box-shadow: 0 0 4px rgba(217, 161, 6, 0.4);
-        }
-
-        .el-water {
-            background: #366dbb;
-            box-shadow: 0 0 4px rgba(54, 109, 187, 0.4);
-        }
-    </style>
-
-    <!-- Planet List (Korean Table) -->
-    <div class="section-label"
-        style="font-family:'Noto Serif KR', serif; color:#1a1a1a; border-bottom:2px solid #1a1a1a; padding-bottom:8px; font-weight:600; margin-top:12px;">
-        천체 및 민감점 상세 (Detailed Positions)
-    </div>
-
-    <div style="border: 1px solid #1a1a1a; border-top:none; background:#fff;">
-        <!-- Header -->
-        <div class="data-table-row"
-            style="background:#f9f9f9; border-bottom:1px solid #1a1a1a; font-weight:600; font-size:12px; color:#555;">
-            <div class="col-planet">천체/포인트</div>
-            <div class="col-sign">별자리 (Element)</div>
-            <div class="col-deg">도수 (Degree)</div>
-            <div class="col-house">실</div>
-        </div>
-
-        <!-- ASC -->
-        <div class="data-table-row" style="border-bottom:1px solid #eee; background:#fffdfd;">
-            <div class="col-planet" style="font-size:14px; font-weight:700; color:#9A2121;">
-                <span style="width:24px; display:inline-block; text-align:center; font-size:10px;">ASC</span> 상승궁
-            </div>
-            <div class="col-sign" style="font-size:13px; color:#444;">
-                <span class="element-dot el-{{ chart_data.ascendant.element }}"></span> {{ chart_data.ascendant.sign_ko
-                }}
-            </div>
-            <div class="col-deg" style="font-weight:600;">{{ chart_data.ascendant.degree_formatted }}</div>
-            <div class="col-house" style="color:#666;">1실</div>
-        </div>
-
-        <!-- MC -->
-        <div class="data-table-row" style="border-bottom:1px solid #eee; background:#fffdfd;">
-            <div class="col-planet" style="font-size:14px; font-weight:700; color:#9A2121;">
-                <span style="width:24px; display:inline-block; text-align:center; font-size:10px;">MC</span> 중천점
-            </div>
-            <div class="col-sign" style="font-size:13px; color:#444;">
-                <span class="element-dot el-{{ chart_data.midheaven.element }}"></span> {{ chart_data.midheaven.sign_ko
-                }}
-            </div>
-            <div class="col-deg" style="font-weight:600;">{{ chart_data.midheaven.degree_formatted }}</div>
-            <div class="col-house" style="color:#666;">10실</div>
-        </div>
-
-        {% for p in chart_data.planets %}
-        <div class="data-table-row" style="border-bottom:1px solid #eee;" onmouseenter="highlightPlanet('{{ p.name }}')"
-            onmouseleave="highlightPlanet(null)">
-            <div class="col-planet" style="font-family:'Noto Serif KR', serif; font-size:14px; color:#1a1a1a;">
-                <span class="planet-symbol"
-                    style="color:#1a1a1a; width:24px; display:inline-block; text-align:center; font-size:18px;">{{
-                    p.symbol }}</span>
-                {{ p.name_ko }}
-            </div>
-
-            <div class="col-sign" style="font-family:'Noto Serif KR', serif; font-size:13px; color:#444;">
-                <span class="element-dot el-{{ p.element }}"></span> {{ p.sign_ko }}
-            </div>
-
-            <div class="col-deg" style="font-family:'Inter', sans-serif; font-weight:600; color:#1a1a1a;">{{
-                p.degree_formatted }}</div>
-            <div class="col-house" style="font-family:'Noto Serif KR', serif; color:#666;">{{ p.house }}실</div>
-        </div>
-        {% endfor %}
-    </div>
+    <!-- 3. Integrated Position Log -->
+    <div class="sm-label" style="margin-bottom:10px;">Planetary & Angular Positions</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:110px;">Point / Planet</th>
+                <th>Sign / Element</th>
+                <th style="width:90px;">Degree</th>
+                <th style="width:40px; text-align:center;">H</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Angles -->
+            <tr>
+                <td style="font-weight:900; color:var(--accent);">ASC (상승궁)</td>
+                <td>
+                    {{ chart_data.ascendant.sign_ko }}
+                    <span class="tag-el bg-{{ chart_data.ascendant.element }}">{{ chart_data.ascendant.element[0]
+                        }}</span>
+                </td>
+                <td class="deg-mono">{{ chart_data.ascendant.degree_formatted }}</td>
+                <td style="text-align:center; font-weight:700;">1</td>
+            </tr>
+            <tr>
+                <td style="font-weight:900; color:var(--accent);">MC (중천점)</td>
+                <td>
+                    {{ chart_data.midheaven.sign_ko }}
+                    <span class="tag-el bg-{{ chart_data.midheaven.element }}">{{ chart_data.midheaven.element[0]
+                        }}</span>
+                </td>
+                <td class="deg-mono">{{ chart_data.midheaven.degree_formatted }}</td>
+                <td style="text-align:center; font-weight:700;">10</td>
+            </tr>
+            <!-- Planets -->
+            {% for p in chart_data.planets %}
+            <tr onmouseenter="highlightPlanet('{{ p.name }}')" onmouseleave="highlightPlanet(null)"
+                style="cursor:pointer;">
+                <td>
+                    <span style="font-size:16px; margin-right:4px;">{{ p.symbol }}</span>
+                    <span style="font-weight:700;">{{ p.name_ko }}</span>
+                </td>
+                <td>
+                    {{ p.sign_ko }}
+                    <span class="tag-el bg-{{ p.sign_element | default('fire') }}">{{ (p.sign_element or 'F')[0]
+                        }}</span>
+                </td>
+                <td class="deg-mono">{{ p.degree_formatted }}{{ '℞' if p.retrograde else '' }}</td>
+                <td style="text-align:center; color:#777; font-weight:700;">{{ p.house }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <script>
-    if (typeof drawChartFromHtmx === 'function') {
-        drawChartFromHtmx();
-    }
+    if (typeof drawChartFromHtmx === 'function') drawChartFromHtmx();
+
+    (function () {
+        const dataStr = document.getElementById('chartDataContainer').dataset.chartJson;
+        if (!dataStr) return;
+        const data = JSON.parse(dataStr);
+        const counts = { fire: 0, earth: 0, air: 0, water: 0 };
+        data.planets.forEach(p => {
+            const el = p.sign_element || p.element;
+            if (counts[el] !== undefined) counts[el]++;
+        });
+        const total = data.planets.length;
+        const bar = document.getElementById('elementDistBar');
+        if (bar && total > 0) {
+            bar.innerHTML = '';
+            ['fire', 'earth', 'air', 'water'].forEach(el => {
+                const pc = (counts[el] / total) * 100;
+                if (pc > 0) {
+                    const seg = document.createElement('div');
+                    seg.className = `el-segment bg-${el}`;
+                    seg.style.width = pc + '%';
+                    seg.title = `${el}: ${Math.round(pc)}%`;
+                    bar.appendChild(seg);
+                }
+            });
+        }
+    })();
 </script>

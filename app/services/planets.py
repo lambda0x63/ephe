@@ -7,13 +7,13 @@ import pytz
 # 7개 전통 천체 (고전점성술)
 # (영문, 심볼, 한국어)
 PLANETS = {
-    swe.SUN: ("Sun", "☉", "태양"),
-    swe.MOON: ("Moon", "☾", "달"),
-    swe.MERCURY: ("Mercury", "☿", "수성"),
-    swe.VENUS: ("Venus", "♀", "금성"),
-    swe.MARS: ("Mars", "♂", "화성"),
-    swe.JUPITER: ("Jupiter", "♃", "목성"),
-    swe.SATURN: ("Saturn", "♄", "토성"),
+    swe.SUN: ("Sun", "☉", "태양", "fire"),
+    swe.MOON: ("Moon", "☾", "달", "water"),
+    swe.MERCURY: ("Mercury", "☿", "수성", "air"), # Air/Neutral variable nature
+    swe.VENUS: ("Venus", "♀", "금성", "water"),
+    swe.MARS: ("Mars", "♂", "화성", "fire"),
+    swe.JUPITER: ("Jupiter", "♃", "목성", "air"),
+    swe.SATURN: ("Saturn", "♄", "토성", "earth"),
 }
 
 # 12 사인
@@ -205,13 +205,13 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
     
     planets = []
     
-    for planet_id, (name, symbol, name_ko) in PLANETS.items():
+    for planet_id, (name, symbol, name_ko, p_element) in PLANETS.items():
         # 천체 위치 계산 (황도 경도, 위도, 거리, 속도 등)
         result, flag = swe.calc_ut(jd, planet_id)
         longitude = result[0]  # 황도 경도 (0-360)
         speed = result[3]      # 일간 이동 속도
         
-        sign_en, sign_symbol, sign_ko, element, degree = get_sign(longitude)
+        sign_en, sign_symbol, sign_ko, s_element, degree = get_sign(longitude)
         retrograde = speed < 0
         
         planets.append({
@@ -220,7 +220,8 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
             "symbol": symbol,
             "sign": sign_en,
             "sign_ko": sign_ko,
-            "element": element,
+            "sign_element": s_element,
+            "planet_element": p_element,
             "degree": round(degree, 2),
             "degree_formatted": format_degree(degree),
             "retrograde": retrograde,

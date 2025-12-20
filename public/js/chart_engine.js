@@ -32,12 +32,12 @@ const CHART_CONFIG = {
     center: { x: 400, y: 400 },
     colors: { ink: '#2D2D2D', grey: '#777', accent: '#9A2121', paper: '#F9F7F1', muted_accent: 'rgba(154, 33, 33, 0.1)' },
     elementColors: {
-        fire: '#e44b4b',   // Fire: Passionate Red
-        earth: '#3a7d44',  // Earth: Rich Green
-        air: '#d9a106',    // Air: Golden Yellow
-        water: '#366dbb'   // Water: Fluid Blue
+        fire: '#D14124',   // Fire: Deep Burnt Red/Orange
+        earth: '#4E6E58',  // Earth: Sage/Olive Green
+        air: '#B29412',    // Air: Ocher/Golden Yellow
+        water: '#2B5A82'   // Water: Slate/Deep Blue
     },
-    signElements: [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3], // Aries=0(Fire), Taurus=1(Earth), etc.
+    signElements: [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3],
     elementNames: ['fire', 'earth', 'air', 'water']
 };
 
@@ -156,8 +156,14 @@ class ChartEngine {
 
             const houseIdx = (h - Math.floor(asc / 30) + 12) % 12;
             const numPos = this.getPos(CHART_CONFIG.r.house_num, midDeg);
-            const lbl = isEdu ? `${houseIdx + 1}. ${CHART_CONFIG.houseKeywords[houseIdx]}` : (houseIdx + 1);
-            html += this.text(numPos, lbl, isEdu ? 10 : 13, CHART_CONFIG.colors.grey, "middle", "700", isEdu ? "'Noto Serif KR'" : "'Playfair Display'");
+
+            if (isEdu) {
+                // Stack Number and Keyword vertically to save horizontal space
+                html += this.text(numPos, houseIdx + 1, 12, CHART_CONFIG.colors.grey, "middle", "900", "'Playfair Display'", "-0.6em");
+                html += this.text(numPos, CHART_CONFIG.houseKeywords[houseIdx], 8, "#666", "middle", "700", "'Noto Serif KR'", "0.8em");
+            } else {
+                html += this.text(numPos, houseIdx + 1, 13, CHART_CONFIG.colors.grey, "middle", "700", "'Playfair Display'");
+            }
         }
 
         // 6. Planets (Perfectly Centered via Groups)
