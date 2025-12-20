@@ -5,7 +5,7 @@
     .report-wrap {
         font-family: 'Inter', 'Noto Serif KR', serif;
         color: #1a1a1a;
-        background: #fff;
+        background: transparent;
     }
 
     .rep-section-title {
@@ -27,10 +27,9 @@
     }
 
     .metric-card {
-        padding: 16px;
-        background: #fcfcfc;
-        border: 1px solid #eee;
-        border-radius: 4px;
+        padding: 12px 0;
+        background: transparent;
+        border: none;
     }
 
     .m-label {
@@ -55,13 +54,13 @@
 
     .verdict-table th {
         text-align: left;
-        padding: 12px 8px;
-        background: #f9f9f9;
-        color: #666;
+        padding: 8px;
+        background: transparent;
+        color: #888;
         font-size: 10px;
         font-weight: 800;
         text-transform: uppercase;
-        border-bottom: 2px solid #1a1a1a;
+        border-bottom: 1px solid #1a1a1a;
     }
 
     .verdict-table td {
@@ -160,11 +159,11 @@
     <div class="rep-section-title">Technical Context</div>
     <div class="metric-grid">
         <div class="metric-card">
-            <span class="m-label">운명의 시간 (Sect & Ruler)</span>
+            <span class="m-label">Sect & Ruler</span>
             <div class="m-value" id="sectRulerSummary">분석중...</div>
         </div>
         <div class="metric-card">
-            <span class="m-label">올해의 영역 (Profection Year)</span>
+            <span class="m-label">Profection</span>
             <div class="m-value" id="profectionSummary">계산중...</div>
         </div>
     </div>
@@ -176,7 +175,7 @@
             <tr>
                 <th style="width:120px;">Planet</th>
                 <th style="width:140px;">Position</th>
-                <th>Status (Condition)</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -203,15 +202,15 @@
     </table>
 
     <!-- 3. Lots -->
-    <div class="rep-section-title">Fate Points (The Lots)</div>
+    <div class="rep-section-title">Lots</div>
     <div class="metric-grid">
         <div class="metric-card">
-            <span class="m-label">⊗ 행운의 지점 (Lot of Fortune)</span>
+            <span class="m-label">⊗ Lot of Fortune</span>
             <div class="m-value">{{ chart_data.fortuna.sign_ko }} {{ chart_data.fortuna.degree_formatted }} ({{
                 chart_data.fortuna.house }}H)</div>
         </div>
         <div class="metric-card">
-            <span class="m-label">◈ 정신의 지점 (Lot of Spirit)</span>
+            <span class="m-label">◈ Lot of Spirit</span>
             <div class="m-value">{{ chart_data.spirit.sign_ko }} {{ chart_data.spirit.degree_formatted }} ({{
                 chart_data.spirit.house }}H)</div>
         </div>

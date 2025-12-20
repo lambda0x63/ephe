@@ -37,9 +37,14 @@ class ChartInputData:
         else:
             self.birth_date = birth_date
             
-        # Parse 4-digit time (HHMM -> HH:MM)
-        if len(birth_time) == 4 and birth_time.isdigit():
-            self.birth_time = f"{birth_time[:2]}:{birth_time[2:]}"
+        # Parse time (4-digit HHMM -> HH:MM or 6-digit HHMMSS -> HH:MM:SS)
+        if birth_time.isdigit():
+            if len(birth_time) == 4:
+                self.birth_time = f"{birth_time[:2]}:{birth_time[2:]}"
+            elif len(birth_time) == 6:
+                self.birth_time = f"{birth_time[:2]}:{birth_time[2:4]}:{birth_time[4:]}"
+            else:
+                self.birth_time = birth_time
         else:
             self.birth_time = birth_time
             

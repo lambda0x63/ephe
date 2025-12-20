@@ -113,7 +113,7 @@
         }
 
         .tab-section {
-            padding: 24px;
+            padding: 20px 16px;
         }
 
         /* Main Display Section */
@@ -207,6 +207,69 @@
         .option-item input {
             cursor: pointer;
         }
+
+        /* Time Stepper Toolbar */
+        .time-stepper {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #1a1a1a;
+            padding: 8px 12px;
+            gap: 12px;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .step-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .step-label {
+            font-size: 9px;
+            font-weight: 900;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .step-btn {
+            background: #fff;
+            border: 1px solid #ccc;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .step-btn:hover {
+            background: #f0f0f0;
+            border-color: #1a1a1a;
+        }
+
+        .step-btn:active {
+            transform: translateY(1px);
+        }
+
+        .update-btn {
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            padding: 0 15px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
 
         /* Form Styling */
         .form-group {
@@ -320,9 +383,9 @@
                                     value="{{ input_data.birth_date|replace('-','') if input_data.birth_date else '' }}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">출생 시간 (4자리: HHMM)</label>
-                                <input type="text" name="birth_time" class="form-input" required maxlength="4"
-                                    placeholder="1430"
+                                <label class="form-label">출생 시간 (4/6자리: HHMM[SS])</label>
+                                <input type="text" name="birth_time" class="form-input" required maxlength="6"
+                                    placeholder="143005"
                                     value="{{ input_data.birth_time|replace(':','') if input_data.birth_time else '' }}">
                             </div>
                         </div>
@@ -371,6 +434,31 @@
                     </div>
                 </div>
             </div>
+            <!-- Time Stepper Toolbar -->
+            <div class="time-stepper">
+                <div class="step-group">
+                    <span class="step-label">Day</span>
+                    <button class="step-btn" @click="adjustTime('d', -1)">-</button>
+                    <button class="step-btn" @click="adjustTime('d', 1)">+</button>
+                </div>
+                <div class="step-group">
+                    <span class="step-label">Hr</span>
+                    <button class="step-btn" @click="adjustTime('h', -1)">-</button>
+                    <button class="step-btn" @click="adjustTime('h', 1)">+</button>
+                </div>
+                <div class="step-group">
+                    <span class="step-label">Min</span>
+                    <button class="step-btn" @click="adjustTime('m', -1)">-</button>
+                    <button class="step-btn" @click="adjustTime('m', 1)">+</button>
+                </div>
+                <div class="step-group">
+                    <span class="step-label">Sec</span>
+                    <button class="step-btn" @click="adjustTime('s', -1)">-</button>
+                    <button class="step-btn" @click="adjustTime('s', 1)">+</button>
+                </div>
+                <button class="update-btn" @click="document.getElementById('chartForm').requestSubmit()">Update
+                    Chart</button>
+            </div>
             <div id="chart-paper" class="chart-paper">
                 <svg id="natal-chart" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
             </div>
@@ -410,36 +498,73 @@
                     this.places = [];
                 },
                 validateForm() {
+                    const dateInput = document.getElementsByName('birth_date')[0];
+                    const timeInput = document.getElementsByName('birth_time')[0];
                     if (!this.lastSelectedPlace || this.searchQuery !== this.lastSelectedPlace) {
                         alert("도시 목록에서 유효한 장소를 선택해주세요.");
                         return false;
                     }
-                    const dateStr = document.getElementsByName('birth_date')[0].value;
-                    const timeStr = document.getElementsByName('birth_time')[0].value;
+                    const dateStr = dateInput.value;
+                    const timeStr = timeInput.value;
 
                     // Date Validation
                     if (dateStr.length !== 8 || isNaN(dateStr)) {
                         alert("날짜는 8자리 숫자로 입력해주세요 (YYYYMMDD).");
                         return false;
                     }
-                    const y = parseInt(dateStr.substring(0, 4));
-                    const m = parseInt(dateStr.substring(4, 6));
-                    const d = parseInt(dateStr.substring(6, 8));
-                    if (y < 1000 || y > 2100) { alert("연도가 범위를 벗어났습니다 (1000-2100)."); return false; }
-                    if (m < 1 || m > 12) { alert("월이 잘못되었습니다 (01-12)."); return false; }
-                    if (d < 1 || d > 31) { alert("일이 잘못되었습니다 (01-31)."); return false; }
 
-                    // Time Validation
-                    if (timeStr.length !== 4 || isNaN(timeStr)) {
-                        alert("시간은 4자리 숫자로 입력해주세요 (HHMM).");
+                    // Time Validation (4 or 6 digits)
+                    if ((timeStr.length !== 4 && timeStr.length !== 6) || isNaN(timeStr)) {
+                        alert("시간은 4자리(HHMM) 또는 6자리(HHMMSS) 숫자로 입력해주세요.");
                         return false;
                     }
-                    const hh = parseInt(timeStr.substring(0, 2));
-                    const mm = parseInt(timeStr.substring(2, 4));
-                    if (hh < 0 || hh > 23) { alert("시간(시)이 잘못되었습니다 (00-23)."); return false; }
-                    if (mm < 0 || mm > 59) { alert("시간(분)이 잘못되었습니다 (00-59)."); return false; }
 
                     return true;
+                },
+                adjustTime(unit, amt) {
+                    const dateIn = document.getElementsByName('birth_date')[0];
+                    const timeIn = document.getElementsByName('birth_time')[0];
+
+                    // Current string values
+                    let dStr = dateIn.value;
+                    let tStr = timeIn.value;
+
+                    // Parse to Date object
+                    const year = parseInt(dStr.substring(0, 4));
+                    const month = parseInt(dStr.substring(4, 6)) - 1;
+                    const day = parseInt(dStr.substring(6, 8));
+                    const hh = parseInt(tStr.substring(0, 2));
+                    const mm = parseInt(tStr.substring(2, 4));
+                    const ss = tStr.length === 6 ? parseInt(tStr.substring(4, 6)) : 0;
+
+                    let dt = new Date(year, month, day, hh, mm, ss);
+
+                    if (unit === 'd') dt.setDate(dt.getDate() + amt);
+                    if (unit === 'h') dt.setHours(dt.getHours() + amt);
+                    if (unit === 'm') dt.setMinutes(dt.getMinutes() + amt);
+                    if (unit === 's') dt.setSeconds(dt.getSeconds() + amt);
+
+                    // Re-format back to strings
+                    const newD = dt.getFullYear().toString() +
+                        (dt.getMonth() + 1).toString().padStart(2, '0') +
+                        dt.getDate().toString().padStart(2, '0');
+                    const newT = dt.getHours().toString().padStart(2, '0') +
+                        dt.getMinutes().toString().padStart(2, '0') +
+                        dt.getSeconds().toString().padStart(2, '0');
+
+                    dateIn.value = newD;
+                    timeIn.value = newT;
+
+                    // Trigger HTMX manually to be certain
+                    htmx.trigger('#chartForm', 'submit');
+                },
+                setNow() {
+                    const dt = new Date();
+                    const d = dt.getFullYear().toString() + (dt.getMonth() + 1).toString().padStart(2, '0') + dt.getDate().toString().padStart(2, '0');
+                    const t = dt.getHours().toString().padStart(2, '0') + dt.getMinutes().toString().padStart(2, '0') + dt.getSeconds().toString().padStart(2, '0');
+                    document.getElementsByName('birth_date')[0].value = d;
+                    document.getElementsByName('birth_time')[0].value = t;
+                    htmx.trigger('#chartForm', 'submit');
                 }
             }
         }
