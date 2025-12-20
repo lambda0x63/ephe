@@ -9,7 +9,7 @@ import pytz
 PLANETS = {
     swe.SUN: ("Sun", "☉", "태양", "fire"),
     swe.MOON: ("Moon", "☾", "달", "water"),
-    swe.MERCURY: ("Mercury", "☿", "수성", "air"), # Air/Neutral variable nature
+    swe.MERCURY: ("Mercury", "☿", "수성", "neutral"), # Fluid/Neutral nature
     swe.VENUS: ("Venus", "♀", "금성", "water"),
     swe.MARS: ("Mars", "♂", "화성", "fire"),
     swe.JUPITER: ("Jupiter", "♃", "목성", "air"),
@@ -130,13 +130,13 @@ def get_planet_dignity(planet_name: str, sign_name: str) -> str:
 
 
 def get_dignity_description(dignity: str) -> str:
-    """품위에 대한 한글 요약 (결론용)"""
+    """Original Hellenistic nomenclature"""
     descriptions = {
-        "Domicile": "본궁 (강함)",
-        "Exaltation": "고양 (강함)",
-        "Detriment": "장해 (약함)",
-        "Fall": "추락 (약함)",
-        "Peregrine": "이방인"
+        "Domicile": "Domicile",
+        "Exaltation": "Exaltation",
+        "Detriment": "Detriment",
+        "Fall": "Fall",
+        "Peregrine": "Peregrine"
     }
     return descriptions.get(dignity, dignity)
 
@@ -206,30 +206,20 @@ def get_face_ruler(longitude: float) -> str:
 
 def get_dignity_conclusion(p_name: str, p_sign: str, p_degree: float, s_element: str, is_day: bool) -> str:
     """
-    행성의 최종 컨디션 결론 도출 (수학적 대조 결과)
+    Planetary condition conclusion using original wording.
     """
     dignity = get_planet_dignity(p_name, p_sign)
     trip_ruler = get_triplicity_ruler(s_element, is_day)
-    
-    status = get_dignity_description(dignity)
-    
-    # 삼궁 지배를 얻었는지 확인 (추가 강점)
     has_triplicity = (p_name == trip_ruler)
     
     if dignity == "Domicile" and has_triplicity:
-        return "본궁+삼궁 (매우 강함)"
-    if dignity == "Domicile":
-        return "본궁 (강함)"
-    if dignity == "Exaltation":
-        return "고양 (강함)"
-    if dignity == "Detriment":
-        return "장해 (약함)"
-    if dignity == "Fall":
-        return "추락 (약함)"
+        return "Domicile + Triplicity"
+    if dignity != "Peregrine":
+        return dignity
     if has_triplicity:
-        return "삼궁 (양호)"
+        return "Triplicity"
         
-    return "이방인 (무색)"
+    return "Peregrine"
 
 
 def get_sign(longitude: float) -> tuple[str, str, str, str, float]:

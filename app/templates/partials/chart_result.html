@@ -105,12 +105,6 @@
         color: #5F6368;
     }
 
-    .formula-chain {
-        font-family: 'Inter', monospace;
-        font-size: 10px;
-        color: #888;
-        letter-spacing: -0.2px;
-    }
 
     .deg-box {
         font-family: 'Inter', monospace;
@@ -181,9 +175,8 @@
         <thead>
             <tr>
                 <th style="width:120px;">Planet</th>
-                <th style="width:120px;">Position</th>
-                <th style="width:140px;">상태 (Conclusion)</th>
-                <th>지배계보 (Audit Chain)</th>
+                <th style="width:140px;">Position</th>
+                <th>Status (Condition)</th>
             </tr>
         </thead>
         <tbody>
@@ -200,13 +193,9 @@
                     <div class="deg-box">{{ p.degree_formatted }}{{ '℞' if p.retrograde else '' }} ({{p.house}}H)</div>
                 </td>
                 <td>
-                    {% set st_class = 'st-strong' if '강함' in p.status or '양호' in p.status else ('st-weak' if '약함' in
-                    p.status else 'st-neutral') %}
+                    {% set st_class = 'st-strong' if 'Domicile' in p.status or 'Exaltation' in p.status or 'Triplicity'
+                    in p.status else ('st-weak' if 'Detriment' in p.status or 'Fall' in p.status else 'st-neutral') %}
                     <div class="status-badge {{ st_class }}">{{ p.status }}</div>
-                </td>
-                <td>
-                    <div class="formula-chain">{{ p.ruler_chain }}</div>
-                    <div style="font-size:9px; color:#bbb; margin-top:2px;">Dom | Tri | Term | Face</div>
                 </td>
             </tr>
             {% endfor %}
