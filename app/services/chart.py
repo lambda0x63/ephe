@@ -87,6 +87,7 @@ def calculate_chart(
             "sign_ko": fortuna_sign_ko,
             "degree": round(fortuna_degree, 2),
             "degree_formatted": format_degree(fortuna_degree),
-            "house": fortuna_house
+            "house": fortuna_house,
+            "position": round(fortuna_longitude, 4)
         }
     }

@@ -136,10 +136,14 @@ class ChartEngine {
         // 4. Central Metadata Anchor
         const mX = 400; const mY = 400;
         const mCol = "rgba(0,0,0,0.5)";
-        html += this.text({ x: mX, y: mY - 45 }, data.name || "NATAL CHART", 18, mCol, "middle", "900", "'Inter'");
-        html += this.text({ x: mX, y: mY - 14 }, data.birth_date || "", 13, mCol, "middle", "700", "'Inter'");
-        html += this.text({ x: mX, y: mY + 12 }, data.birth_time || "", 13, mCol, "middle", "700", "'Inter'");
-        html += this.text({ x: mX, y: mY + 40 }, data.place_name || "", 11, mCol, "middle", "500", "'Noto Serif KR'");
+        html += this.text({ x: mX, y: mY - 52 }, data.name || "NATAL CHART", 18, mCol, "middle", "900", "'Inter'");
+        html += this.text({ x: mX, y: mY - 22 }, data.birth_date || "", 13, mCol, "middle", "700", "'Inter'");
+        html += this.text({ x: mX, y: mY + 4 }, data.birth_time || "", 13, mCol, "middle", "700", "'Inter'");
+        html += this.text({ x: mX, y: mY + 30 }, data.place_name || "", 11, mCol, "middle", "500", "'Noto Serif KR'");
+        if (data.latitude !== undefined && data.longitude !== undefined) {
+            const coordStr = `${Math.abs(data.latitude).toFixed(2)}${data.latitude >= 0 ? 'N' : 'S'} · ${Math.abs(data.longitude).toFixed(2)}${data.longitude >= 0 ? 'E' : 'W'}`;
+            html += this.text({ x: mX, y: mY + 50 }, coordStr, 9, "rgba(0,0,0,0.35)", "middle", "600", "'Inter'");
+        }
 
         // 5. Aspects (Drawn behind planets to avoid text overlap)
         data.aspects.forEach(asp => {
@@ -199,7 +203,14 @@ class ChartEngine {
 
         // 6. Planets (Middle Band: 252-332)
         const pList = [...data.planets];
-        if (data.fortuna) pList.push({ name: 'Fortuna', symbol: '⊗', position: (data.fortuna.sign_index * 30 + data.fortuna.degree) || data.fortuna.position, degree_formatted: data.fortuna.degree_formatted });
+        if (data.fortuna && data.fortuna.position !== undefined) {
+            pList.push({
+                name: 'Fortuna',
+                symbol: '⊗',
+                position: data.fortuna.position,
+                degree_formatted: data.fortuna.degree_formatted
+            });
+        }
         const sorted = pList.filter(p => p.position !== undefined).sort((a, b) => a.position - b.position);
 
         sorted.forEach((p, i) => {
