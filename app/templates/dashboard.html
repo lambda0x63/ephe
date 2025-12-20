@@ -19,8 +19,10 @@
 
     <style>
         :root {
-            --bg-body: #F9F7F1;
+            --bg-body: #EBE8E0;
+            /* Darker workstation surface */
             --bg-sidebar: #FCFAF5;
+            /* Premium parchment sidebar */
             --line-border: #3D3D3D;
             --text-main: #2D2D2D;
             --text-muted: #777;
@@ -29,22 +31,20 @@
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: "Noto Serif KR", serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            font-family: 'Noto Serif KR', serif;
         }
 
-        .app-container {
+        .dashboard-container {
             display: flex;
             width: 100%;
             height: 100%;
@@ -58,6 +58,7 @@
             display: flex;
             flex-direction: column;
             z-index: 20;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
         }
 
         .sidebar-header {
@@ -124,19 +125,30 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            /* Vignette effect */
+            background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0.05) 100%);
         }
 
         .chart-paper {
             width: 95%;
-            height: 95%;
+            height: auto;
+            max-width: 950px;
+            aspect-ratio: 1/1;
+            background: #F9F7F1;
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .chart-svg {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
         .mode-toggle-btn {
@@ -210,7 +222,7 @@
         }
 
         @media (max-width: 1024px) {
-            .app-container {
+            .dashboard-container {
                 flex-direction: column-reverse;
             }
 
@@ -225,7 +237,7 @@
 </head>
 
 <body x-data="natalApp()">
-    <div class="app-container">
+    <div class="dashboard-container">
         <!-- Sidebar with Tabs (Left) -->
         <aside class="sidebar">
             <header class="sidebar-header">점성술 데이터베이스</header>
