@@ -471,15 +471,115 @@
                 transform: translateY(0)
             }
         }
+
+        /* ... Animations ... */
+
+        /* Responsive Design (Mobile) */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 100;
+                box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            /* Mobile Header Toggle */
+            .mobile-header-btn {
+                display: flex !important;
+            }
+
+            .main-view {
+                padding: 16px;
+                width: 100%;
+                padding-top: 60px;
+                /* Space for button */
+            }
+
+            .chart-paper {
+                padding: 10px;
+                box-shadow: none;
+                border: none;
+                background: transparent;
+            }
+
+            .chart-svg {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+
+            /* Input form stack */
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pane-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .edit-toggle-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+
+        .mobile-header-btn {
+            display: none;
+            /* Desktop hidden */
+            position: fixed;
+            top: 12px;
+            left: 16px;
+            z-index: 50;
+            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .mobile-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 90;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
     </style>
 </head>
 
 <body x-data="natalApp()">
-    <div class="layout-container">
+
+    <!-- Mobile UI Elements -->
+    <button class="mobile-header-btn" @click="mobileMenuOpen = !mobileMenuOpen">☰</button>
+    <div class="mobile-backdrop" :class="{ 'active': mobileMenuOpen }" @click="mobileMenuOpen = false"></div>
+
+    <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" :class="{ 'mobile-open': mobileMenuOpen }">
             <div class="sidebar-header">
-                <span>Charts</span>
+                <span class="brand-title">저장 기록</span>
                 <a href="/dashboard"
                     style="font-size:11px; color:#666; text-decoration:none; text-transform:uppercase; letter-spacing:0.5px; border:1px solid #ddd; padding:2px 6px; border-radius:4px;">New</a>
             </div>
@@ -489,7 +589,14 @@
         </aside>
 
         <!-- Chart Pane -->
-        <section class="chart-pane" id="chart-section">
+        <section class="chart-pane" id="chart-section" style="position:relative;">
+
+            <!-- Mode Toggle -->
+            <button id="modeBtn" onclick="toggleChartMode()"
+                style="position:absolute; top:20px; right:20px; z-index:10; background:#fff; border:1px solid #1a1a1a; padding:8px 16px; font-family:'Noto Serif KR'; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.1); transition:all 0.2s;">
+                학습 모드 (켜기)
+            </button>
+
             <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800"></svg>
             <div
                 style="position: absolute; bottom: 20px; left: 24px; font-size: 11px; color: #444; font-family: var(--font-serif); opacity: 0.6;">
@@ -604,6 +711,7 @@
             const initialDrawer = stateEl ? stateEl.dataset.drawerOpen === 'true' : true;
 
             return {
+                mobileMenuOpen: false, /* Mobile State */
                 drawerOpen: initialDrawer,
                 searchQuery: initialQuery,
                 places: [],
@@ -633,6 +741,23 @@
         // Global Highlight Bridge (called by inline events in partials)
         function highlightPlanet(name) {
             if (window.chartEngine) window.chartEngine.highlight(name);
+        }
+
+        // Mode Toggle
+        function toggleChartMode() {
+            if (window.chartEngine) {
+                const newMode = window.chartEngine.toggleMode();
+                const btn = document.getElementById('modeBtn');
+                if (newMode === 'text') {
+                    btn.innerText = "전문가 모드 (Symbol)";
+                    btn.style.background = "#1a1a1a";
+                    btn.style.color = "#fff";
+                } else {
+                    btn.innerText = "학습 모드 (Text)";
+                    btn.style.background = "#fff";
+                    btn.style.color = "#1a1a1a";
+                }
+            }
         }
 
         // Initial Render
