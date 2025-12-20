@@ -16,7 +16,7 @@ const CHART_CONFIG = {
     planetNames: {
         'Sun': '태양', 'Moon': '달', 'Mercury': '수성', 'Venus': '금성', 'Mars': '화성',
         'Jupiter': '목성', 'Saturn': '토성', 'Uranus': '천왕', 'Neptune': '해왕', 'Pluto': '명왕',
-        'North Node': '북노드', 'South Node': '남노드', 'Chiron': '카이론', 'Fortuna': '포르투나'
+        'North Node': '북노드', 'South Node': '남노드', 'Chiron': '카이론', 'Fortuna': '포르투나', 'Spirit': '스피릿'
     },
     houseKeywords: [
         "자아/신체/성격", "돈/소유물/가치관", "형제/소통/여행", "가정/부모/뿌리",
@@ -59,6 +59,13 @@ class ChartEngine {
         this.mode = 'symbol';
         this.activePlanet = null;
         this.data = null;
+        this.showFortune = false;
+        this.showSpirit = false;
+    }
+
+    setOption(key, val) {
+        this[key] = val;
+        if (this.data) this.render(this.data);
     }
 
     toggleMode() {
@@ -203,10 +210,10 @@ class ChartEngine {
 
         // 6. Planets (Middle Band: 252-332)
         const pList = [...data.planets];
-        if (data.fortuna && data.fortuna.position !== undefined) {
+        if (this.showFortune && data.fortuna && data.fortuna.position !== undefined) {
             pList.push({ name: 'Fortuna', symbol: '⊗', position: data.fortuna.position, degree_formatted: data.fortuna.degree_formatted });
         }
-        if (data.spirit && data.spirit.position !== undefined) {
+        if (this.showSpirit && data.spirit && data.spirit.position !== undefined) {
             pList.push({ name: 'Spirit', symbol: '◈', position: data.spirit.position, degree_formatted: data.spirit.degree_formatted });
         }
         const sorted = pList.filter(p => p.position !== undefined).sort((a, b) => a.position - b.position);

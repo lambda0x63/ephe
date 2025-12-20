@@ -151,23 +151,61 @@
             display: block;
         }
 
-        .mode-toggle-btn {
+        .chart-controls {
             position: absolute;
             top: 24px;
             right: 24px;
             z-index: 100;
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
             background: #fff;
-            border: 2px solid #1a1a1a;
-            padding: 8px 16px;
+            border: 1px solid #1a1a1a;
+            padding: 8px 14px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 4px 4px 0px #1a1a1a;
+            box-shadow: 3px 3px 0px #1a1a1a;
             transition: all 0.1s;
         }
 
-        .mode-toggle-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px #1a1a1a;
+        .control-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #1a1a1a;
+        }
+
+        .options-wrapper {
+            position: relative;
+        }
+
+        .options-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #1a1a1a;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: 140px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .option-item input {
+            cursor: pointer;
         }
 
         /* Form Styling */
@@ -315,8 +353,24 @@
         </aside>
 
         <!-- Main Display -->
-        <main class="main-display">
-            <button id="modeBtn" class="mode-toggle-btn" onclick="toggleChartMode()">학습 모드 (켜기)</button>
+        <main class="main-display" x-data="{ showOptions: false }">
+            <div class="chart-controls">
+                <button id="modeBtn" class="control-btn" onclick="toggleChartMode()">심볼 모드</button>
+                <div class="options-wrapper">
+                    <button class="control-btn" @click="showOptions = !showOptions">옵션 ▾</button>
+                    <div class="options-menu" x-show="showOptions" @click.away="showOptions = false"
+                        style="display:none;" x-cloak>
+                        <label class="option-item">
+                            <input type="checkbox"
+                                @change="window.chartEngine.setOption('showFortune', $event.target.checked)"> ⊗ 포르투나
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox"
+                                @change="window.chartEngine.setOption('showSpirit', $event.target.checked)"> ◈ 스피릿
+                        </label>
+                    </div>
+                </div>
+            </div>
             <div id="chart-paper" class="chart-paper">
                 <svg id="natal-chart" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
             </div>
@@ -394,9 +448,7 @@
             if (window.chartEngine) {
                 const mode = window.chartEngine.toggleMode();
                 const btn = document.getElementById('modeBtn');
-                btn.innerText = (mode === 'text') ? "전문가 모드 (복귀)" : "학습 모드 (켜기)";
-                btn.style.background = (mode === 'text') ? "#1a1a1a" : "#fff";
-                btn.style.color = (mode === 'text') ? "#fff" : "#1a1a1a";
+                btn.innerText = (mode === 'text') ? "텍스트 모드" : "심볼 모드";
             }
         }
 
