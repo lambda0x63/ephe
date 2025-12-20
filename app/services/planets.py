@@ -184,6 +184,9 @@ def datetime_to_julian_day(dt: datetime, timezone_str: str) -> float:
     return jd
 
 
+from app.utils.datetime import parse_birth_datetime
+
+
 def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> list[dict]:
     """
     7개 전통 천체의 위치 계산
@@ -197,7 +200,7 @@ def calculate_planets(birth_date: str, birth_time: str, timezone_str: str) -> li
         천체 정보 리스트
     """
     # datetime 파싱
-    dt = datetime.strptime(f"{birth_date} {birth_time}", "%Y-%m-%d %H:%M:%S")
+    dt = parse_birth_datetime(birth_date, birth_time)
     jd = datetime_to_julian_day(dt, timezone_str)
     
     planets = []
@@ -237,7 +240,7 @@ def calculate_angles(birth_date: str, birth_time: str, latitude: float, longitud
             "mc": (longitude, sign_en, sign_ko, degree_in_sign)
         }
     """
-    dt = datetime.strptime(f"{birth_date} {birth_time}", "%Y-%m-%d %H:%M:%S")
+    dt = parse_birth_datetime(birth_date, birth_time)
     jd = datetime_to_julian_day(dt, timezone_str)
     
     # 하우스 계산 (Whole Sign이라도 ASC는 필요)

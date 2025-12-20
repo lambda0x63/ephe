@@ -70,13 +70,15 @@ def calculate_chart(
             "sign": asc_sign,
             "sign_ko": asc_sign_ko,
             "degree": round(asc_degree, 2),
-            "degree_formatted": format_degree(asc_degree)
+            "degree_formatted": format_degree(asc_degree),
+            "position": round(asc_longitude, 4)
         },
         "midheaven": {
             "sign": mc_sign,
             "sign_ko": mc_sign_ko,
             "degree": round(mc_degree, 2),
-            "degree_formatted": format_degree(mc_degree)
+            "degree_formatted": format_degree(mc_degree),
+            "position": round(mc_longitude, 4)
         },
         "fortuna": {
             "sign": fortuna_sign_en,

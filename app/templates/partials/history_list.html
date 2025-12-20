@@ -1,0 +1,12 @@
+{% if charts %}
+{% for item in charts %}
+<div class="chart-item" hx-get="/htmx/load/{{ item.id }}" hx-target="#resultView" hx-swap="innerHTML">
+    <div class="item-name">{{ item.name }}</div>
+    <div class="item-date">{{ item.birth_date }}</div>
+    <button class="btn-delete" hx-delete="/htmx/delete/{{ item.id }}" hx-target="#historyList" hx-swap="innerHTML"
+        onclick="event.stopPropagation()">×</button>
+</div>
+{% endfor %}
+{% else %}
+<div style="padding:12px; color:#aaa; font-size:12px; text-align:center;">No saved charts.</div>
+{% endif %}
