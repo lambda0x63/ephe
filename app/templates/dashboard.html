@@ -208,29 +208,35 @@
             cursor: pointer;
         }
 
-        /* Time Stepper Toolbar */
+        /* Time Stepper (Sidebar Bottom) */
         .time-stepper {
             position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 2px solid #1a1a1a;
             display: flex;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #1a1a1a;
-            padding: 8px 12px;
-            gap: 12px;
-            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(4px);
+            flex-direction: column;
+            padding: 12px;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .step-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .step-group {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
 
         .step-label {
+            width: 30px;
             font-size: 9px;
             font-weight: 900;
             color: #888;
@@ -239,9 +245,9 @@
 
         .step-btn {
             background: #fff;
-            border: 1px solid #ccc;
-            width: 28px;
-            height: 28px;
+            border: 1px solid #1a1a1a;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -251,20 +257,36 @@
         }
 
         .step-btn:hover {
-            background: #f0f0f0;
-            border-color: #1a1a1a;
+            background: #1a1a1a;
+            color: #fff;
         }
 
         .step-btn:active {
             transform: translateY(1px);
         }
 
+        .time-quick-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .now-btn {
+            background: #fff;
+            border: 1px solid #1a1a1a;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 0 8px;
+            cursor: pointer;
+        }
+
         .update-btn {
             background: #1a1a1a;
             color: #fff;
             border: none;
-            padding: 0 15px;
-            font-size: 11px;
+            padding: 6px;
+            font-size: 10px;
             font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
@@ -413,6 +435,36 @@
                     </div>
                 </div>
             </div>
+            <div x-show="activeTab !== 'archive'" class="time-stepper" x-cloak>
+                <div class="step-row">
+                    <div class="step-group">
+                        <span class="step-label">Day</span>
+                        <button class="step-btn" @click="adjustTime('d', -1)">-</button>
+                        <button class="step-btn" @click="adjustTime('d', 1)">+</button>
+                    </div>
+                    <div class="step-group">
+                        <span class="step-label">Hr</span>
+                        <button class="step-btn" @click="adjustTime('h', -1)">-</button>
+                        <button class="step-btn" @click="adjustTime('h', 1)">+</button>
+                    </div>
+                </div>
+                <div class="step-row">
+                    <div class="step-group">
+                        <span class="step-label">Min</span>
+                        <button class="step-btn" @click="adjustTime('m', -1)">-</button>
+                        <button class="step-btn" @click="adjustTime('m', 1)">+</button>
+                    </div>
+                    <div class="step-group">
+                        <span class="step-label">Sec</span>
+                        <button class="step-btn" @click="adjustTime('s', -1)">-</button>
+                        <button class="step-btn" @click="adjustTime('s', 1)">+</button>
+                    </div>
+                </div>
+                <div class="time-quick-actions">
+                    <button class="update-btn" @click="htmx.trigger('#chartForm', 'submit')">Update Chart</button>
+                    <button class="now-btn" @click="setNow()">NOW</button>
+                </div>
+            </div>
         </aside>
 
         <!-- Main Display -->
@@ -434,31 +486,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Time Stepper Toolbar -->
-            <div class="time-stepper">
-                <div class="step-group">
-                    <span class="step-label">Day</span>
-                    <button class="step-btn" @click="adjustTime('d', -1)">-</button>
-                    <button class="step-btn" @click="adjustTime('d', 1)">+</button>
-                </div>
-                <div class="step-group">
-                    <span class="step-label">Hr</span>
-                    <button class="step-btn" @click="adjustTime('h', -1)">-</button>
-                    <button class="step-btn" @click="adjustTime('h', 1)">+</button>
-                </div>
-                <div class="step-group">
-                    <span class="step-label">Min</span>
-                    <button class="step-btn" @click="adjustTime('m', -1)">-</button>
-                    <button class="step-btn" @click="adjustTime('m', 1)">+</button>
-                </div>
-                <div class="step-group">
-                    <span class="step-label">Sec</span>
-                    <button class="step-btn" @click="adjustTime('s', -1)">-</button>
-                    <button class="step-btn" @click="adjustTime('s', 1)">+</button>
-                </div>
-                <button class="update-btn" @click="document.getElementById('chartForm').requestSubmit()">Update
-                    Chart</button>
-            </div>
+
             <div id="chart-paper" class="chart-paper">
                 <svg id="natal-chart" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
             </div>
