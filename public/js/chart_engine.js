@@ -61,6 +61,7 @@ class ChartEngine {
         this.data = null;
         this.showFortune = false;
         this.showSpirit = false;
+        this.alwaysShowAspects = false;
     }
 
     setOption(key, val) {
@@ -91,7 +92,7 @@ class ChartEngine {
     // Advanced Text Helper with dy correction
     text(pos, content, size, color, align = "middle", weight = "normal", family = "'Noto Serif KR', serif", dy = "0em") {
         return `<text x="${pos.x}" y="${pos.y}" dy="${dy}" text-anchor="${align}" dominant-baseline="central" 
-                font-size="${size}" font-weight="${weight}" fill="${color}" style="font-family: ${family}; pointer-events:none;">${content}</text>`;
+                font-size="${size}" font-weight="${weight}" fill="${color}" style="font-family: family; pointer-events:none;">${content}</text>`;
     }
 
     highlight(planetName) {
@@ -155,8 +156,10 @@ class ChartEngine {
         // 5. Aspects (Drawn behind planets to avoid text overlap)
         data.aspects.forEach(asp => {
             if (["Conjunction", "Opposition", "Trine", "Square", "Sextile"].includes(asp.type) && asp.orb < 8) {
-                const active = (this.activePlanet === asp.planet1 || this.activePlanet === asp.planet2);
-                if (this.activePlanet && !active) return;
+                const isHovered = (this.activePlanet === asp.planet1 || this.activePlanet === asp.planet2);
+                if (this.activePlanet && !isHovered && !this.alwaysShowAspects) return;
+                if (!this.activePlanet && !this.alwaysShowAspects) return;
+
                 const p1 = data.planets.find(p => p.name === asp.planet1);
                 const p2 = data.planets.find(p => p.name === asp.planet2);
                 if (p1 && p2) {
@@ -164,14 +167,17 @@ class ChartEngine {
                     const rot2 = p2.position - asc + 180;
                     const pos1 = this.getPos(r.inner, rot1);
                     const pos2 = this.getPos(r.inner, rot2);
-                    let aCol = active ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.1)";
-                    if (asp.type === "Square" || asp.type === "Opposition") aCol = active ? c.accent : "rgba(107,27,27,0.1)";
+
+                    let aCol = isHovered ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.1)";
+                    if (asp.type === "Square" || asp.type === "Opposition") {
+                        aCol = isHovered ? c.accent : "rgba(107,27,27,0.1)";
+                    }
 
                     // Main Connection Line
-                    html += this.line(pos1, pos2, aCol, active ? 1.5 : w.aspect, asp.type === "Sextile" ? "6,6" : "");
+                    html += this.line(pos1, pos2, aCol, isHovered ? 1.5 : w.aspect, asp.type === "Sextile" ? "6,6" : "");
 
                     // Radial Rays to Protractor
-                    if (active) {
+                    if (isHovered) {
                         html += this.line(pos1, this.getPos(r.outer, rot1), aCol, 0.4, "4,4");
                         html += this.line(pos2, this.getPos(r.outer, rot2), aCol, 0.4, "4,4");
                     }

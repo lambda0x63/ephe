@@ -75,5 +75,8 @@ class ChartInputData:
         chart_data['name'] = self.name
         chart_data['birth_date'] = self.birth_date
         chart_data['birth_time'] = self.birth_time
+        chart_data['place_name'] = self.place_name
+        chart_data['latitude'] = self.lat
+        chart_data['longitude'] = self.lon
         
         return chart_data
