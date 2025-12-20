@@ -57,7 +57,7 @@ class ChartInputData:
             self.tz
         )
         chart_data['name'] = self.name
+        chart_data['birth_date'] = self.birth_date
+        chart_data['birth_time'] = self.birth_time
         
-        # 간단한 요약 생성 (임시)
-        # 실제로는 비동기로 LLM 호출하여 채우지만, 여기서는 기본 구조만 반환
         return chart_data

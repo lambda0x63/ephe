@@ -7,33 +7,25 @@
     <title>{{ seo_data.title }}</title>
     <meta name="description" content="{{ seo_data.description }}">
 
-    <!-- Fonts: Noto Serif KR (Korean Serif) & Playfair Display (English Serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;600&display=swap"
         rel="stylesheet">
 
-    <!-- Libraries -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
-    <!-- Chart Engine -->
     <script src="/static/js/chart_engine.js"></script>
 
     <style>
         :root {
             --bg-body: #F9F7F1;
             --bg-panel: #FFFFFF;
-            --line-border: #ccc;
+            --line-border: #1a1a1a;
             --text-main: #1a1a1a;
-            --text-muted: #555;
-            --accent: #8B0000;
-
-            --font-serif: "Noto Serif KR", "Playfair Display", serif;
-            --font-sans: "Inter", "Noto Serif KR", sans-serif;
-
-            --sidebar-width: 320px;
+            --text-muted: #666;
+            --accent: #9A2121;
+            --sidebar-width: 400px;
         }
 
         * {
@@ -43,7 +35,7 @@
         }
 
         body {
-            font-family: var(--font-serif);
+            font-family: "Noto Serif KR", serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
@@ -58,308 +50,238 @@
             height: 100%;
         }
 
-        /* Sidebar */
+        /* Left Side: Information & Control */
         .sidebar {
             width: var(--sidebar-width);
             background: #fff;
-            border-right: 1px solid var(--line-border);
+            border-right: 2px solid var(--line-border);
             display: flex;
             flex-direction: column;
             z-index: 20;
-            transition: transform 0.3s ease;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .sidebar-section {
+            padding: 24px;
+            border-bottom: 1px solid #eee;
         }
 
         .sidebar-header {
+            background: #1a1a1a;
+            color: #fff;
             padding: 20px 24px;
-            border-bottom: 1px solid var(--line-border);
-            background: var(--bg-body);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .brand-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .history-list {
+        /* Right Side: The Instrument (Chart) */
+        .main-display {
             flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .chart-item {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
             position: relative;
-        }
-
-        .chart-item:hover {
-            background: #f9fafb;
-        }
-
-        .item-name {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .item-date {
-            font-size: 11px;
-            color: #666;
-        }
-
-        /* Chart & Data Views */
-        .main-view {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
             background: var(--bg-body);
-        }
-
-        /* Chart View Area */
-        .chart-pane {
-            flex: 2;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border-right: 1px solid var(--line-border);
         }
 
         .chart-paper {
-            width: 100%;
-            max-width: 800px;
-            padding: 20px;
-        }
-
-        /* Data & Input Pane */
-        .data-pane {
-            flex: 1;
-            min-width: 400px;
-            background: #fff;
-            overflow-y: auto;
+            width: 95%;
+            height: 95%;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .data-content {
-            padding: 32px;
-            width: 100%;
+        .chart-svg {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
         }
 
-        .pane-header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--text-main);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
+        /* Input Controls */
         .input-drawer {
-            background: #fafafa;
-            border: 1px solid #ddd;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            background: #fdfcf8;
+            border: 1px solid #1a1a1a;
+            padding: 20px;
+            margin-top: 15px;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            margin-bottom: 12px;
         }
 
         .form-label {
             font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
+            color: #555;
+            display: block;
+            margin-bottom: 4px;
         }
 
         .form-input {
             width: 100%;
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid var(--line-border);
-            border-radius: 2px;
-            font-family: var(--font-sans);
-            font-size: 14px;
+            height: 34px;
+            padding: 0 8px;
+            border: 1px solid #ccc;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
         }
 
         .form-btn {
-            margin-top: 16px;
             width: 100%;
-            padding: 12px;
-            background: var(--text-main);
+            padding: 10px;
+            background: #1a1a1a;
             color: #fff;
             border: none;
             cursor: pointer;
             font-weight: 600;
+            font-size: 14px;
         }
 
-        /* Responsive */
+        /* Mode Toggle Styled for Top Right of Chart */
+        .mode-toggle-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #1a1a1a;
+            transition: all 0.1s;
+        }
+
+        .mode-toggle-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #1a1a1a;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
         @media (max-width: 1024px) {
             .app-container {
-                flex-direction: column;
+                flex-direction: column-reverse;
             }
 
             .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                transform: translateX(-100%);
+                width: 100%;
+                height: 50%;
+                border-right: none;
+                border-top: 2px solid #1a1a1a;
             }
 
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
-
-            .main-view {
-                flex-direction: column;
-            }
-
-            .data-pane {
-                min-width: 100%;
-            }
-        }
-
-        .mobile-toggle {
-            display: none;
-            position: fixed;
-            top: 12px;
-            left: 16px;
-            z-index: 50;
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 6px 10px;
-        }
-
-        @media (max-width: 1024px) {
-            .mobile-toggle {
-                display: block;
+            .main-display {
+                height: 50%;
             }
         }
     </style>
 </head>
 
 <body x-data="natalApp()">
-
-    <button class="mobile-toggle" @click="mobileMenuOpen = !mobileMenuOpen">☰</button>
-
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" :class="{ 'mobile-open': mobileMenuOpen }">
-            <div class="sidebar-header">
-                <span class="brand-title">저장 기록</span>
-                <a href="/dashboard"
-                    style="font-size:11px; color:#666; text-decoration:none; border:1px solid #ddd; padding:2px 6px;">New</a>
-            </div>
-            <div id="historyList" class="history-list">
-                {% include "partials/history_list.html" %}
-            </div>
+        <!-- Unified Sidebar (Left) -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <span style="font-size:18px; font-weight:800; letter-spacing: -0.5px;">NATALIS ARCHIVE</span>
+                <button @click="drawerOpen = !drawerOpen"
+                    style="background: #fff; border:none; padding:4px 10px; font-size:11px; font-weight:800; cursor:pointer;">
+                    <span x-text="drawerOpen ? 'CLOSE' : 'NEW CHART'"></span>
+                </button>
+            </header>
+
+            <!-- 1. Input Section -->
+            <section class="sidebar-section" x-show="drawerOpen" x-transition>
+                <div class="section-title">CHART CONFIGURATION</div>
+                <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML"
+                    @submit="drawerOpen = false">
+                    <div class="form-group">
+                        <label class="form-label">NAME</label>
+                        <input type="text" name="name" class="form-input" required value="{{ input_data.name }}">
+                    </div>
+                    <div class="form-group" style="position:relative;">
+                        <label class="form-label">BIRTH CITY</label>
+                        <input type="text" name="place_name" class="form-input" x-model="searchQuery"
+                            @input.debounce.300ms="fetchPlaces" placeholder="e.g. Seoul">
+                        <div x-show="places.length > 0"
+                            style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #1a1a1a; z-index:100; max-height:150px; overflow-y:auto;">
+                            <template x-for="p in places">
+                                <div @click="searchQuery = p.display_name; places = [];"
+                                    style="padding:8px; cursor:pointer; font-size:12px; border-bottom:1px solid #eee;"
+                                    x-html="p.display_name"></div>
+                            </template>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="form-group">
+                            <label class="form-label">DATE</label>
+                            <input type="date" name="birth_date" class="form-input" required
+                                value="{{ input_data.birth_date }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">TIME</label>
+                            <input type="time" name="birth_time" class="form-input" required
+                                value="{{ input_data.birth_time }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="form-btn" style="margin-top:10px;">GENERATE CHART</button>
+                </form>
+            </section>
+
+            <!-- 2. Active Analysis Results -->
+            <section class="sidebar-section" id="resultViewContent">
+                {% if chart_data %}
+                {% include "partials/chart_result.html" %}
+                {% else %}
+                <div style="text-align:center; padding:40px 0; color:#aaa; font-style:italic; font-size:13px;">
+                    <div style="font-size:32px; margin-bottom:10px; opacity:0.3;">✧</div>
+                    분석할 데이터를 입력하거나<br>기록을 선택하세요.
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- 3. Saved Records List -->
+            <section class="sidebar-section">
+                <div class="section-title">SAVED ARCHIVES</div>
+                <div id="historyList">
+                    {% include "partials/history_list.html" %}
+                </div>
+            </section>
         </aside>
 
-        <main class="main-view">
-            <!-- Chart Section -->
-            <section class="chart-pane">
-                <!-- Mode Toggle -->
-                <button id="modeBtn" onclick="toggleChartMode()"
-                    style="position:absolute; top:20px; right:20px; z-index:30; background:#fff; border:1px solid #1a1a1a; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer;">
-                    학습 모드 (켜기)
-                </button>
-                <div class="chart-paper">
-                    <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
-                </div>
-                <div style="position: absolute; bottom: 15px; left: 20px; font-size: 10px; opacity: 0.5;">
-                    <i>Whole Sign • Tropical • Traditional Rulership</i>
-                </div>
-            </section>
-
-            <!-- Data & Input Section -->
-            <section class="data-pane">
-                <div class="data-content">
-                    <div class="pane-header">
-                        <div>
-                            <h1 style="font-size:24px; font-weight:700;">천궁도 분석</h1>
-                            <div class="chart-subtitle" id="headerSub" style="font-size:13px; color:#666;">
-                                {% if chart_data %} <b>{{ chart_data.name }}</b> • {{ input_data.birth_date }}
-                                {% else %} 정보를 입력하여 분석을 시작하세요. {% endif %}
-                            </div>
-                        </div>
-                        <button
-                            style="font-size:12px; font-weight:600; cursor:pointer; background:none; border:1px solid #ccc; padding:4px 8px;"
-                            @click="drawerOpen = !drawerOpen">
-                            <span x-text="drawerOpen ? '닫기' : '정보 수정'"></span>
-                        </button>
-                    </div>
-
-                    <!-- Input Drawer -->
-                    <div class="input-drawer" x-show="drawerOpen" x-transition>
-                        <form id="chartForm" hx-post="/htmx/analyze" hx-target="#resultViewContent" hx-swap="innerHTML">
-                            <div class="input-grid">
-                                <div class="form-group">
-                                    <label class="form-label">이름</label>
-                                    <input type="text" name="name" class="form-input" required
-                                        value="{{ input_data.name }}">
-                                </div>
-                                <div class="form-group" style="position:relative;">
-                                    <label class="form-label">출생 도시</label>
-                                    <input type="text" name="place_name" class="form-input" x-model="searchQuery"
-                                        @input.debounce.300ms="fetchPlaces" placeholder="예: Seoul">
-                                    <div x-show="places.length > 0"
-                                        style="position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; z-index:100; max-height:150px; overflow-y:auto;">
-                                        <template x-for="p in places">
-                                            <div @click="searchQuery = p.display_name; places = [];"
-                                                style="padding:8px 12px; cursor:pointer; font-size:12px; border-bottom:1px solid #eee;"
-                                                x-html="p.display_name"></div>
-                                        </template>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">생년월일</label>
-                                    <input type="date" name="birth_date" class="form-input" required
-                                        value="{{ input_data.birth_date }}">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">태어난 시간</label>
-                                    <input type="time" name="birth_time" class="form-input" required
-                                        value="{{ input_data.birth_time }}">
-                                </div>
-                            </div>
-                            <button type="submit" class="form-btn">차트 분석하기</button>
-                        </form>
-                    </div>
-
-                    <div id="resultViewContent">
-                        {% if chart_data %}
-                        {% include "partials/chart_result.html" %}
-                        {% else %}
-                        <div style="text-align:center; padding:60px 0; color:#ccc;">
-                            <div style="font-size:40px; margin-bottom:10px;">✧</div>
-                            <p style="font-size:13px; font-style:italic;">하늘의 지도를 그리려면 정보를 입력하세요.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </section>
+        <!-- Main Display (Right) -->
+        <main class="main-display">
+            <button id="modeBtn" class="mode-toggle-btn" onclick="toggleChartMode()">
+                학습 모드 (켜기)
+            </button>
+            <div class="chart-paper">
+                <svg id="chart-svg" width="800" height="800" viewBox="0 0 800 800" class="chart-svg"></svg>
+            </div>
+            <div
+                style="position: absolute; bottom: 20px; right: 24px; font-size: 11px; font-weight:700; color: #1a1a1a; letter-spacing: 1px;">
+                TRADITIONAL ASTROLOGY INSTRUMENT v4.7
+            </div>
         </main>
     </div>
 
-    <!-- State Helper (Hidden) -->
+    <!-- Hidden State -->
     <div id="server-state" data-drawer-open="{{ 'false' if chart_data else 'true' }}"
-        data-place-name="{{ input_data.place_name }}" style="display:none;"></div>
+        data-place-name="{{ input_data.place_name }}" data-birth-date="{{ input_data.birth_date }}"
+        style="display:none;"></div>
 
     <script>
         window.chartEngine = new ChartEngine('chart-svg');
@@ -398,7 +320,33 @@
                 try {
                     const json = JSON.parse(dataEl.dataset.chartJson);
                     window.chartEngine.render(json);
-                } catch (e) { console.error(e); }
+                    const birthDate = dataEl.dataset.birthDate;
+                    if (typeof calculateProfessionalInsights === 'function') {
+                        calculateProfessionalInsights(json, birthDate);
+                    }
+                } catch (e) { console.error("Insight Error:", e); }
+            }
+        }
+
+        function calculateProfessionalInsights(data, birthDate) {
+            const sun = data.planets.find(p => p.name === 'Sun');
+            const asc = data.ascendant.position;
+            const sunRot = (sun.position - asc + 360) % 360;
+            const isDay = (sunRot > 180);
+            const signRulers = { 'Aries': 'Mars', 'Taurus': 'Venus', 'Gemini': 'Mercury', 'Cancer': 'Moon', 'Leo': 'Sun', 'Virgo': 'Mercury', 'Libra': 'Venus', 'Scorpio': 'Mars', 'Sagittarius': 'Jupiter', 'Capricorn': 'Saturn', 'Aquarius': 'Saturn', 'Pisces': 'Jupiter' };
+            const chartRuler = signRulers[data.ascendant.sign] || "Unknown";
+            const rulerKo = { 'Sun': '태양', 'Moon': '달', 'Mercury': '수성', 'Venus': '금성', 'Mars': '화성', 'Jupiter': '목성', 'Saturn': '토성' }[chartRuler] || chartRuler;
+
+            const sectEl = document.getElementById('sectRulerSummary');
+            if (sectEl) sectEl.innerText = `${isDay ? '낮(Day)' : '밤(Night)'} • 지배성: ${rulerKo}`;
+
+            const profEl = document.getElementById('profectionSummary');
+            if (profEl && birthDate) {
+                const bDate = new Date(birthDate);
+                const age = new Date().getFullYear() - bDate.getFullYear();
+                const profHouse = (age % 12) + 1;
+                const houseKeywords = ["자아/생명", "소유/가치", "소통/학습", "가정/뿌리", "유희/자녀", "헌신/건강", "관계/결혼", "변화/공유", "철학/확장", "사회/천직", "공동체/미래", "성찰/무의식"];
+                profEl.innerText = `만 ${age}세 • ${profHouse}하우스 진입`;
             }
         }
 
