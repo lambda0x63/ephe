@@ -1,1 +1,0 @@
-# Natal Chart API - Architecture
