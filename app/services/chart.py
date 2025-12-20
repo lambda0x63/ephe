@@ -1,8 +1,13 @@
-"""차트 계산 메인 로직 - 모든 서비스 오케스트레이션"""
 from .planets import (
     calculate_planets, 
     calculate_angles, 
     calculate_fortuna,
+    calculate_spirit,
+    get_triplicity_ruler,
+    get_term_ruler,
+    get_face_ruler,
+    get_planet_dignity,
+    get_ruler_planet,
     is_day_chart,
     format_degree,
     get_sign
@@ -20,16 +25,6 @@ def calculate_chart(
 ) -> dict:
     """
     네이탈차트 전체 계산
-    
-    Args:
-        birth_date: "1990-01-15"
-        birth_time: "14:30:00"
-        latitude: 위도
-        longitude: 경도
-        timezone_str: "Asia/Seoul"
-        
-    Returns:
-        차트 데이터 (planets, houses, aspects, ascendant, midheaven, fortuna)
     """
     # 1. ASC, MC 계산
     angles = calculate_angles(
@@ -41,31 +36,41 @@ def calculate_chart(
     # 2. 천체 위치 계산
     planets = calculate_planets(birth_date, birth_time, timezone_str)
     
-    # 3. 각 천체의 하우스 배정
-    for planet in planets:
-        planet["house"] = get_planet_house(planet["position"], asc_longitude)
+    # 3. 주/야 판별 및 5대 품위 계산
+    sun_pos = next(p["position"] for p in planets if p["name"] == "Sun")
+    moon_pos = next(p["position"] for p in planets if p["name"] == "Moon")
+    is_day = is_day_chart(sun_pos, asc_longitude)
     
+    for p in planets:
+        p["house"] = get_planet_house(p["position"], asc_longitude)
+        # 5 Essential Dignities
+        dignity_type = get_planet_dignity(p["name"], p["sign"])
+        p["dignity"] = dignity_type
+        p["triplicity"] = get_triplicity_ruler(p["sign_element"], is_day)
+        p["term"] = get_term_ruler(p["sign"], p["degree"])
+        p["face"] = get_face_ruler(p["position"])
+        p["domicile_ruler"] = get_ruler_planet(p["sign"])
+        
     # 4. 하우스 계산 (Whole Sign)
     houses = calculate_houses(asc_longitude)
     
     # 5. 애스펙트 계산
     aspects = calculate_aspects(planets)
     
-    # 6. 포르투나 계산
-    sun_pos = next(p["position"] for p in planets if p["name"] == "Sun")
-    moon_pos = next(p["position"] for p in planets if p["name"] == "Moon")
-    
-    is_day = is_day_chart(sun_pos, asc_longitude)
+    # 6. Lots (Fortune & Spirit)
     fortuna_longitude = calculate_fortuna(sun_pos, moon_pos, asc_longitude, is_day)
-    
     fortuna_sign_en, _, fortuna_sign_ko, fortuna_element, fortuna_degree = get_sign(fortuna_longitude)
     fortuna_house = get_planet_house(fortuna_longitude, asc_longitude)
+
+    spirit_longitude = calculate_spirit(sun_pos, moon_pos, asc_longitude, is_day)
+    spirit_sign_en, _, spirit_sign_ko, spirit_element, spirit_degree = get_sign(spirit_longitude)
+    spirit_house = get_planet_house(spirit_longitude, asc_longitude)
     
     return {
         "planets": planets,
         "houses": houses,
         "aspects": aspects,
-        "sect": "Day" if is_day else "Night",  # 주/야 정보 추가
+        "sect": "Day" if is_day else "Night",
         "ascendant": {
             "sign": asc_sign,
             "sign_ko": asc_sign_ko,
@@ -89,5 +94,13 @@ def calculate_chart(
             "degree_formatted": format_degree(fortuna_degree),
             "house": fortuna_house,
             "position": round(fortuna_longitude, 4)
+        },
+        "spirit": {
+            "sign": spirit_sign_en,
+            "sign_ko": spirit_sign_ko,
+            "degree": round(spirit_degree, 2),
+            "degree_formatted": format_degree(spirit_degree),
+            "house": spirit_house,
+            "position": round(spirit_longitude, 4)
         }
     }

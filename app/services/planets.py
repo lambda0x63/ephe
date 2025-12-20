@@ -132,13 +132,80 @@ def get_planet_dignity(planet_name: str, sign_name: str) -> str:
 def get_dignity_description(dignity: str) -> str:
     """품위에 대한 한글 설명"""
     descriptions = {
-        "Domicile": "본궁 (매우 강함)",
-        "Exaltation": "고양 (강화됨)",
-        "Detriment": "손상 (약화됨)",
-        "Fall": "추락 (매우 약함)",
-        "Peregrine": "이방인 (중립)"
+        "Domicile": "본궁 (Domicile)",
+        "Exaltation": "고양 (Exaltation)",
+        "Triplicity": "삼궁 (Triplicity)",
+        "Term": "경계 (Term/Bound)",
+        "Face": "데칸 (Face/Decan)",
+        "Detriment": "손상 (Detriment)",
+        "Fall": "추락 (Fall)",
+        "Peregrine": "이방인 (Peregrine)"
     }
     return descriptions.get(dignity, dignity)
+
+# ============================================================
+# Hellenistic 5-Dignity Tables
+# ============================================================
+
+# 1. Triplicity Rulers (Dorothean)
+# (Day Ruler, Night Ruler, Participating Ruler)
+TRIPLICITY_RULERS = {
+    "fire": ("Sun", "Jupiter", "Saturn"),
+    "earth": ("Venus", "Moon", "Mars"),
+    "air": ("Saturn", "Mercury", "Jupiter"),
+    "water": ("Venus", "Mars", "Moon")
+}
+
+def get_triplicity_ruler(element: str, is_day: bool) -> str:
+    rulers = TRIPLICITY_RULERS.get(element)
+    if not rulers: return "Unknown"
+    return rulers[0] if is_day else rulers[1]
+
+# 2. Egyptian Terms (Bounds)
+# Format: Sign -> List of (End Degree, Planet)
+EGYPTIAN_TERMS = {
+    "Aries": [(6, "Jupiter"), (12, "Venus"), (20, "Mercury"), (25, "Mars"), (30, "Saturn")],
+    "Taurus": [(8, "Venus"), (14, "Mercury"), (22, "Jupiter"), (27, "Saturn"), (30, "Mars")],
+    "Gemini": [(6, "Mercury"), (12, "Jupiter"), (17, "Venus"), (24, "Mars"), (30, "Saturn")],
+    "Cancer": [(7, "Mars"), (13, "Venus"), (19, "Mercury"), (26, "Jupiter"), (30, "Saturn")],
+    "Leo": [(6, "Jupiter"), (11, "Venus"), (18, "Saturn"), (24, "Mercury"), (30, "Mars")],
+    "Virgo": [(7, "Mercury"), (17, "Venus"), (21, "Jupiter"), (28, "Mars"), (30, "Saturn")],
+    "Libra": [(6, "Saturn"), (14, "Venus"), (21, "Jupiter"), (28, "Mercury"), (30, "Mars")],
+    "Scorpio": [(7, "Mars"), (11, "Venus"), (19, "Mercury"), (24, "Jupiter"), (30, "Saturn")],
+    "Sagittarius": [(12, "Jupiter"), (17, "Venus"), (21, "Mercury"), (26, "Saturn"), (30, "Mars")],
+    "Capricorn": [(7, "Mercury"), (14, "Jupiter"), (22, "Venus"), (26, "Saturn"), (30, "Mars")],
+    "Aquarius": [(7, "Saturn"), (13, "Mercury"), (20, "Venus"), (25, "Jupiter"), (30, "Mars")],
+    "Pisces": [(12, "Venus"), (16, "Jupiter"), (19, "Mercury"), (28, "Mars"), (30, "Saturn")]
+}
+
+def get_term_ruler(sign: str, degree: float) -> str:
+    terms = EGYPTIAN_TERMS.get(sign)
+    if not terms: return "Unknown"
+    for end_deg, planet in terms:
+        if degree < end_deg:
+            return planet
+    return terms[-1][1]
+
+# 3. Chaldean Faces (Decans)
+# 10 degrees each, following the Chaldean order: Sat, Jup, Mar, Sun, Ven, Mer, Moo
+CHALDEAN_FACES = [
+    "Mars", "Sun", "Venus",       # Aries
+    "Mercury", "Moon", "Saturn",    # Taurus
+    "Jupiter", "Mars", "Sun",       # Gemini
+    "Venus", "Mercury", "Moon",     # Cancer
+    "Saturn", "Jupiter", "Mars",    # Leo
+    "Sun", "Venus", "Mercury",      # Virgo
+    "Moon", "Saturn", "Jupiter",    # Libra
+    "Mars", "Sun", "Venus",         # Scorpio
+    "Mercury", "Moon", "Saturn",    # Sagittarius
+    "Jupiter", "Mars", "Sun",       # Capricorn
+    "Venus", "Mercury", "Moon",     # Aquarius
+    "Saturn", "Jupiter", "Mars"     # Pisces
+]
+
+def get_face_ruler(longitude: float) -> str:
+    face_index = int(longitude / 10) % 36
+    return CHALDEAN_FACES[face_index]
 
 
 def get_sign(longitude: float) -> tuple[str, str, str, str, float]:
@@ -303,4 +370,24 @@ def is_day_chart(sun_longitude: float, asc_longitude: float) -> bool:
     
     # 태양이 ASC 기준으로 180도 미만 차이면 (desc~asc 사이 = 7~12하우스) 낮
     return diff > 180
+
+
+def calculate_spirit(sun_longitude: float, moon_longitude: float, asc_longitude: float, is_day_chart: bool) -> float:
+    """
+    정신의 지점(Lot of Spirit) 계산
+    
+    고전점성술 공식:
+    - 낮 차트: ASC + Sun - Moon
+    - 밤 차트: ASC + Moon - Sun
+    """
+    if is_day_chart:
+        spirit = asc_longitude + sun_longitude - moon_longitude
+    else:
+        spirit = asc_longitude + moon_longitude - sun_longitude
+    
+    spirit = spirit % 360
+    if spirit < 0:
+        spirit += 360
+        
+    return spirit
 

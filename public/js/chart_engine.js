@@ -204,12 +204,10 @@ class ChartEngine {
         // 6. Planets (Middle Band: 252-332)
         const pList = [...data.planets];
         if (data.fortuna && data.fortuna.position !== undefined) {
-            pList.push({
-                name: 'Fortuna',
-                symbol: '⊗',
-                position: data.fortuna.position,
-                degree_formatted: data.fortuna.degree_formatted
-            });
+            pList.push({ name: 'Fortuna', symbol: '⊗', position: data.fortuna.position, degree_formatted: data.fortuna.degree_formatted });
+        }
+        if (data.spirit && data.spirit.position !== undefined) {
+            pList.push({ name: 'Spirit', symbol: '◈', position: data.spirit.position, degree_formatted: data.spirit.degree_formatted });
         }
         const sorted = pList.filter(p => p.position !== undefined).sort((a, b) => a.position - b.position);
 
