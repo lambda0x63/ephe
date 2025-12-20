@@ -130,30 +130,27 @@ def get_planet_dignity(planet_name: str, sign_name: str) -> str:
 
 
 def get_dignity_description(dignity: str) -> str:
-    """품위에 대한 한글 설명"""
+    """품위에 대한 한글 요약 (결론용)"""
     descriptions = {
-        "Domicile": "본궁 (Domicile)",
-        "Exaltation": "고양 (Exaltation)",
-        "Triplicity": "삼궁 (Triplicity)",
-        "Term": "경계 (Term/Bound)",
-        "Face": "데칸 (Face/Decan)",
-        "Detriment": "손상 (Detriment)",
-        "Fall": "추락 (Fall)",
-        "Peregrine": "이방인 (Peregrine)"
+        "Domicile": "본궁 (강함)",
+        "Exaltation": "고양 (강함)",
+        "Detriment": "장해 (약함)",
+        "Fall": "추락 (약함)",
+        "Peregrine": "이방인"
     }
     return descriptions.get(dignity, dignity)
 
 # ============================================================
-# Hellenistic 5-Dignity Tables
+# Hellenistic 5-Dignity Tables (User Specified)
 # ============================================================
 
-# 1. Triplicity Rulers (Dorothean)
+# 1. Triplicity Rulers (User's Rules)
 # (Day Ruler, Night Ruler, Participating Ruler)
 TRIPLICITY_RULERS = {
-    "fire": ("Sun", "Jupiter", "Saturn"),
-    "earth": ("Venus", "Moon", "Mars"),
-    "air": ("Saturn", "Mercury", "Jupiter"),
-    "water": ("Venus", "Mars", "Moon")
+    "fire": ("Sun", "Jupiter", "Mars"),
+    "earth": ("Venus", "Moon", "Mercury"),
+    "air": ("Saturn", "Mercury", "Venus"),
+    "water": ("Mars", "Venus", "Moon")
 }
 
 def get_triplicity_ruler(element: str, is_day: bool) -> str:
@@ -206,6 +203,33 @@ CHALDEAN_FACES = [
 def get_face_ruler(longitude: float) -> str:
     face_index = int(longitude / 10) % 36
     return CHALDEAN_FACES[face_index]
+
+def get_dignity_conclusion(p_name: str, p_sign: str, p_degree: float, s_element: str, is_day: bool) -> str:
+    """
+    행성의 최종 컨디션 결론 도출 (수학적 대조 결과)
+    """
+    dignity = get_planet_dignity(p_name, p_sign)
+    trip_ruler = get_triplicity_ruler(s_element, is_day)
+    
+    status = get_dignity_description(dignity)
+    
+    # 삼궁 지배를 얻었는지 확인 (추가 강점)
+    has_triplicity = (p_name == trip_ruler)
+    
+    if dignity == "Domicile" and has_triplicity:
+        return "본궁+삼궁 (매우 강함)"
+    if dignity == "Domicile":
+        return "본궁 (강함)"
+    if dignity == "Exaltation":
+        return "고양 (강함)"
+    if dignity == "Detriment":
+        return "장해 (약함)"
+    if dignity == "Fall":
+        return "추락 (약함)"
+    if has_triplicity:
+        return "삼궁 (양호)"
+        
+    return "이방인 (무색)"
 
 
 def get_sign(longitude: float) -> tuple[str, str, str, str, float]:

@@ -7,6 +7,7 @@ from .planets import (
     get_term_ruler,
     get_face_ruler,
     get_planet_dignity,
+    get_dignity_conclusion,
     get_ruler_planet,
     is_day_chart,
     format_degree,
@@ -43,13 +44,18 @@ def calculate_chart(
     
     for p in planets:
         p["house"] = get_planet_house(p["position"], asc_longitude)
-        # 5 Essential Dignities
-        dignity_type = get_planet_dignity(p["name"], p["sign"])
-        p["dignity"] = dignity_type
-        p["triplicity"] = get_triplicity_ruler(p["sign_element"], is_day)
-        p["term"] = get_term_ruler(p["sign"], p["degree"])
-        p["face"] = get_face_ruler(p["position"])
-        p["domicile_ruler"] = get_ruler_planet(p["sign"])
+        
+        # 5 Essential Dignities - Raw Rulers
+        dom = get_ruler_planet(p["sign"])
+        tri = get_triplicity_ruler(p["sign_element"], is_day)
+        term = get_term_ruler(p["sign"], p["degree"])
+        face = get_face_ruler(p["position"])
+        
+        # Conclusion Summary (Status)
+        p["status"] = get_dignity_conclusion(p["name"], p["sign"], p["degree"], p["sign_element"], is_day)
+        
+        # Chain for Formulaic Audit
+        p["ruler_chain"] = f"{dom[:3]} | {tri[:3]} | {term[:3]} | {face[:3]}"
         
     # 4. 하우스 계산 (Whole Sign)
     houses = calculate_houses(asc_longitude)

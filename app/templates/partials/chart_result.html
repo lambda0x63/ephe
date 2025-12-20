@@ -1,60 +1,131 @@
-<!-- 차트 데이터 (숨김) -->
 <div id="chartDataContainer" data-chart-json="{{ chart_data | tojson | forceescape }}"
     data-birth-date="{{ chart_data.birth_date }}" style="display:none;"></div>
 
 <style>
-    .report-container {
+    .report-wrap {
         font-family: 'Inter', 'Noto Serif KR', serif;
-        color: #2D2D2D;
-        line-height: 1.5;
-    }
-
-    /* Summary Row */
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1px;
-        background: #3D3D3D;
-        /* Border color */
-        border: 1px solid #3D3D3D;
-        margin-bottom: 20px;
-    }
-
-    .summary-item {
+        color: #1a1a1a;
         background: #fff;
-        padding: 12px;
     }
 
-    .sm-label {
+    .rep-section-title {
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #888;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin: 24px 0 12px 0;
+    }
+
+    .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .metric-card {
+        padding: 16px;
+        background: #fcfcfc;
+        border: 1px solid #eee;
+        border-radius: 4px;
+    }
+
+    .m-label {
         font-size: 10px;
         font-weight: 800;
-        color: #777;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
+        color: #999;
+        margin-bottom: 6px;
+        display: block;
     }
 
-    .sm-value {
-        font-size: 13px;
+    .m-value {
+        font-size: 14px;
         font-weight: 700;
     }
 
-    /* Element Bar */
-    .el-bar-wrap {
-        margin-bottom: 25px;
+    /* Simplified Verdict Table */
+    .verdict-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
     }
 
-    .el-bar {
-        display: flex;
-        height: 8px;
-        background: #eee;
+    .verdict-table th {
+        text-align: left;
+        padding: 12px 8px;
+        background: #f9f9f9;
+        color: #666;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        border-bottom: 2px solid #1a1a1a;
+    }
+
+    .verdict-table td {
+        padding: 14px 8px;
+        border-bottom: 1px dashed #eee;
+        vertical-align: middle;
+    }
+
+    .s-symbol {
+        font-size: 18px;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+
+    .s-name {
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    /* Status Colors */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
         border-radius: 4px;
-        overflow: hidden;
+        font-size: 11px;
+        font-weight: 900;
     }
 
-    .el-segment {
-        height: 100%;
-        transition: width 0.3s;
+    .st-strong {
+        background: #E6F4EA;
+        color: #1E7E34;
+    }
+
+    .st-weak {
+        background: #FCE8E6;
+        color: #D93025;
+    }
+
+    .st-neutral {
+        background: #F1F3F4;
+        color: #5F6368;
+    }
+
+    .formula-chain {
+        font-family: 'Inter', monospace;
+        font-size: 10px;
+        color: #888;
+        letter-spacing: -0.2px;
+    }
+
+    .deg-box {
+        font-family: 'Inter', monospace;
+        font-size: 11px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .tag-el {
+        padding: 2px 5px;
+        font-size: 9px;
+        font-weight: 900;
+        border-radius: 2px;
+        color: #fff;
+        margin-left: 4px;
     }
 
     .bg-fire {
@@ -73,151 +144,110 @@
         background: #2B5A82;
     }
 
-    /* Data Table */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-    }
-
-    .data-table th {
-        text-align: left;
-        padding: 8px;
-        border-bottom: 2px solid #3D3D3D;
+    .save-btn {
+        border: 1px solid #1a1a1a;
+        padding: 8px 16px;
+        font-weight: 800;
         font-size: 11px;
-        color: #777;
-        text-transform: uppercase;
+        cursor: pointer;
+        background: none;
+        box-shadow: 3px 3px 0px #1a1a1a;
+        transition: all 0.1s;
     }
 
-    .data-table td {
-        padding: 10px 8px;
-        border-bottom: 1px solid #eee;
-        vertical-align: middle;
-    }
-
-    .data-table tr:hover {
-        background: #fbfbfb;
-    }
-
-    .tag-el {
-        display: inline-block;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 9px;
-        font-weight: 900;
-        color: #fff;
-        margin-left: 5px;
-        text-transform: uppercase;
-    }
-
-    .deg-mono {
-        font-family: 'Inter', monospace;
-        font-weight: 600;
-        letter-spacing: -0.2px;
-    }
-
-    .save-btn-wrap {
-        text-align: right;
-        margin-bottom: 15px;
-    }
-
-    .dom-highlight {
-        font-weight: 700;
-        color: #D14124;
-    }
-
-    .dom-neutral {
-        font-weight: 700;
-        color: #777;
+    .save-btn:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #1a1a1a;
     }
 </style>
 
-<div class="report-container">
-    <!-- 1. Quick Info Header -->
-    <div class="summary-grid">
-        <div class="summary-item">
-            <div class="sm-label">Sect & Lots</div>
-            <div class="sm-value" id="sectSummary">분석중...</div>
+<div class="report-wrap">
+    <!-- 1. Technical Context -->
+    <div class="rep-section-title">Technical Context</div>
+    <div class="metric-grid">
+        <div class="metric-card">
+            <span class="m-label">운명의 시간 (Sect & Ruler)</span>
+            <div class="m-value" id="sectRulerSummary">분석중...</div>
         </div>
-        <div class="summary-item">
-            <div class="sm-label">Fortune / Spirit</div>
-            <div class="sm-value" style="font-size:11px;">
-                F: {{ chart_data.fortuna.sign_ko }} {{ chart_data.fortuna.degree_formatted }}<br>
-                S: {{ chart_data.spirit.sign_ko }} {{ chart_data.spirit.degree_formatted }}
-            </div>
-        </div>
-        <div class="summary-item">
-            <div class="sm-label">Database</div>
-            <div class="sm-value" style="font-size:11px;">
-                <button hx-post="/htmx/save" hx-include="#chartForm" hx-target="#historyList" hx-swap="innerHTML"
-                    style="border:1px solid #3D3D3D; background:none; cursor:pointer; padding:2px 8px; font-weight:700;">기록
-                    저장</button>
-            </div>
+        <div class="metric-card">
+            <span class="m-label">올해의 영역 (Profection Year)</span>
+            <div class="m-value" id="profectionSummary">계산중...</div>
         </div>
     </div>
 
-    <!-- 2. Elemental Balance -->
-    <div class="el-bar-wrap">
-        <div class="sm-label" style="margin-bottom:8px;">Elemental Distribution</div>
-        <div class="el-bar" id="elementDistBar"></div>
-    </div>
-
-    <!-- 3. Technical Dignity Log -->
-    <div class="sm-label" style="margin-bottom:10px;">Technical Dignity Log (Hellenistic)</div>
-    <table class="data-table" style="font-size:11px;">
+    <!-- 2. Planetary Verdict (Main) -->
+    <div class="rep-section-title">Planetary Condition Verdict</div>
+    <table class="verdict-table">
         <thead>
             <tr>
-                <th style="width:90px;">Planet</th>
-                <th>Sign / Element</th>
-                <th style="width:70px;">Degree</th>
-                <th style="text-align:center;">H</th>
-                <th style="color:#2D2D2D;">Dom</th>
-                <th>Tri</th>
-                <th>Term</th>
-                <th>Face</th>
+                <th style="width:120px;">Planet</th>
+                <th style="width:120px;">Position</th>
+                <th style="width:140px;">상태 (Conclusion)</th>
+                <th>지배계보 (Audit Chain)</th>
             </tr>
         </thead>
         <tbody>
             {% for p in chart_data.planets %}
             <tr onmouseenter="highlightPlanet('{{ p.name }}')" onmouseleave="highlightPlanet(null)"
                 style="cursor:pointer;">
-                <td style="font-weight:700;">
-                    <span style="font-size:14px; margin-right:2px;">{{ p.symbol }}</span>
-                    {{ p.name_ko }}
+                <td>
+                    <span class="s-symbol">{{ p.symbol }}</span>
+                    <span class="s-name">{{ p.name_ko }}</span>
                 </td>
                 <td>
-                    {{ p.sign_ko }}
-                    <span class="tag-el bg-{{ p.sign_element | default('fire') }}">{{ (p.sign_element or 'F')[0]
-                        }}</span>
+                    <div style="font-weight:700;">{{ p.sign_ko }} <span class="tag-el bg-{{ p.sign_element }}">{{
+                            p.sign_element[0]|upper }}</span></div>
+                    <div class="deg-box">{{ p.degree_formatted }}{{ '℞' if p.retrograde else '' }} ({{p.house}}H)</div>
                 </td>
-                <td class="deg-mono">{{ p.degree_formatted }}{{ '℞' if p.retrograde else '' }}</td>
-                <td style="text-align:center; color:#777; font-weight:700;">{{ p.house }}</td>
-                <!-- Dignities -->
-                <td class="{{ 'dom-highlight' if p.dignity == 'Domicile' else 'dom-neutral' }}">
-                    {{ p.domicile_ruler[:2] }}
+                <td>
+                    {% set st_class = 'st-strong' if '강함' in p.status or '양호' in p.status else ('st-weak' if '약함' in
+                    p.status else 'st-neutral') %}
+                    <div class="status-badge {{ st_class }}">{{ p.status }}</div>
                 </td>
-                <td style="color:#777;">{{ p.triplicity[:2] }}</td>
-                <td style="color:#777;">{{ p.term[:2] }}</td>
-                <td style="color:#777;">{{ p.face[:2] }}</td>
+                <td>
+                    <div class="formula-chain">{{ p.ruler_chain }}</div>
+                    <div style="font-size:9px; color:#bbb; margin-top:2px;">Dom | Tri | Term | Face</div>
+                </td>
             </tr>
             {% endfor %}
-            <!-- Fortune/Spirit Rows -->
-            <tr style="background:#f9f9f9; border-top:1px solid #3d3d3d;">
-                <td style="font-weight:900;">⊗ Fortune</td>
-                <td>{{ chart_data.fortuna.sign_ko }}</td>
-                <td class="deg-mono">{{ chart_data.fortuna.degree_formatted }}</td>
-                <td style="text-align:center;">{{ chart_data.fortuna.house }}</td>
-                <td colspan="4" style="color:#999; font-size:10px;">Material/Body</td>
-            </tr>
-            <tr style="background:#f9f9f9;">
-                <td style="font-weight:900;">◈ Spirit</td>
-                <td>{{ chart_data.spirit.sign_ko }}</td>
-                <td class="deg-mono">{{ chart_data.spirit.degree_formatted }}</td>
-                <td style="text-align:center;">{{ chart_data.spirit.house }}</td>
-                <td colspan="4" style="color:#999; font-size:10px;">Intent/Soul</td>
-            </tr>
         </tbody>
     </table>
+
+    <!-- 3. Lots -->
+    <div class="rep-section-title">Fate Points (The Lots)</div>
+    <div class="metric-grid">
+        <div class="metric-card">
+            <span class="m-label">⊗ 행운의 지점 (Lot of Fortune)</span>
+            <div class="m-value">{{ chart_data.fortuna.sign_ko }} {{ chart_data.fortuna.degree_formatted }} ({{
+                chart_data.fortuna.house }}H)</div>
+        </div>
+        <div class="metric-card">
+            <span class="m-label">◈ 정신의 지점 (Lot of Spirit)</span>
+            <div class="m-value">{{ chart_data.spirit.sign_ko }} {{ chart_data.spirit.degree_formatted }} ({{
+                chart_data.spirit.house }}H)</div>
+        </div>
+    </div>
+
+    <!-- 4. Element Balance -->
+    <div class="rep-section-title">Elemental Balance</div>
+    <div style="margin-bottom: 30px; padding: 0 16px;">
+        <div class="el-bar" id="elementDistBar"
+            style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:#eee; margin-bottom:8px;">
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:800;">
+            <div style="color:#D14124; display:flex; gap:4px;"><span>FIRE</span> <span id="val-fire"></span></div>
+            <div style="color:#4E6E58; display:flex; gap:4px;"><span>EARTH</span> <span id="val-earth"></span></div>
+            <div style="color:#A88B12; display:flex; gap:4px;"><span>AIR</span> <span id="val-air"></span></div>
+            <div style="color:#2B5A82; display:flex; gap:4px;"><span>WATER</span> <span id="val-water"></span></div>
+        </div>
+    </div>
+
+    <div style="text-align:right; margin: 30px 0;">
+        <button class="save-btn" hx-post="/htmx/save" hx-include="#chartForm" hx-target="#historyList"
+            hx-swap="innerHTML">
+            데이터 아카이빙 (기록 저장)
+        </button>
+    </div>
 </div>
 
 <script>
@@ -225,19 +255,17 @@
 
     (function () {
         const dataStr = document.getElementById('chartDataContainer').dataset.chartJson;
+        const birthDate = document.getElementById('chartDataContainer').dataset.birthDate;
         if (!dataStr) return;
         const data = JSON.parse(dataStr);
 
-        // Sect Summary
-        const sectEl = document.getElementById('sectSummary');
-        if (sectEl) {
-            sectEl.innerText = `${data.sect === 'Day' ? 'Solar(낮)' : 'Lunar(밤)'} 차트`;
+        if (typeof calculateProfessionalInsights === 'function') {
+            calculateProfessionalInsights(data, birthDate);
         }
 
-        // Element Distribution
         const counts = { fire: 0, earth: 0, air: 0, water: 0 };
         data.planets.forEach(p => {
-            const el = p.sign_element || p.element;
+            const el = p.sign_element;
             if (counts[el] !== undefined) counts[el]++;
         });
         const total = data.planets.length;
@@ -246,11 +274,12 @@
             bar.innerHTML = '';
             ['fire', 'earth', 'air', 'water'].forEach(el => {
                 const pc = (counts[el] / total) * 100;
+                const vEl = document.getElementById(`val-${el}`);
+                if (vEl) vEl.innerText = Math.round(pc) + '%';
                 if (pc > 0) {
                     const seg = document.createElement('div');
-                    seg.className = `el-segment bg-${el}`;
+                    seg.className = `bg-${el}`;
                     seg.style.width = pc + '%';
-                    seg.title = `${el}: ${Math.round(pc)}%`;
                     bar.appendChild(seg);
                 }
             });
