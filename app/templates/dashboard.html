@@ -27,7 +27,8 @@
             --text-main: #2D2D2D;
             --text-muted: #777;
             --accent: #9A2121;
-            --sidebar-width: 400px;
+            --sidebar-width: 350px;
+            /* Reduced from 400px for more chart space */
         }
 
         * {
@@ -39,7 +40,8 @@
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
-            height: 100vh;
+            height: 100dvh;
+            /* Dynamic viewport height for mobile */
             overflow: hidden;
             font-family: 'Noto Serif KR', serif;
         }
@@ -130,12 +132,13 @@
         }
 
         .chart-paper {
-            width: min(95vw, 95vh, 800px);
-            height: min(95vw, 95vh, 800px);
+            width: min(96vw, 96vh, 1000px);
+            /* Increased from 800px to 1000px */
+            height: min(96vw, 96vh, 1000px);
             aspect-ratio: 1/1;
             background: #F9F7F1;
             box-shadow:
-                0 30px 80px rgba(0, 0, 0, 0.18),
+                0 30px 100px rgba(0, 0, 0, 0.22),
                 0 0 0 1px rgba(0, 0, 0, 0.05);
             border-radius: 4px;
             position: relative;
@@ -144,6 +147,7 @@
             justify-content: center;
             z-index: 10;
             margin: auto;
+            transition: width 0.3s ease, height 0.3s ease;
         }
 
         .chart-svg {
@@ -292,14 +296,15 @@
 
             .dashboard-container {
                 flex-direction: column;
-                /* Changed from column-reverse to standard flow */
                 height: auto;
             }
 
             .main-display {
-                min-height: 80vw;
-                padding: 40px 10px;
+                min-height: 100vw;
+                /* Ensure visibility on mobile */
+                padding: 20px 5px;
                 flex: none;
+                order: 1;
             }
 
             .sidebar {
@@ -307,13 +312,20 @@
                 height: auto;
                 border-right: none;
                 border-top: 2px solid #1a1a1a;
+                order: 2;
             }
 
             .instrument-rack {
                 position: fixed;
-                right: 10px;
-                top: 20%;
-                transform: none;
+                right: 8px;
+                top: 50%;
+                z-index: 200;
+                transform: translateY(-50%);
+            }
+
+            .chart-paper {
+                width: 98vw;
+                height: 98vw;
             }
         }
     </style>
