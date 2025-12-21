@@ -239,7 +239,9 @@
 </div>
 
 <script>
-    if (typeof drawChartFromHtmx === 'function') drawChartFromHtmx();
+    // Remove direct call to avoid double-render on initial SSR load.
+    // drawChartFromHtmx() is called by DOMContentLoaded in the main template
+    // or triggered by HTMX after swap.
 
     (function () {
         const dataStr = document.getElementById('chartDataContainer').dataset.chartJson;

@@ -93,7 +93,7 @@ class ChartEngine {
     // Advanced Text Helper with dy correction
     text(pos, content, size, color, align = "middle", weight = "normal", family = "'Noto Serif KR', serif", dy = "0em") {
         return `<text x="${pos.x}" y="${pos.y}" dy="${dy}" text-anchor="${align}" dominant-baseline="central" 
-                font-size="${size}" font-weight="${weight}" fill="${color}" style="font-family: family; pointer-events:none;">${content}</text>`;
+                font-size="${size}" font-weight="${weight}" fill="${color}" style="font-family: ${family}; font-variant-numeric: tabular-nums; pointer-events:none;">${content}</text>`;
     }
 
     highlight(planetName) {
