@@ -516,16 +516,30 @@
         }
 
         function drawChartFromHtmx() {
-            const dataEl = document.getElementById('chartDataContainer');
-            if (dataEl && window.chartEngine) {
+            const jsonEl = document.getElementById('chart-data-json');
+            const dataContainer = document.getElementById('chartDataContainer');
+            if (jsonEl && window.chartEngine) {
                 try {
-                    const json = JSON.parse(dataEl.dataset.chartJson);
+                    const json = JSON.parse(jsonEl.textContent);
                     window.chartEngine.render(json);
-                    const birthDate = dataEl.dataset.birthDate;
-                    if (typeof calculateProfessionalInsights === 'function') {
-                        calculateProfessionalInsights(json, birthDate);
+
+                    if (dataContainer) {
+                        const birthDate = dataContainer.dataset.birthDate;
+                        if (typeof calculateProfessionalInsights === 'function') {
+                            calculateProfessionalInsights(json, birthDate);
+                        }
                     }
-                } catch (e) { console.error("Insight Error:", e); }
+                } catch (e) {
+                    console.error("Chart Render Error:", e);
+                }
+            } else {
+                // If not found, wait a bit and retry once
+                setTimeout(() => {
+                    const secondAttempt = document.getElementById('chart-data-json');
+                    if (secondAttempt && window.chartEngine && !window.chartEngine.data) {
+                        drawChartFromHtmx();
+                    }
+                }, 500);
             }
         }
 

@@ -55,6 +55,7 @@ const CHART_CONFIG = {
 
 class ChartEngine {
     constructor(svgId) {
+        this.svgId = svgId;
         this.svg = document.getElementById(svgId);
         this.mode = 'symbol';
         this.activePlanet = null;
@@ -105,6 +106,14 @@ class ChartEngine {
     render(data) {
         if (!data) return;
         this.data = data;
+
+        // Ensure SVG is available (retry if it wasn't there at construction)
+        if (!this.svg) this.svg = document.getElementById(this.svgId);
+        if (!this.svg) {
+            console.error("SVG Element not found: " + this.svgId);
+            return;
+        }
+
         this.clear();
 
         const asc = data.ascendant.position;

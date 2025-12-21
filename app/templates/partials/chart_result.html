@@ -1,5 +1,7 @@
-<div id="chartDataContainer" data-chart-json="{{ chart_data | tojson | forceescape }}"
-    data-birth-date="{{ chart_data.birth_date }}" style="display:none;"></div>
+<script id="chart-data-json" type="application/json">
+    {{ chart_data | tojson | safe }}
+</script>
+<div id="chartDataContainer" data-birth-date="{{ chart_data.birth_date }}" style="display:none;"></div>
 
 <style>
     .report-wrap {
