@@ -11,7 +11,7 @@ from app.routers import pages, htmx, api
 db_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Natal Chart Service",
+    title="Ephe",
     description="Advanced Astrology Calculation Service with HTMX Dashboard",
     version="2.0.0"
 )

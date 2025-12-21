@@ -1,4 +1,4 @@
-# Natal Chart Analyzer
+# Ephe
 
 헬레니즘 점성술 기반의 네이탈 차트 분석 서비스
 
@@ -20,7 +20,7 @@
 
 ## 📁 구조
 
-```
+```text
 app/
 ├── services/     # 천문 계산 로직 (Swiss Ephemeris)
 ├── routers/      # HTMX 부분 렌더링 / 전체 페이지 분리

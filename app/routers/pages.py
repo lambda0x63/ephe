@@ -11,8 +11,8 @@ router = APIRouter(tags=["Pages"])
 async def read_root(request: Request):
     """랜딩 페이지"""
     seo_data = {
-        "title": "Cosmic Natal Chart | Free Astrology Analysis",
-        "description": "Discover your destiny with our free natal chart calculator."
+        "title": "Ephe - Natal Archive",
+        "description": "Discover your destiny with Ephe - your classical astrology companion."
     }
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -54,7 +54,7 @@ async def dashboard(
             print(f"SSR Error: {e}")
             
     seo_data = {
-        "title": f"Natal Chart - {name}" if name else "My Natal Chart",
+        "title": f"Ephe - {name}" if name else "Ephe - Natal Archive",
         "description": "Detailed astrology analysis dashboard."
     }
 
