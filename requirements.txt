@@ -1,0 +1,21 @@
+# API Server
+fastapi
+uvicorn[standard]
+
+# Astrology Calculation
+pyswisseph
+
+# Geocoding & Timezone
+geopy
+timezonefinder
+pytz
+
+# Data Validation
+pydantic
+
+# Database
+sqlalchemy
+psycopg2-binary
+jinja2
+python-multipart
+itsdangerous

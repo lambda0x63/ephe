@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ephe - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #E8E4DD;
+            --bg-paper: #F9F7F1;
+            --line-border: #1a1a1a;
+            --accent: #9A2121;
+            --text-main: #2D2D2D;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: var(--bg-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif KR', serif;
+            /* Subtle grid pattern */
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .login-container {
+            background: var(--bg-paper);
+            padding: 50px 45px;
+            border: 2px solid var(--line-border);
+            box-shadow: 
+                8px 8px 0px rgba(0, 0, 0, 0.1),
+                0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+        }
+        
+        /* Corner marks like technical drawing */
+        .login-container::before,
+        .login-container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--line-border);
+        }
+        .login-container::before {
+            top: -8px;
+            left: -8px;
+            border-right: none;
+            border-bottom: none;
+        }
+        .login-container::after {
+            bottom: -8px;
+            right: -8px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--text-main);
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: 6px;
+        }
+        
+        .tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            font-weight: 900;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            border: 2px solid #ddd;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--line-border);
+        }
+        
+        .error {
+            background: #fee;
+            color: var(--accent);
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+            background: var(--line-border);
+            border: 2px solid var(--line-border);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        
+        .footer {
+            margin-top: 35px;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            color: #aaa;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .symbol {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="symbol">☉</div>
+        <div class="logo">EPHE</div>
+        <div class="tagline">Hellenistic Astrology Engine</div>
+        
+        {% if error %}
+        <div class="error">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+        {% endif %}
+        
+        <form action="/ephe/login" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Enter</button>
+        </form>
+        
+        <div class="footer">
+            Private Workspace
+        </div>
+    </div>
+</body>
+</html>

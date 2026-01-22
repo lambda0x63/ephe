@@ -1,0 +1,59 @@
+<style>
+    .error-wrap {
+        padding: 40px 20px;
+        text-align: center;
+    }
+    .error-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.6;
+    }
+    .error-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #D93025;
+        margin-bottom: 8px;
+    }
+    .error-message {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    .error-code {
+        font-size: 11px;
+        font-family: 'Inter', monospace;
+        color: #999;
+        background: #f5f5f5;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .error-retry-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: none;
+        border: 1px solid #1a1a1a;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .error-retry-btn:hover {
+        background: #1a1a1a;
+        color: #fff;
+    }
+</style>
+
+<div class="error-wrap">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title">오류가 발생했습니다</div>
+    <div class="error-message">{{ error_message }}</div>
+    <div class="error-code">{{ error_code }}</div>
+    <br>
+    <button class="error-retry-btn" 
+        _="on click remove .active from .tab-btn then add .active to #tab-config
+           remove .active from .tab-section then add .active to #section-config">
+        다시 시도하기
+    </button>
+</div>

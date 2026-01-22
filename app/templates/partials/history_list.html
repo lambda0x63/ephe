@@ -1,0 +1,70 @@
+<style>
+    .archive-list {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .archive-item {
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .archive-item:hover {
+        background: #f9f9f9;
+        transform: translateX(4px);
+    }
+
+    .archive-item td {
+        padding: 15px 10px;
+        vertical-align: middle;
+    }
+
+    .archive-name {
+        font-size: 16px;
+        font-weight: 800;
+        color: #000;
+        display: block;
+    }
+
+    .archive-meta {
+        font-size: 13px;
+        color: #666;
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .del-btn {
+        background: #fff;
+        border: 1px solid #ddd;
+        color: #999;
+        cursor: pointer;
+        font-size: 10px;
+        padding: 4px 8px;
+        border-radius: 2px;
+        transition: all 0.2s;
+    }
+
+    .del-btn:hover {
+        background: #ff0000;
+        border-color: #ff0000;
+        color: #fff;
+    }
+</style>
+
+<table class="archive-list">
+    {% for record in history_list %}
+    <tr class="archive-item" hx-get="/ephe/partials/load/{{ record.id }}" hx-target="#data-content" hx-swap="innerHTML">
+        <td>
+            <span class="archive-name">{{ record.name }}</span>
+            <span class="archive-meta">{{ record.birth_date }} | {{ record.place_name[:20] }}...</span>
+        </td>
+        <td style="width:40px; text-align:right;">
+            <button class="del-btn" hx-delete="/ephe/partials/delete/{{ record.id }}" hx-target="#history-list"
+                hx-swap="innerHTML" hx-confirm="이 기록을 삭제하시겠습니까?" onclick="event.stopPropagation()">삭제</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

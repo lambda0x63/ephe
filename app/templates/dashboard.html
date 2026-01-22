@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ephe - Professional Analyzer [White Tone]</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+    <script src="/ephe/static/js/chart_engine.js"></script>
+
+    <style>
+        :root {
+            --bg-canvas: #ffffff;
+            --bg-sidebar: #ffffff;
+            --border: #333333;
+            --accent: #0000ff;
+            --sidebar-width: 360px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-canvas);
+            font-family: 'Inter', sans-serif;
+            color: #000;
+        }
+
+        /* ========== LAYOUT ========== */
+        .workspace {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            height: 100vh;
+            transition: grid-template-columns 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* Collapsed State */
+        .workspace.side-collapsed {
+            grid-template-columns: 40px 1fr;
+        }
+
+        /* ========== CENTER: CHART ========== */
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .chart-svg {
+            height: 95vh;
+            width: auto;
+            max-width: 100%;
+            aspect-ratio: 1/1;
+            background: #fff;
+        }
+
+        /* ========== LEFT: SIDEBAR ========== */
+        .sidebar {
+            background: var(--bg-sidebar);
+            border-right: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            background: var(--border);
+            color: white;
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+            transform: rotate(0deg);
+            /* 기본 상태: 좌측 사이드바에서는 닫힘 방향(왼쪽) */
+        }
+
+        .side-collapsed .toggle-btn {
+            transform: rotate(180deg);
+            /* 닫혔을 때는 여는 방향(오른쪽)으로 회전 */
+        }
+
+        .side-collapsed .header-text,
+        .side-collapsed .scrollbox {
+            visibility: hidden;
+            /* 영역은 차지하되 보이지 않게 하여 버튼 가독성 확보 */
+            pointer-events: none;
+            width: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .side-collapsed .sidebar-header {
+            padding: 14px 0;
+            justify-content: center;
+        }
+
+        .scrollbox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            scroll-behavior: smooth;
+        }
+
+        /* ========== SIDEBAR TABS ========== */
+        .sidebar-nav {
+            display: flex;
+            background: #f8f8f8;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 14px 0;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 900;
+            color: #999;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-tab.active {
+            color: #000;
+            background: #fff;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .win-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 900;
+            color: #000;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* FORM & INPUTS */
+        .win-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            font-family: 'JetBrains Mono';
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .win-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .win-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--border);
+            color: white;
+            border: none;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+
+        .win-btn:hover {
+            background: var(--accent);
+        }
+
+        /* OPTION TABS (PREMIUM SEGMENTED STYLE) */
+        .option-box {
+            margin-bottom: 25px;
+        }
+
+        .option-row {
+            display: flex;
+            background: #eee;
+            padding: 4px;
+            gap: 2px;
+            border-radius: 4px;
+        }
+
+        .btn-opt {
+            flex: 1;
+            padding: 12px 6px;
+            font-size: 13px;
+            font-weight: 800;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            color: #777;
+            transition: all 0.2s;
+            border-radius: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-opt.active {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-opt:hover:not(.active) {
+            color: #333;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* DATA DISPLAY (Integration) */
+        #data-content {
+            margin-top: 20px;
+        }
+
+        /* PLACE DROPDOWN */
+        .place-wrapper {
+            position: relative;
+        }
+
+        .place-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--border);
+            z-index: 1000;
+            display: none;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .place-dropdown.show {
+            display: block;
+        }
+
+        .place-item {
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .place-item:hover {
+            background: #f5f5f5;
+            color: var(--accent);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="workspace">
+        <!-- LEFT: UNIFIED TERMINAL SIDEBAR -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <div class="header-text" style="display: flex; align-items: baseline; gap: 8px;">
+                    <span
+                        style="font-size: 20px; letter-spacing: 4px; font-family: 'Inter'; font-weight: 900;">EPHE</span>
+                    <span style="font-size: 10px; opacity: 0.4; font-weight: 400; font-family: 'JetBrains Mono';">System
+                        OS 2.0</span>
+                </div>
+                <button class="toggle-btn"
+                    onclick="document.querySelector('.workspace').classList.toggle('side-collapsed')">
+                    ⇥
+                </button>
+            </header>
+
+            <nav class="sidebar-nav">
+                <button class="nav-tab active" onclick="window.switchSidebarTab(0)">데이터</button>
+                <button class="nav-tab" onclick="window.switchSidebarTab(1)">분석</button>
+                <button class="nav-tab" onclick="window.switchSidebarTab(2)">보관</button>
+            </nav>
+
+            <div class="scrollbox">
+                <!-- 1. DATA INPUT PANE -->
+                <div id="pane-data" class="tab-pane active">
+                    <span class="win-label">분석 파라미터</span>
+                    <form id="chartForm" hx-post="/ephe/partials/analyze" hx-target="#data-content" hx-swap="innerHTML"
+                        _="on submit if not window.validateForm() then halt end on htmx:afterOnLoad window.switchSidebarTab(1)">
+
+                        <input type="text" name="name" class="win-input" required placeholder="대상 이름">
+
+                        <div class="place-wrapper">
+                            <input type="text" name="place_name" id="placeInput" class="win-input" required
+                                placeholder="출생 도시 검색" autocomplete="off"
+                                _="on input debounced at 300ms call window.fetchPlaces(me.value)">
+                            <div id="placeDropdown" class="place-dropdown"></div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                            <input type="text" name="birth_date" class="win-input" maxlength="10"
+                                placeholder="YYYY-MM-DD">
+                            <input type="text" name="birth_time" class="win-input" maxlength="5" placeholder="HH:MM">
+                        </div>
+                        <button type="submit" class="win-btn">천궁도 생성 (Generate)</button>
+                    </form>
+                </div>
+
+                <!-- 2. ANALYSIS PANE -->
+                <div id="pane-report" class="tab-pane">
+                    <div class="option-box">
+                        <span class="win-label">하우스 분할 시스템</span>
+                        <div class="option-row">
+                            <button id="btn-wsh" class="btn-opt active" onclick="window.setHouseSystem('WSH')">홀사인
+                                (WSH)</button>
+                            <button id="btn-por" class="btn-opt"
+                                onclick="window.setHouseSystem('Porphyry')">포피리</button>
+                        </div>
+                    </div>
+                    <div class="option-box">
+                        <span class="win-label">레이어 표시</span>
+                        <div class="option-row">
+                            <button id="btn-terms" class="btn-opt" onclick="window.toggleLayer('showTerms')">텀
+                                (Terms)</button>
+                            <button id="btn-decans" class="btn-opt" onclick="window.toggleLayer('showDecans')">데칸
+                                (Decans)</button>
+                        </div>
+                    </div>
+
+                    <div id="data-content" style="margin-top:20px;">
+                        {% if chart_data %}
+                        {% include "partials/chart_result.html" %}
+                        {% else %}
+                        <div
+                            style="text-align:center; padding:60px 20px; color:#aaa; font-size:14px; border:2px dashed #ddd;">
+                            데이터를 입력하면<br>분석 리포트가 생성됩니다.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 3. ARCHIVE PANE -->
+                <div id="pane-archive" class="tab-pane">
+                    <span class="win-label">차트 기록 보관소</span>
+                    <div id="history-list" hx-get="/ephe/partials/history" hx-trigger="historyUpdated from:body">
+                        {% include "partials/history_list.html" %}
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT: CHART AREA -->
+        <main class="chart-container">
+            <svg id="natal-chart" viewBox="0 0 1000 1000" class="chart-svg"></svg>
+        </main>
+    </div>
+
+    <script>
+        window.chartEngine = new ChartEngine('natal-chart');
+
+        window.switchSidebarTab = function (idx) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const panes = document.querySelectorAll('.tab-pane');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+            panes.forEach((p, i) => p.classList.toggle('active', i === idx));
+        };
+
+        let currentState = {
+            houseSystem: 'WSH',
+            showTerms: false,
+            showDecans: false
+        };
+
+        window.setHouseSystem = function (sys) {
+            currentState.houseSystem = sys;
+            window.chartEngine.setHouseSystem(sys);
+            document.querySelectorAll('#btn-wsh, #btn-por').forEach(b => b.classList.remove('active'));
+            document.getElementById(sys === 'WSH' ? 'btn-wsh' : 'btn-por').classList.add('active');
+
+            // Sync data panel
+            document.querySelectorAll('.h-num-cell').forEach(cell => {
+                cell.innerText = cell.getAttribute('data-' + sys.toLowerCase());
+            });
+        };
+
+        window.toggleLayer = function (key) {
+            currentState[key] = !currentState[key];
+            window.chartEngine.setOption(key, currentState[key]);
+            const btnId = (key === 'showTerms') ? 'btn-terms' : 'btn-decans';
+            document.getElementById(btnId).classList.toggle('active', currentState[key]);
+        };
+
+        window.fetchPlaces = async function (query) {
+            const dropdown = document.getElementById('placeDropdown');
+            if (query.length < 2) { dropdown.classList.remove('show'); return; }
+            const res = await fetch(`/ephe/api/v1/search-place?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            const places = data.results || [];
+            if (places.length > 0) {
+                dropdown.innerHTML = places.map(p => `<div class="place-item" onclick="window.selectPlace('${p.display_name.replace(/'/g, "\\'")}')">${p.display_name}</div>`).join('');
+                dropdown.classList.add('show');
+            } else { dropdown.classList.remove('show'); }
+        };
+
+        window.selectPlace = function (name) {
+            document.getElementById('placeInput').value = name;
+            window.lastSelectedPlace = name;
+            document.getElementById('placeDropdown').classList.remove('show');
+        };
+
+        window.validateForm = function () { return !!window.lastSelectedPlace; };
+
+        function drawChart() {
+            const el = document.getElementById('chart-data-json');
+            if (el && window.chartEngine) {
+                const data = JSON.parse(el.textContent);
+                window.chartEngine.render(data);
+                window.chartEngine.setHouseSystem(currentState.houseSystem);
+                window.chartEngine.setOption('showTerms', currentState.showTerms);
+                window.chartEngine.setOption('showDecans', currentState.showDecans);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", drawChart);
+        document.body.addEventListener('htmx:afterSwap', (e) => {
+            if (e.detail.target.id === 'data-content') drawChart();
+        });
+    </script>
+</body>
+
+</html>

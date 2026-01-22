@@ -1,0 +1,197 @@
+<script id="chart-data-json" type="application/json">{{ chart_data | tojson | safe }}</script>
+
+<style>
+    .report-sheet {
+        font-family: 'Inter', sans-serif;
+        color: #000;
+        margin-top: 30px;
+    }
+
+    .report-section {
+        margin-bottom: 40px;
+    }
+
+    .report-title {
+        font-size: 16px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 3px solid #000;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .report-table th {
+        text-align: left;
+        font-size: 12px;
+        font-weight: 800;
+        color: #666;
+        padding: 10px 5px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .report-table td {
+        padding: 12px 5px;
+        font-size: 15px;
+        font-weight: 700;
+        border-bottom: 1px solid #eee;
+    }
+
+    .symbol-glyph {
+        font-size: 22px;
+        color: #0000ff;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    .pos-data {
+        color: #0000ff;
+        font-weight: 900;
+    }
+
+    .tag-sect {
+        font-size: 11px;
+        background: #000;
+        color: #fff;
+        padding: 2px 6px;
+        letter-spacing: 0.5px;
+    }
+
+    .relation-badge {
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="report-sheet">
+    <!-- 1. 핵심 행성 데이터 -->
+    <div class="report-section">
+        <div class="report-title">
+            <span>네이탈 행성 상태</span>
+            <span class="tag-sect">{{ '낮 섹트' if chart_data.meta.is_day else '밤 섹트' }}</span>
+        </div>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>행성</th>
+                    <th>상세 위치</th>
+                    <th style="text-align:center;">H</th>
+                    <th style="text-align:right;">상태</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in chart_data.planets %}
+                <tr>
+                    <td><span class="symbol-glyph">{{ p.symbol }}</span></td>
+                    <td class="pos-data">
+                        {{ p.degree_f }}{{ ' Rx' if p.retrograde else '' }}
+                    </td>
+                    <td class="h-num-cell" style="text-align:center;" data-wsh="{{ p.wsh }}"
+                        data-porphyry="{{ p.porphyry }}">
+                        {{ p.wsh }}
+                    </td>
+                    <td style="text-align:right; font-size:12px;">
+                        {% if p.dignity != "None" %}{{ p.dignity[:4] }}{% else %}-{% endif %}
+                        {{ " ✓" if p.in_sect else "" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 2. 태양과의 관계 -->
+    <div class="report-section">
+        <div class="report-title">태양과의 관계</div>
+        <table class="report-table">
+            <tbody>
+                {% for p in chart_data.planets if p.name != "Sun" %}
+                <tr>
+                    <td style="width:40px;"><span class="symbol-glyph" style="font-size:18px;">{{ p.symbol }}</span>
+                    </td>
+                    <td>{{ p.name }}</td>
+                    <td style="text-align:right;">
+                        {% if p.sun_relation == 'Cazimi' %}
+                        <span class="relation-badge" style="color:#0000ff;">{{ p.sun_relation }}</span>
+                        {% elif p.sun_relation in ['Combust', 'Under Sunbeams'] %}
+                        <span class="relation-badge" style="color:#ff0000;">{{ p.sun_relation }}</span>
+                        {% else %}
+                        <span class="relation-badge" style="color:#000;">{{ p.sun_relation }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. 주요 기점 및 랏 -->
+    <div class="report-section" style="margin-bottom:60px;">
+        <div class="report-title">앵글 및 아라빅 랏</div>
+        <table class="report-table">
+            <tbody>
+                <tr>
+                    <td><span class="symbol-glyph">ASC</span></td>
+                    <td class="pos-data">{{ chart_data.angles.asc.degree_f }}</td>
+                    <td style="text-align:right; color:#666;">1H</td>
+                </tr>
+                <tr>
+                    <td><span class="symbol-glyph">DSC</span></td>
+                    <td class="pos-data">{{ chart_data.angles.dsc.degree_f }}</td>
+                    <td style="text-align:right; color:#666;">7H</td>
+                </tr>
+                <tr>
+                    <td><span class="symbol-glyph">MC</span></td>
+                    <td class="pos-data">{{ chart_data.angles.mc.degree_f }}</td>
+                    <td class="h-num-cell" style="text-align:right; color:#666;"
+                        data-wsh="{{ chart_data.angles.mc.wsh }}" data-porphyry="{{ chart_data.angles.mc.porphyry }}">
+                        {{ chart_data.angles.mc.wsh }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="symbol-glyph">IC</span></td>
+                    <td class="pos-data">{{ chart_data.angles.ic.degree_f }}</td>
+                    <td class="h-num-cell" style="text-align:right; color:#666;"
+                        data-wsh="{{ chart_data.angles.ic.wsh }}" data-porphyry="{{ chart_data.angles.ic.porphyry }}">
+                        {{ chart_data.angles.ic.wsh }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="symbol-glyph">⊗</span> 포르투나</td>
+                    <td class="pos-data">{{ chart_data.lots.Fortuna.degree_f }}</td>
+                    <td class="h-num-cell" style="text-align:right; color:#666;"
+                        data-wsh="{{ chart_data.lots.Fortuna.wsh }}"
+                        data-porphyry="{{ chart_data.lots.Fortuna.porphyry }}">
+                        {{ chart_data.lots.Fortuna.wsh }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="symbol-glyph">⊕</span> 스피릿</td>
+                    <td class="pos-data">{{ chart_data.lots.Spirit.degree_f }}</td>
+                    <td class="h-num-cell" style="text-align:right; color:#666;"
+                        data-wsh="{{ chart_data.lots.Spirit.wsh }}"
+                        data-porphyry="{{ chart_data.lots.Spirit.porphyry }}">
+                        {{ chart_data.lots.Spirit.wsh }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="padding-bottom:100px;">
+        <button class="win-btn" style="background:#000;" hx-post="/ephe/partials/save" hx-include="#chartForm"
+            hx-target="#history-list" hx-swap="innerHTML">
+            현재 데이터 저장하기
+        </button>
+    </div>
+</div>
